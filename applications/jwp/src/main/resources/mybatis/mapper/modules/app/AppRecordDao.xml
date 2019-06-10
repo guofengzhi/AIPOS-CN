@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.modules.app.dao.AppRecordDao">
+
+	<sql id="UserJoins">
+		LEFT JOIN sys_user u ON t.create_by=u.id
+		LEFT JOIN
+		t_app_info p ON p.app_package = t.app_package
+		LEFT JOIN sys_dict sdi ON
+		sdi.value = t.upgrade_desc AND sdi.type = 'app_upflag'
+	</sql>
+
+	<select id="findList" resultType="com.jiewen.modules.app.entity.AppRecord">
+		SELECT a.* FROM (
+		SELECT
+		t.id,
+		t.apk_id,
+		t.app_name,
+		p.app_logo,
+		t.app_package,
+		t.app_version,
+		(SELECT COUNT(1) FROM t_app_device WHERE
+		app_record_id = t.id ) AS
+		deviceCount,
+		u.name AS createPerson,
+		t.create_date,
+		t.upgrade_type,
+		t.organ_id,
+		sdi.label AS upgrade_desc
+		FROM
+		`t_app_record` t
+		<include refid="UserJoins" />
+		WHERE 1 = 1
+		) a
+		WHERE 1=1
+		AND a.organ_id IN (SELECT id FROM sys_office WHERE parent_ids LIKE
+		<if test="dbName == 'oracle'">'%,'||#{organId}||',%'</if>
+		<if test="dbName == 'mssql'">'%,'+#{organId}+',%'</if>
+		<if test="dbName == 'mysql'">CONCAT('%,', #{organId}, ',%')</if>
+		AND del_flag = '0'
+		UNION select id from sys_office where id = #{organId}
+		AND del_flag = '0')
+		<if test="appName != null and appName != ''">
+			AND a.app_name like
+			<if test="dbName == 'oracle'">'%'||#{appName}||'%'</if>
+			<if test="dbName == 'mssql'">'%'+#{appName}+'%'</if>
+			<if test="dbName == 'mysql'">CONCAT('%', #{appName}, '%')</if>
+		</if>
+		<if test="appVersion != null and appVersion != ''">
+			AND a.app_version like
+			<if test="dbName == 'oracle'">'%'||#{appVersion}||'%'</if>
+			<if test="dbName == 'mssql'">'%'+#{appVersion}+'%'</if>
+			<if test="dbName == 'mysql'">CONCAT('%', #{appVersion}, '%')</if>
+		</if>
+		<if test="beginDateStr != null and beginDateStr != ''">
+			AND a.create_date &gt;= #{beginDateStr}
+		</if>
+		<if test="endDateStr != null and endDateStr != ''">
+			AND a.create_date &lt;= #{endDateStr}
+		</if>
+		ORDER BY a.create_date DESC
+	</select>
+
+	<insert id="insert" parameterType="com.jiewen.modules.app.entity.AppRecord"
+		useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO `t_app_record`
+		(
+		apk_id,
+		app_name,
+		app_package,
+		app_version,
+		remarks,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		organ_id,
+		upgrade_type,
+		upgrade_desc
+		)
+		VALUES (
+		#{apkId},
+		#{appName},
+		#{appPackage},
+		#{appVersion},
+		#{remarks},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{organId},
+		#{upgradeType},
+		#{upgradeDesc}
+		)
+	</insert>
+
+	<delete id="deleteAppRecordByApkId" parameterType="String">
+		delete from
+		t_app_record where apk_id = #{apkId}
+	</delete>
+
+
+</mapper>

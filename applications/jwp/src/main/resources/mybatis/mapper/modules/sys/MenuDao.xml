@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.modules.sys.dao.MenuDao">
+
+	<sql id="menuColumns">
+		a.id,
+		a.parent_id,
+		a.parent_ids,
+		a.name,
+		a.code,
+		a.url,
+		a.icon,
+		a.functype,
+		a.level_code,
+		a.is_show,
+		a.permission,
+		a.remarks,
+		a.create_by
+		AS "createBy.id",
+		a.create_date,
+		a.update_by AS "updateBy.id",
+		a.update_date,
+		a.del_flag,
+		a.lang,
+		p.name AS "parent_name"
+	</sql>
+
+	<sql id="menuJoins">
+		LEFT JOIN sys_menu p ON p.id = a.parent_id
+	</sql>
+	<!-- 查询表中下一个ID -->
+	<select id="selectMenuId" resultType="com.jiewen.modules.sys.entity.Menu">
+		 	 select IF(max(id) IS NULL,1,max(id)+1) AS id from (  SELECT CAST( id  AS SIGNED)  AS id  FROM  sys_menu ) a
+	</select>
+	<select id="get" resultType="com.jiewen.modules.sys.entity.Menu">
+		SELECT
+		<include refid="menuColumns" />
+		FROM sys_menu a
+		<include refid="menuJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findAllList" resultType="com.jiewen.modules.sys.entity.Menu">
+		SELECT
+		<include refid="menuColumns" />
+		FROM sys_menu a
+		<include refid="menuJoins" />
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
+        <if test="lang != null and lang != ''">
+            AND a.lang = #{lang}
+        </if>
+		ORDER BY a.level_code
+	</select>
+
+	<select id="findByParentIdsLike" resultType="com.jiewen.modules.sys.entity.Menu">
+		SELECT
+		a.id,
+		a.parent_id as "parent.id",
+		a.parent_ids
+		FROM sys_menu a
+		WHERE a.del_flag =
+		#{DEL_FLAG_NORMAL} AND a.parent_ids
+		LIKE #{parentIds}
+		ORDER BY
+		a.level_code
+	</select>
+	<select id="findMenuCode" resultType="com.jiewen.modules.sys.entity.Menu">
+		SELECT DISTINCT
+	     *
+		FROM sys_menu a
+		where a.code=#{code}
+	</select>
+	<select id="findByUserId" resultType="com.jiewen.modules.sys.entity.Menu">
+		SELECT DISTINCT
+		<include refid="menuColumns" />
+		FROM sys_menu a
+		LEFT JOIN sys_menu p ON p.id = a.parent_id
+		JOIN
+		sys_role_menu rm ON rm.menu_id = a.id
+		JOIN sys_role r ON r.id =
+		rm.role_id AND r.useable='1'
+		JOIN sys_user_role ur ON ur.role_id = r.id
+		JOIN sys_user u ON u.id = ur.user_id AND u.id = #{userId}
+		WHERE
+		a.is_show = #{IS_SHOW_ENABLE} AND a.del_flag = #{DEL_FLAG_NORMAL} AND
+		r.del_flag = #{DEL_FLAG_NORMAL} AND u.del_flag = #{DEL_FLAG_NORMAL}
+		ORDER BY a.level_code
+	</select>
+
+	<insert id="insert">
+	<!-- 	INSERT INTO sys_menu(
+		id,
+		parent_id,
+		parent_ids,
+		code,
+		name,
+		url,
+		level_code,
+		icon,
+		functype,
+		is_show,
+		permission,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		lang,
+		del_flag
+		) VALUES (
+		#{id},
+		#{parent.id},
+		#{parentIds},
+		#{code},
+		#{name},
+		#{url},
+		#{levelCode},
+		#{icon},
+		#{functype},
+		#{isShow},
+		#{permission},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{lang},
+		#{delFlag}
+		)
+		-->
+		INSERT INTO sys_menu(
+		<trim suffixOverrides=",">
+			<if test="id !=null and id != ''">
+			id,
+			</if>
+			<if test="parent.id !=null and parent.id != ''">
+			parent_id,
+			</if>
+			<if test="parentIds !=null and parentIds != ''">
+			parent_ids,
+			</if>
+			<if test="code !=null and code != ''">
+			code,
+			</if>
+			<if test="name !=null and name != ''">
+			name,
+			</if>
+			<if test="url !=null and url != ''">
+			url,
+			</if>
+			<if test="levelCode !=null and levelCode != ''">
+			level_code,
+			</if>
+			<if test="icon !=null and icon != ''">
+			icon,
+			</if>
+			<if test="functype !=null and functype != ''">
+			functype,
+			</if>
+			<if test="isShow !=null and isShow != ''">
+			is_show,
+			</if>
+			<if test="permission !=null and permission != ''">
+			permission,
+			</if>
+			<if test="createBy.id !=null and createBy.id != ''">
+			create_by,
+			</if>
+			<if test="createDate !=null">
+			create_date,
+			</if>
+			<if test="updateBy.id !=null and updateBy.id != ''">
+			update_by,
+			</if>
+			<if test="updateDate !=null">
+			update_date,
+			</if>
+			<if test="remarks !=null and remarks != ''">
+				remarks,
+			</if>
+				lang,
+			<if test="delFlag !=null and delFlag != ''">
+			del_flag,
+			</if>
+		</trim>
+		
+		) VALUES (
+		<trim suffixOverrides=",">
+			<if test="id !=null and id != ''">
+			#{id},
+			</if>
+			<if test="parent.id !=null and parent.id != ''">
+			#{parent.id},
+			</if>
+			<if test="parentIds !=null and parentIds != ''">
+			#{parentIds},
+			</if>
+			<if test="code !=null and code != ''">
+			#{code},
+			</if>
+			<if test="name !=null and name != ''">
+			#{name},
+			</if>
+			<if test="url !=null and url != ''">
+			#{url},
+			</if>
+			<if test="levelCode !=null and levelCode != ''">
+			#{levelCode},
+			</if>
+			<if test="icon !=null and icon != ''">
+			#{icon},
+			</if>
+			<if test="functype !=null and functype != ''">
+			#{functype},
+			</if>
+			<if test="isShow !=null and isShow != ''">
+			#{isShow},
+			</if>
+			<if test="permission !=null and permission != ''">
+			#{permission},
+			</if>
+			<if test="createBy.id !=null and createBy.id != ''">
+			#{createBy.id},
+			</if>
+			<if test="createDate !=null">
+			#{createDate},
+			</if>
+			<if test="updateBy.id !=null and updateBy.id != ''">
+			#{updateBy.id},
+			</if>
+			<if test="updateDate !=null">
+			#{updateDate},
+			</if>
+			<if test="remarks !=null and remarks != ''">
+			#{remarks},
+			</if>
+			<if test="lang !=null and lang != ''">
+			#{lang},
+			</if>
+			<if test="lang ==null or lang  == ''">
+			'zh_cn',
+			</if>
+			<if test="delFlag !=null and delFlag != ''">
+			#{delFlag},
+			</if>
+		</trim>
+		)
+	</insert>
+
+	<update id="update">
+	<!--  	UPDATE sys_menu SET
+		parent_id = #{parent.id},
+		parent_ids = #{parentIds},
+		name = #{name},
+		url = #{url},
+		icon = #{icon},
+		code =#{code},
+		<if test="isShow != null">
+			is_show = #{isShow},
+		</if>
+		<if test="levelCode != null">
+			level_code = #{levelCode},
+		</if>
+		permission = #{permission},
+		update_by = #{updateBy.id},
+		update_date = #{updateDate},
+		remarks = #{remarks}
+		WHERE id = #{id}
+		-->
+	UPDATE sys_menu SET
+		<trim suffixOverrides=",">
+			<if test="parent !=null and parent.id !=null and parent.id != ''">
+			parent_id = #{parent.id},
+			</if>
+			<if test="parentIds !=null and parentIds != ''">
+			parent_ids = #{parentIds},
+			</if>
+			<if test="name !=null and name != ''">
+			name = #{name},
+			</if>
+			<if test="url !=null and url != ''">
+			url = #{url},
+			</if>
+			<if test="icon !=null and icon != ''">
+			icon = #{icon},
+			</if>
+			<if test="code !=null and code != ''">
+			code =#{code},
+			</if>
+			<if test="isShow != null">
+				is_show = #{isShow},
+			</if>
+			<if test="levelCode != null">
+				level_code = #{levelCode},
+			</if>
+			<if test="permission != null and permission != ''">
+				permission = #{permission},
+			</if>
+			<if test="updateBy.id != null and updateBy.id != ''">
+				update_by = #{updateBy.id},
+			</if>
+			<if test="updateDate != null">
+				update_date = #{updateDate},
+			</if>
+			<if test="remarks != null and remarks != ''">
+				remarks = #{remarks},
+			</if>
+		</trim>
+		WHERE id = #{id}
+	</update>
+
+	<update id="updateParentIds">
+	<!--  	UPDATE sys_menu SET
+		parent_id = #{parent.id},
+		parent_ids = #{parentIds}
+		WHERE id = #{id}
+		-->
+		UPDATE sys_menu SET
+		<trim suffixOverrides=",">
+			<if test="parent.id !=null and parent.id != ''">
+				parent_id = #{parent.id},
+			</if>
+			<if test="parentIds !=null and parentIds != ''">
+			parent_ids = #{parentIds},
+			</if>
+		</trim>
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE sys_menu SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id} OR
+		parent_ids LIKE
+		<if test="dbName == 'oracle'">'%,'||#{id}||',%'</if>
+		<if test="dbName == 'mssql'">'%,'+#{id}+',%'</if>
+		<if test="dbName == 'mysql'">CONCAT('%,', #{id}, ',%')</if>
+	</update>
+
+</mapper>

@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.modules.dao.StoreDao">
+	
+	<resultMap type="com.jiewen.modules.entity.Store" id="baseResultMap">
+		<result column="id" property="id" jdbcType="DECIMAL"/>
+		<result column="store_id" property="storeId" jdbcType="VARCHAR"/>
+		<result column="store_name" property="storeName" jdbcType="VARCHAR"/>
+		<result column="org_id" property="orgId" jdbcType="VARCHAR"/>
+		<result column="mer_id" property="merId" jdbcType="VARCHAR"/>
+		<result column="link_man" property="linkMan" jdbcType="VARCHAR"/>
+		<result column="link_phone" property="linkPhone" jdbcType="VARCHAR"/>
+		<result column="address" property="address" jdbcType="VARCHAR"/>
+		<result column="longitude" property="longitude" jdbcType="VARCHAR"/>
+		<result column="latitude" property="latitude" jdbcType="VARCHAR"/>
+		<result column="radius" property="radius" jdbcType="DECIMAL"/>
+		<result column="reverse1" property="reverse1" jdbcType="VARCHAR"/>
+		<result column="reverse2" property="reverse2" jdbcType="VARCHAR"/>
+		<result column="reverse3" property="reverse3" jdbcType="VARCHAR"/>
+		<result column="reverse4" property="reverse4" jdbcType="VARCHAR"/>
+		<result column="reverse5" property="reverse5" jdbcType="VARCHAR"/>
+	</resultMap>
+	
+	<resultMap type="com.jiewen.modules.entity.Store" id="merStoretMap">
+		<result column="id" property="id" jdbcType="DECIMAL"/>
+		<result column="store_id" property="storeId" jdbcType="VARCHAR"/>
+		<result column="store_name" property="storeName" jdbcType="VARCHAR"/>
+		<result column="mer_id" property="merId" jdbcType="VARCHAR"/>
+		<result column="mer_name" property="merName" jdbcType="VARCHAR"/>
+		<result column="org_name" property="orgName" jdbcType="VARCHAR"/>
+		<result column="org_id" property="orgId" jdbcType="VARCHAR"/>
+		<result column="link_man" property="linkMan" jdbcType="VARCHAR"/>
+		<result column="link_phone" property="linkPhone" jdbcType="VARCHAR"/>
+		<result column="address" property="address" jdbcType="VARCHAR"/>
+		<result column="countTerm" property="countTerm" jdbcType="DECIMAL"/>
+		<result column="reverse1" property="reverse1" jdbcType="VARCHAR"/>
+		<result column="reverse2" property="reverse2" jdbcType="VARCHAR"/>
+		<result column="reverse3" property="reverse3" jdbcType="VARCHAR"/>
+		<result column="reverse4" property="reverse4" jdbcType="VARCHAR"/>
+		<result column="reverse5" property="reverse5" jdbcType="VARCHAR"/>
+	</resultMap>
+
+	<sql id="storeColumns">
+		id,
+		store_id,
+		store_name,
+		org_id,
+		mer_id,
+		link_man,
+		link_phone,
+		address,
+		longitude,
+		latitude,
+		radius,
+		reverse1,
+		reverse2,
+		reverse3,
+		reverse4,
+		reverse5
+	</sql>
+	
+	<select id="selectStoreList" parameterType="com.jiewen.modules.entity.Store" resultMap="merStoretMap">
+		SELECT
+			  s.id,
+			  s.store_id,
+			  s.store_name,
+			  m.mer_id,
+			  m.mer_name,
+			  o.id org_id,
+			  o.name org_name,
+			  s.link_man,
+			  s.link_phone,
+			  s.address,
+			  COUNT(di.shop_id) countTerm,
+			  s.reverse1,
+			  s.reverse2,
+			  s.reverse3,
+			  s.reverse4,
+			  s.reverse5
+			FROM
+			  t_store s
+			  LEFT JOIN t_merchant m
+			    ON s.`mer_id` = m.`mer_id`
+			  LEFT JOIN sys_office o
+			    ON s.`org_id` = o.`id`
+			  LEFT JOIN t_device_info di
+			    ON s.store_id = di.shop_id
+			    AND di.device_bund_state = '1'
+			WHERE 1=1
+			 <if test="orgId != null and orgId != ''">
+					and s.`org_id` IN (SELECT id FROM sys_office WHERE parent_ids LIKE
+					<if test="dbName == 'oracle'">'%,'||#{orgId}||',%'</if>
+					<if test="dbName == 'mssql'">'%,'+#{orgId}+',%'</if>
+					<if test="dbName == 'mysql'">CONCAT('%,', #{orgId}, ',%')</if>
+					AND del_flag = '0'
+					    UNION select id from sys_office where id = #{orgId}
+				    AND del_flag = '0')
+				</if>
+			 <if test="merId != null and merId != ''">
+			 	 AND s.`mer_id` = #{merId,jdbcType=VARCHAR}
+			 </if>
+			 <if test="storeId != null and storeId != ''">
+			 	 AND s.`store_id` = #{storeId,jdbcType=VARCHAR}
+			 </if> 
+			GROUP BY s.`store_id`
+			ORDER BY s.`store_id`
+	</select>
+	
+	<select id="getAllStore" parameterType="com.jiewen.modules.entity.Store" resultMap="baseResultMap">
+		select 
+			s.id,
+			s.store_id,
+			s.store_name,
+			s.org_id,
+			m.mer_id,
+			m.mer_name,
+			s.link_man,
+			s.link_phone,
+			s.address,
+			s.radius,
+			s.reverse1,
+			s.reverse2,
+			s.reverse3,
+			s.reverse4,
+			s.reverse5
+			from t_store s join t_merchant m 
+			on s.mer_id = m.mer_id
+			<!-- join sys_office so on so.id = m.org_id -->
+			where 1=1
+		<if test="merId != null and merId != ''">
+			and m.mer_id=#{merId,jdbcType=VARCHAR}
+		</if>
+		<!-- <if test="orgId != null and orgId != ''">
+			and m.org_id=#{orgId,jdbcType=VARCHAR}
+		</if> -->
+		<if test="storeId != null and storeId != ''">
+			and s.store_id=#{storeId,jdbcType=VARCHAR}
+		</if>
+		order by s.store_id
+	</select>
+	
+	<insert id="insert" parameterType="com.jiewen.modules.entity.Store">
+		insert into t_store(
+		store_id,
+		store_name,
+		org_id,
+		mer_id,
+		link_man,
+		link_phone,
+		address,
+		longitude,
+		latitude,
+		radius,
+		reverse1,
+		reverse2,
+		reverse3,
+		reverse4,
+		reverse5) values(
+		#{storeId,jdbcType=VARCHAR}
+		,#{storeName,jdbcType=VARCHAR}
+		,#{orgId,jdbcType=VARCHAR}
+		,#{merId,jdbcType=VARCHAR},#{linkMan,jdbcType=VARCHAR},#{linkPhone,jdbcType=VARCHAR}
+		,#{address,jdbcType=VARCHAR},#{longitude,jdbcType=VARCHAR},#{latitude,jdbcType=VARCHAR}
+		,#{radius,jdbcType=DECIMAL}
+		,#{reverse1,jdbcType=VARCHAR},#{reverse2,jdbcType=VARCHAR}
+		,#{reverse3,jdbcType=VARCHAR},#{reverse4,jdbcType=VARCHAR},#{reverse5,jdbcType=VARCHAR}
+		)
+	</insert>
+	
+	<delete id="deleteStore" parameterType="java.lang.String">
+		delete from t_store where id=#{id,jdbcType=VARCHAR}
+	</delete>
+	
+	<update id="updateStore" parameterType="com.jiewen.modules.entity.Store">
+		update t_store set id = #{id,jdbcType=DECIMAL} 
+		<if test="storeId != null and storeId != ''">
+			,store_id = #{storeId,jdbcType=VARCHAR} 
+		</if>
+		<if test="storeName != null and storeName != ''">
+			,store_name = #{storeName,jdbcType=VARCHAR} 
+		</if>
+		<if test="orgId != null and orgId != ''">
+			,org_id = #{orgId,jdbcType=VARCHAR} 
+		</if>
+		<if test="merId != null and merId != ''">
+			,mer_id = #{merId,jdbcType=VARCHAR} 
+		</if>
+		<if test="linkMan != null and linkMan != ''">
+			,link_man = #{linkMan,jdbcType=VARCHAR} 
+		</if>
+		<if test="linkPhone != null and linkPhone != ''">
+			,link_phone = #{linkPhone,jdbcType=VARCHAR} 
+		</if>
+		<if test="address != null and address != ''">
+			,address = #{address,jdbcType=VARCHAR} 
+		</if>
+		<if test="longitude != null and longitude != ''">
+			,longitude = #{longitude,jdbcType=VARCHAR} 
+		</if>
+		<if test="latitude != null and latitude != ''">
+			,latitude = #{latitude,jdbcType=VARCHAR} 
+		</if>
+		<if test="radius != null and radius != ''">
+			,radius = #{radius,jdbcType=DECIMAL} 
+		</if>
+		where id = #{id,jdbcType=DECIMAL}
+	</update>
+	
+	<!-- <insert id="insertList">
+		<foreach collection="list" item="merchant" index="index" separator="," >  
+				insert into t_merchant(
+				<if test="merchant.merId != null and merchant.merId != ''">
+					mer_id
+				</if>
+				<if test="merchant.merName != null and merchant.merName != ''">
+					,mer_name
+				</if>
+				<if test="merchant.orgId != null and merchant.orgId != ''">
+					,org_id
+				</if>
+				<if test="merchant.linkMan != null and merchant.linkMan != ''">
+					,link_man
+				</if>
+				<if test="merchant.linkPhone != null and merchant.linkPhone != ''">
+					,link_phone
+				</if>
+				<if test="merchant.address != null and merchant.address != ''">
+					,address 
+				</if>
+				<if test="merchant.reverse1 != null and merchant.reverse1 != ''">
+					,reverse1
+				</if>
+				<if test="merchant.reverse2 != null and merchant.reverse2 != ''">
+					,reverse2
+				</if>
+				<if test="merchant.reverse3 != null and merchant.reverse3 != ''">
+					,reverse3
+				</if>
+				<if test="merchant.reverse4 != null and merchant.reverse4 != ''">
+					,reverse4
+				</if>
+				<if test="merchant.reverse5 != null and merchant.reverse5 != ''">
+					,reverse5
+				</if>
+				)
+				values(
+					<if test="merchant.merId != null and merchant.merId != ''">
+						#{merchant.merId,jdbcType=VARCHAR}
+					</if>
+					<if test="merchant.merName != null and merchant.merName != ''">
+						,#{merchant.merName,jdbcType=VARCHAR}
+					</if>
+					<if test="merchant.orgId != null and merchant.orgId != ''">
+						,#{merchant.orgId,jdbcType=VARCHAR}
+					</if>
+					<if test="merchant.linkMan != null and merchant.linkMan != ''">
+						,#{merchant.linkMan,jdbcType=VARCHAR}
+					</if>
+					<if test="merchant.linkPhone != null and merchant.linkPhone != ''">
+						,#{merchant.linkPhone,jdbcType=VARCHAR}
+					</if>
+					<if test="merchant.address != null and merchant.address != ''">
+						,#{merchant.address,jdbcType=VARCHAR}
+					</if>
+					<if test="merchant.reverse1 != null and merchant.reverse1 != ''">
+						,#{merchant.reverse1,jdbcType=VARCHAR}
+					</if>
+					<if test="merchant.reverse2 != null and merchant.reverse2 != ''">
+						,#{merchant.reverse2,jdbcType=VARCHAR}
+					</if>
+					<if test="merchant.reverse3 != null and merchant.reverse3 != ''">
+						,#{merchant.reverse3,jdbcType=VARCHAR}
+					</if>
+					<if test="merchant.reverse4 != null and merchant.reverse4 != ''">
+						,#{merchant.reverse4,jdbcType=VARCHAR}
+					</if>
+					<if test="merchant.reverse5 != null and merchant.reverse5 != ''">
+						,#{merchant.reverse5,jdbcType=VARCHAR}
+					</if>
+				) 
+			</foreach>
+	</insert> -->
+	
+	<select id="getStoreByStoreId" parameterType="java.lang.String" resultMap="baseResultMap">
+		select <include refid="storeColumns"/> from t_store where store_id = #{storeId,jdbcType=VARCHAR}
+	</select>
+	<select id="get" parameterType="java.lang.String" resultMap="baseResultMap">
+		select <include refid="storeColumns"/> from t_store where id = #{id,jdbcType=VARCHAR}
+	</select>
+</mapper>

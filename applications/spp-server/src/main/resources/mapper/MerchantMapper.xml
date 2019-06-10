@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.spp.dao.MerchantMapper">
+	<resultMap type="com.jiewen.spp.model.Merchant" id="baseResultMap">
+		<result column="id" jdbcType="DECIMAL" property="id"/>
+		<result column="mer_id" jdbcType="VARCHAR" property="merId"/>
+		<result column="mer_name" jdbcType="VARCHAR" property="merName"/>
+		<result column="org_id" jdbcType="VARCHAR" property="orgId"/>
+		<result column="link_man" jdbcType="VARCHAR" property="linkMan"/>
+		<result column="link_phone" jdbcType="VARCHAR" property="linkPhone"/>
+		<result column="address" jdbcType="VARCHAR" property="address"/>
+		<result column="longitude" jdbcType="VARCHAR" property="longitude"/>
+		<result column="latitude" jdbcType="VARCHAR" property="latitude"/>
+		<result column="radius" jdbcType="DECIMAL" property="radius"/>
+		<result column="reverse1" jdbcType="VARCHAR" property="reverse1"/>
+		<result column="reverse2" jdbcType="VARCHAR" property="reverse2"/>
+		<result column="reverse3" jdbcType="VARCHAR" property="reverse3"/>
+		<result column="reverse4" jdbcType="VARCHAR" property="reverse4"/>
+		<result column="reverse5" jdbcType="VARCHAR" property="reverse5"/>
+	</resultMap>
+	
+	<sql id="baseColumns">
+		id,
+		mer_id,
+		mer_name,
+		org_id,
+		link_man,
+		link_phone,
+		address,
+		longitude,
+		latitude,
+		radius,
+		reverse1,
+		reverse2,
+		reverse3,
+		reverse4,
+		reverse5
+	</sql>
+	
+	<select id="getByMerId" parameterType="com.jiewen.spp.model.Merchant" resultMap="baseResultMap">
+		select <include refid="baseColumns"/>
+		from t_merchant 
+		where mer_id = #{merId,jdbcType=VARCHAR}
+	</select>
+</mapper>

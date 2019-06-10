@@ -1,0 +1,19 @@
+﻿{
+	"processing": "Processing...",
+	"lengthMenu": "_MENU_ entries/page",
+	"zeroRecords": "No matching entries",
+	"info": "Showing _START_ to _END_ of _TOTAL_ entries",
+	"infoEmpty": "Showing 0 to 0 of 0 entries",
+	"infoFiltered": "(Filter by _MAX_ entries)",
+	"infoPostFix": "",
+	"search": "Filter:",
+	"decimal": ",",
+	"thousands": ".",
+	"emptyTable": "Not finding qualified entries",
+	"paginate": {
+		"first": "First",
+		"previous": "Previous",
+		"next": "Next",
+		"last": "Last"
+	}
+}

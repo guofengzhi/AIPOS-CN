@@ -1,0 +1,19 @@
+﻿{
+	"processing": "處理中...",
+	"lengthMenu": "_MENU_ 記錄/頁",
+	"zeroRecords": "沒有匹配的記錄",
+	"info": "第 _START_ 至 _END_ 項記錄，共 _TOTAL_ 項",
+	"infoEmpty": "第 0 至 0 項記錄，共 0 項",
+	"infoFiltered": "(由 _MAX_ 項記錄過濾)",
+	"infoPostFix": "",
+	"search": "過濾:",
+	"decimal": ",",
+	"thousands": ".",
+	"emptyTable": "未找到符合條件的數據",
+	"paginate": {
+		"first": "首頁",
+		"previous": "上頁",
+		"next": "下頁",
+		"last": "末頁"
+	}
+}

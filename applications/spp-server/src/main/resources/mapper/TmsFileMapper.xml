@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.spp.dao.TmsFileMapper">
+
+	<sql id="tmsFileColumns">
+		tf.id,
+		tf.file_name as fileName,
+		tf.manufacture_no as
+		manufactureNo,
+		tf.file_type as fileType,
+		tf.file_size as fileSize,
+		tf.file_version as fileVersion,
+		tf.file_path as filePath,
+		tf.upload_time as uploadTime,
+		tf.remarks,
+		tf.del_flag as delFlag,
+		tf.organ_id as organId
+	</sql>
+
+	<select id="findByCondition" resultType="com.jiewen.spp.model.TmsFile">
+		SELECT
+		<include refid="tmsFileColumns" />
+		FROM t_tms_file tf
+		WHERE tf.manufacture_no=#{manufactureNo}
+		AND
+		tf.file_type=#{fileType}
+		AND tf.file_version=#{fileVersion}
+	</select>
+
+	<!-- t_tms_file_strategy 表中fileId逗号分隔 方式-->
+	<!-- <select id="getFilesByDevice" resultType="com.jiewen.spp.model.TmsFile">
+		SELECT
+		<include refid="tmsFileColumns" />
+		FROM
+		t_tms_file tf
+		WHERE FIND_IN_SET(
+		tf.`id`,
+		(SELECT
+		tfs.`file_id`
+		FROM
+		t_tms_device_info tdi,
+		t_tms_file_strategy tfs,
+		t_tms_strategy ts
+		WHERE tdi.`strategy_id` = ts.`id`
+		AND NOW() &gt;= ts.`begin_date`
+		AND NOW() &lt;= ts.`end_date`
+		AND ts.`del_flag` = '0'
+		AND tfs.`strategy_id` = ts.`id`
+		AND tdi.`device_sn` = #{sn}
+		AND tdi.manu_no = #{manufacturer})
+		) ;
+	</select> -->
+
+	<select id="getFilesByDevice" resultType="com.jiewen.spp.model.TmsFile">
+		SELECT
+		<include refid="tmsFileColumns" />
+		FROM
+		t_tms_device_info tdi,
+		t_tms_file_strategy tfs,
+		t_tms_strategy ts,
+		t_tms_file tf
+		WHERE tdi.`strategy_id` = ts.`id`
+		AND ts.`id` = tfs.`strategy_id`
+		AND tfs.`file_id` = tf.`id`
+		AND tdi.`device_sn` = #{sn}
+		AND tdi.manu_no = #{manufacturer}
+		AND NOW() &gt;= ts.`begin_date`
+		AND NOW() &lt;= ts.`end_date`
+		AND ts.`del_flag` = '0'
+		AND tf.`del_flag`='0';
+	</select>
+
+	<select id="getDownLoadFileByFileParams" parameterType="com.jiewen.spp.model.TmsFile"
+		resultType="com.jiewen.spp.model.TmsFile">
+		select
+		<include refid="tmsFileColumns" />
+		FROM t_tms_file tf
+		where 1 = 1
+		<if test="fileName != null and fileName != ''">
+			AND tf.file_name = #{fileName}
+		</if>
+		<if test="fileType != null and fileType != ''">
+			AND tf.file_type = #{fileType}
+		</if>
+		<if test="fileVersion != null and fileVersion != ''">
+			AND tf.file_version = #{fileVersion}
+		</if>
+		<if test="manufactureNo != null and manufactureNo != ''">
+			AND tf.manufacture_no = #{manufactureNo}
+		</if>
+
+	</select>
+
+	<select id="getFileInfoByStrategy" resultType="com.jiewen.spp.model.TmsFile">
+		SELECT
+		tf1.`file_name` AS fileName,
+		tf1.`file_type` AS fileType,
+		tf1.`file_version` AS fileVersion,
+		tf1.`file_size` AS fileSize,
+		tf1.`file_path` AS filePath,
+		tf1.`upload_time` AS uploadTime
+		FROM
+		(SELECT
+		tf.file_type,
+		MAX(tf.`file_version`) AS file_version
+		FROM
+		t_tms_strategy ts,
+		t_tms_file_strategy tfs,
+		t_tms_file tf
+		WHERE ts.`begin_date` &lt;= NOW()
+		AND ts.`end_date` &gt;= NOW()
+		AND ts.`manufacture_no` = #{manufacturer}
+		AND ts.`device_type` = #{deviceType}
+		AND ts.`id` = tfs.`strategy_id`
+		AND tfs.`file_id` = tf.`id`
+		GROUP BY tf.`file_type`) temp
+		INNER JOIN t_tms_file tf1
+		ON temp.file_type = tf1.`file_type`
+		AND temp.file_version = tf1.`file_version`
+		AND tf1.`manufacture_no` = #{manufacturer} ;
+	</select>
+
+	<select id="getFileInfoByDetailStrategy" resultType="com.jiewen.spp.model.TmsFile">
+		SELECT
+		tf1.`file_name` AS fileName,
+		tf1.`file_type` AS fileType,
+		tf1.`file_version` AS fileVersion,
+		tf1.`file_size` AS fileSize,
+		tf1.`file_path` AS filePath,
+		tf1.`upload_time` AS uploadTime
+		FROM
+		(SELECT
+		tf.file_type,
+		MAX(tf.`file_version`) AS file_version
+		FROM
+		t_tms_strategy ts,
+		t_tms_file_strategy tfs,
+		t_tms_file tf
+		WHERE ts.`begin_date` &lt;= NOW()
+		AND ts.`end_date` &gt;= NOW()
+		AND ts.`manufacture_no` = #{manufacturer}
+		AND ts.`device_type` = #{deviceType}
+		AND ts.`mer_no` = #{merNo}
+		AND ts.`term_no` = #{termNo}
+		AND ts.`id` = tfs.`strategy_id`
+		AND tfs.`file_id` = tf.`id`
+		GROUP BY tf.`file_type`) temp
+		INNER JOIN t_tms_file tf1
+		ON temp.file_type = tf1.`file_type`
+		AND temp.file_version = tf1.`file_version`
+		AND tf1.`manufacture_no` = #{manufacturer} ;
+	</select>
+</mapper>

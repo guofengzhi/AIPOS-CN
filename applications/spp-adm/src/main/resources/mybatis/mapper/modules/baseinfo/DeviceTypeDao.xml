@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.spp.modules.baseinfo.dao.DeviceTypeDao">
+
+	<sql id="DevJoins">
+		LEFT JOIN sys_dict sdi1 ON t.device_status=sdi1.value AND
+		sdi1.type='device_status'
+		LEFT JOIN sys_dict sdi2 ON
+		t.os_status=sdi2.value AND
+		sdi2.type='os_status'
+		LEFT JOIN sys_dict sdi3 ON t.os_upgrade_type=sdi3.value AND
+		sdi3.type='os_upgrade_type'
+	</sql>
+
+	<sql id="ManuJoins">
+		LEFT JOIN t_manufacturer_info mi ON
+		t.manufacturer_no=mi.manufacturer_no
+	</sql>
+
+	<sql id="ClientJoins">
+		LEFT JOIN t_client_info ci ON t.client_no=ci.client_no
+	</sql>
+
+	<!-- 过滤查询列表 -->
+	<select id="findList" resultType="com.jiewen.spp.modules.baseinfo.entity.DeviceType">
+		SELECT
+		t.id,
+		mi.manufacturer_name AS manufacturer_no,
+		t.device_type
+		FROM `t_device_type_info` t
+		<include refid="ManuJoins" />
+		WHERE t.del_flag = '0'
+		<if test="manufacturerNo != null and manufacturerNo != ''">
+			AND t.manufacturer_no LIKE #{manufacturerNo}
+		</if>
+		<if test="deviceType != null and deviceType != ''">
+			AND device_type = #{deviceType}
+		</if>
+		ORDER BY t.create_date DESC
+	</select>
+
+
+	<select id="getDeviceTypeList" resultType="com.jiewen.spp.modules.baseinfo.entity.DeviceType">
+		SELECT
+		distinct t.device_type
+		FROM `t_device_type_info` t
+		WHERE t.del_flag = '0'
+	</select>
+
+	<select id="getDeviceTypeByManuNo" resultType="com.jiewen.spp.modules.baseinfo.entity.DeviceType">
+		SELECT
+		distinct t.device_type
+		<if test="apkId != null and apkId != ''">
+			,
+			IF (
+			ISNULL(a.apk_id),
+			"",
+			"checked"
+			) AS checked
+		</if>
+		FROM
+		t_device_type_info t
+		<if test="apkId != null and apkId != ''">
+			LEFT JOIN t_app_device_type a ON t.device_type = a.device_type
+			AND t.manufacturer_no = a.manu_no
+			AND a.apk_id = #{apkId}
+		</if>
+		WHERE t.del_flag = '0'
+		<if test="manufacturerNo != null and manufacturerNo != ''">
+			AND t.manufacturer_no = #{manufacturerNo}
+		</if>
+	</select>
+
+
+	<insert id="insert">
+		INSERT INTO `t_device_type_info`
+		(
+		device_type,
+		manufacturer_no,
+		create_by,
+		create_date,
+		update_by,
+		update_date
+		)
+		VALUES (
+		#{deviceType},
+		#{manufacturerNo},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate}
+		)
+	</insert>
+
+	<delete id="delete">
+		delete from t_device_type_info where id = #{id}
+	</delete>
+
+	<select id="get" parameterType="com.jiewen.spp.modules.baseinfo.entity.DeviceType"
+		resultType="com.jiewen.spp.modules.baseinfo.entity.DeviceType">
+		select
+		t.id,
+		t.manufacturer_no,
+		t.device_type
+		from t_device_type_info t where del_flag = '0' and id = #{id}
+	</select>
+
+	<select id="findDeviceTypeByType" parameterType="com.jiewen.spp.modules.baseinfo.entity.DeviceType"
+		resultType="com.jiewen.spp.modules.baseinfo.entity.DeviceType">
+		select
+		t.id,
+		t.manufacturer_no,
+		t.device_type
+		from t_device_type_info t where del_flag = '0' and manufacturer_no =
+		#{manufacturerNo} and device_type = #{deviceType}
+	</select>
+
+
+	<update id="update">
+	
+		UPDATE `t_device_type_info` SET 
+		<if test="manufacturerNo != null and manufacturerNo != ''">
+			manufacturer_no = #{manufacturerNo}, 
+		</if>
+		<if test="deviceType != null and deviceType != ''">
+			device_type = #{deviceType}, 
+		</if>
+		update_by = #{updateBy.id},
+		update_date = #{updateDate} WHERE id = #{id}
+	</update>
+
+</mapper>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.spp.dao.AppInfoMapper">
+	<select id="getAppInfoList" parameterType="com.jiewen.spp.model.AppInfo"
+		resultType="com.jiewen.spp.model.AppInfo">
+		SELECT
+		t.id,
+		v.app_version_number appVersionNumber,
+		t.app_name AS appName,
+		v.app_description AS appDescription,
+		t.category,
+		t.platform,
+		t.app_package AS appPackage,
+		v.app_file AS
+		appFile,
+		t.app_logo AS appLogo,
+		t.app_img AS appImg,
+		v.app_version AS
+		appVersion,
+		v.app_version AS
+		versionCode,
+		v.app_file_size AS appFileSize,
+		IFNULL(r.counts, 0) AS
+		counts
+		FROM
+		t_app_info t
+		INNER JOIN (SELECT
+                appv.*
+              FROM (SELECT
+                      app_package,
+                      MAX(app_version)       AS app_version
+                    FROM t_app_version
+                    GROUP BY app_package) tav,
+                t_app_version appv
+              WHERE 1 = 1
+                  AND appv.del_flag = '0'
+                  AND appv.app_package = tav.app_package
+                  AND appv.app_version = tav.app_version) v
+		ON
+		v.app_package =
+		t.app_package
+		LEFT JOIN (SELECT COUNT(app_name) AS counts, app_id FROM
+		t_app_upgrade_record) r
+		ON r.app_id = t.id
+		WHERE 1 = 1
+		AND t.current_approve_flag = '0'
+		AND t.del_flag = '0'
+		<if test="appName != null and appName != '' ">
+			AND t.app_name like
+			<if test="dbName == 'oracle'">'%'||#{appName}||'%'</if>
+			<if test="dbName == 'mssql'">'%'+#{appName}+'%'</if>
+			<if test="dbName == 'mysql'">CONCAT('%', #{appName}, '%')</if>
+		</if>
+		<if test="category != null and category != '' ">
+			AND t.category = #{category}
+		</if>
+		<if test="ids != null and ids != ''">
+			AND t.organ_id IN ${ids}
+		</if>
+		ORDER BY
+		t.create_date DESC
+		LIMIT #{startPageNum},#{pageSize}
+	</select>
+
+	<select id="getAppListByUpgradeCounts" parameterType="com.jiewen.spp.model.AppInfo"
+		resultType="com.jiewen.spp.model.AppInfo">
+		SELECT
+		t.id,
+		v.app_version_number appVersionNumber,
+		t.app_name AS appName,
+		v.app_description AS appDescription,
+		t.category,
+		t.platform,
+		t.app_package AS appPackage,
+		v.app_file AS
+		appFile,
+		t.app_logo AS appLogo,
+		t.app_img AS appImg,
+		v.app_version AS
+		appVersion,
+		v.app_version AS
+		versionCode,
+		v.app_file_size AS appFileSize,
+		IFNULL(r.counts, 0) AS
+		counts
+		FROM t_app_info t
+		INNER JOIN (SELECT
+                appv.*
+              FROM (SELECT
+                      app_package,
+                      MAX(app_version)       AS app_version
+                    FROM t_app_version
+                    GROUP BY app_package) tav,
+                t_app_version appv
+              WHERE 1 = 1
+                  AND appv.del_flag = '0'
+                  AND appv.app_package = tav.app_package
+                  AND appv.app_version = tav.app_version) v
+		ON v.app_package =
+		t.app_package
+		LEFT JOIN (SELECT COUNT(app_name) AS counts, app_id FROM
+		t_app_upgrade_record) r
+		ON r.app_id = t.id
+		WHERE 1 = 1
+		AND t.del_flag = '0'
+		AND t.current_approve_flag = '0'
+		<if test="ids != null and ids != ''">
+			AND t.organ_id IN ${ids}
+		</if>
+		ORDER BY r.counts DESC
+		LIMIT #{startPageNum},#{pageSize}
+	</select>
+</mapper>

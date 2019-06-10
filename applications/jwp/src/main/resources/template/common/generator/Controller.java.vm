@@ -1,0 +1,123 @@
+package ${package}.web;
+
+import java.util.List;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.jiewen.jwp.base.web.BaseController;
+import com.jiewen.jwp.base.web.ParamResult;
+import com.jiewen.jwp.base.web.Result;
+import com.jiewen.jwp.base.web.ResultGenerator;
+import ${package}.domain.${className}DO;
+import ${package}.service.${className}Service;
+import com.github.pagehelper.PageInfo;
+
+/**
+ * ${comments}
+ * 		@RequiresPermissions("${pathName}:${classname}:add")
+ * @author ${author}
+ * @email ${email}
+ * @date ${datetime}
+ */
+ 
+@Controller
+@RequestMapping("/${pathName}/${classname}")
+public class ${className}Controller extends BaseController {
+
+	@Autowired
+	private ${className}Service ${classname}Service;
+	
+	@RequestMapping(value = "index")
+	public String index(${className}DO ${classname},Model model) {
+	     ${className}DO  us = new ${className}DO ();
+		model.addAttribute("${classname}", us);
+	    return "modules/sys/${classname}";
+	}
+	
+	  @RequestMapping("/list")
+      public @ResponseBody Map<String, Object> list(HttpServletRequest request, String reqObj) throws Exception {
+		
+	 ${className}DO ${classname} = new ParamResult<${className}DO>(reqObj).getEntity(${className}DO.class);
+   	 
+        PageInfo<${className}DO> pageInfo = ${classname}Service.list(${classname});
+        
+        return resultMap(${classname}, pageInfo);
+		
+	}
+	
+	@RequestMapping("/add")
+	String add(){
+	    return "modules/sys/add";
+	}
+
+	@RequestMapping("/edit")
+	@ResponseBody
+	public ${className}DO  edit(${pk.attrType} ${pk.attrname}){
+		${className}DO ${classname} = ${classname}Service.get(${pk.attrname});
+	    return ${classname};
+	}
+	
+	/**
+	 * 保存
+	 */
+	@ResponseBody
+	@RequestMapping("/save")
+	public Result save( ${className}DO ${classname}){
+		if(${classname}Service.save(${classname})>0){
+		   return ResultGenerator.genSuccessResult();
+		}else{
+		   return ResultGenerator.genFailResult("新增失败请查看log日志原因");
+		}
+	}
+	/**
+	 * 修改
+	 */
+	@ResponseBody
+	@RequestMapping("/update")
+	public Result update( ${className}DO ${classname}){
+		if(${classname}Service.update(${classname})>0){
+		  return ResultGenerator.genSuccessResult();
+		}else{
+		   return ResultGenerator.genFailResult("修改失败请查看log日志原因");
+		}
+	}
+	
+	/**
+	 * 删除
+	 */
+	@RequestMapping( "/remove")
+	@ResponseBody
+	public Result remove( ${pk.attrType} ${pk.attrname}){
+		if(${classname}Service.remove(${pk.attrname})>0){
+		  return ResultGenerator.genSuccessResult();
+		}else{
+		   return ResultGenerator.genFailResult("删除失败请查看log日志原因");
+		}
+	}
+	
+	/**
+	 * 批量删除
+	 */
+	@RequestMapping("/batchRemove")
+	@ResponseBody
+	public Result remove(@RequestParam("ids[]") ${pk.attrType}[] ${pk.attrname}s){
+		if(${classname}Service.batchRemove(${pk.attrname}s)>0){
+		   return ResultGenerator.genSuccessResult();
+		}else{
+		   return ResultGenerator.genFailResult("删除失败请查看log日志原因");
+		}
+	}
+	
+}

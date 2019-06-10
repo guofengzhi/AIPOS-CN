@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.modules.app.dao.DeviceAppInfoDao">
+
+	<resultMap id="BaseResultMap" type="com.jiewen.spp.dto.DeviceAppInfoDto">
+		<result column="app_name" jdbcType="VARCHAR" property="appName" />
+		<result column="app_package" jdbcType="VARCHAR" property="appPackage" />
+		<result column="app_version" jdbcType="VARCHAR" property="appVersion" />
+		<result column="app_file" jdbcType="VARCHAR" property="appFile" />
+		<result column="app_md5" jdbcType="VARCHAR" property="appMd5" />
+		<result column="start_hard_shift" jdbcType="VARCHAR" property="startHardShift" />
+		<result column="end_hard_shift" jdbcType="VARCHAR" property="endHardShift" />
+		<result column="device_status" jdbcType="VARCHAR" property="deviceStatus" />
+		<result column="os_status" jdbcType="VARCHAR" property="osStatus" />
+		<result column="device_type" jdbcType="VARCHAR" property="deviceType" />
+		<result column="device_os_version" jdbcType="VARCHAR" property="deviceOsVersion" />
+		<result column="os_upgrade_type" jdbcType="VARCHAR" property="osUpgradeType" />
+		<result column="manufacturer_no" jdbcType="VARCHAR" property="manufacturerNo" />
+		<result column="upgrade_mode" jdbcType="VARCHAR" property="upgradeMode" />
+		<result column="client_identification" jdbcType="VARCHAR" property="clientIdentification" />
+	</resultMap>
+
+
+    <sql id="baseCoumns">
+		a.app_name,
+		a.app_package,
+		a.app_version,
+		a.app_file,
+		a.app_md5,
+		a.app_description,
+		a.start_hard_shift,
+		a.end_hard_shift,
+		t.device_status,
+		t.os_status,
+		t.device_type,
+		t.device_os_version,
+		t.os_upgrade_type,
+		t.manufacturer_no,
+		a.upgrade_mode
+	</sql>
+
+	<sql id="joinTables">
+		LEFT JOIN t_app_device r
+		on a.id = r.APK_ID
+		LEFT JOIN t_device_info t
+		on
+		t.device_sn = r.device_sn
+	</sql>
+	
+	<select id="getCheckAppVersion" resultMap="BaseResultMap">
+	   SELECT 
+	   <include refid="baseCoumns"/>
+	   FROM t_app_version a 
+	   <include refid="joinTables"/>
+	   WHERE t.device_sn = #{deviceSn}
+	    <if test="manufacturerNo != null and manufacturerNo != '' ">
+        AND t.manufacturer_no = #{manufacturerNo}
+        </if> 
+        <if test="appPackage != null and appPackage != '' ">
+        AND a.app_package = #{appPackage}
+        </if>
+	</select>
+
+</mapper>

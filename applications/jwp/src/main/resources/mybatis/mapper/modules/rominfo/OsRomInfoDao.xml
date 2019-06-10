@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.modules.rom.dao.OsRomInfoDao">
+
+	<sql id="ManuJoins">
+		LEFT JOIN t_manufacturer_info mi ON
+		t.manufacturer_no=mi.manufacturer_no
+	</sql>
+
+	<sql id="DictJoins">
+		LEFT JOIN sys_dict sdi ON t.client_identification=sdi.value
+		AND
+		sdi.type='client_identify'
+		LEFT JOIN sys_dict sdi1 ON t.os_packet_type=sdi1.value AND
+		sdi1.type='os_packet_type'
+	</sql>
+
+	<!-- 过滤查询列表 -->
+	<select id="findList" resultType="com.jiewen.modules.rom.entity.OsRomInfo">
+		SELECT
+		t.id,
+		mi.manufacturer_name AS manufacturer_no,
+		os_version,
+		os_device_type,
+		rom_hash,
+		rom_path,
+		rom_file_size,
+		t.client_identification,
+		os_start,
+		os_end,
+		t.os_packet_type,
+		t.create_date,
+		IFNULL(ou2.name,t.create_by) as "createBy.name"
+		FROM `t_os_rom_info` t
+		LEFT JOIN sys_user ou2 ON ou2.id = t.create_by
+		<include refid="ManuJoins" />
+		WHERE t.del_flag = '0'
+		<if test="osVersion != null and osVersion != ''">
+			AND os_version = #{osVersion}
+		</if>
+		<if test="osDeviceType != null and osDeviceType != ''">
+			AND os_device_type = #{osDeviceType}
+		</if>
+		<if test="manufacturerNo != null and manufacturerNo != ''">
+			AND t.manufacturer_no = #{manufacturerNo}
+		</if>
+		ORDER BY t.os_version desc
+	</select>
+
+	<select id="get" resultType="com.jiewen.modules.rom.entity.OsRomInfo">
+		SELECT
+		id,
+		manufacturer_no,
+		os_version,
+		os_device_type,
+		rom_hash,
+		rom_path,
+		rom_file_size,
+		client_identification,
+		os_start,
+		os_end,
+		start_hard_shift,
+		start_hard,
+		end_hard_shift,
+		end_hard,
+		os_packet_type,
+		description,
+		create_date
+		FROM `t_os_rom_info` t
+		WHERE t.id = #{id} AND t.del_flag = '0'
+	</select>
+
+	<select id="getOsRomByVersionType" resultType="com.jiewen.modules.rom.entity.OsRomInfo">
+		SELECT 
+			os_version,
+	        os_device_type,
+		    rom_hash,
+		    rom_path
+		FROM `t_os_rom_info` t
+		WHERE t.os_version = #{osVersion} 
+		AND t.client_identification =
+		#{clientIdentification}
+		AND t.rom_path = #{romPath}
+		AND t.del_flag = '0'
+	</select>
+
+	<select id="getOsRomByDeviceId" 
+		resultType="com.jiewen.modules.rom.entity.OsRomInfo">
+		SELECT
+		t.id,
+		mi.manufacturer_name AS manufacturer_no,
+		t.os_version,
+		t.os_device_type,
+		t.rom_hash,
+		t.rom_path,
+		t.rom_file_size,
+		t.os_start,
+		t.os_end,
+		t.os_packet_type,
+		t.description
+		FROM `t_os_rom_info` t
+		<include refid="ManuJoins" />
+		WHERE t.id IN (SELECT os_id FROM `t_rom_device` WHERE `device_id` =
+		#{id})
+		<if test="osVersion != null and osVersion != ''">
+			AND os_version = #{osVersion}
+		</if>
+		<if test="osDeviceType != null and osDeviceType != ''">
+			AND os_device_type = #{osDeviceType}
+		</if>
+		<if test="manufacturerNo != null and manufacturerNo != ''">
+			AND t.manufacturer_no = #{manufacturerNo}
+		</if>
+	</select>
+
+	<select id="getDeviceCount" resultType="Integer">
+		SELECT 
+	 	 	 COUNT(*)
+	 	  FROM `t_os_rom_info` t
+	 	  where t.del_flag = '0'
+	</select>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT
+		INTO `t_os_rom_info`
+		(os_version,
+		os_device_type,
+		rom_hash,
+		rom_path,
+		rom_file_size,
+		os_start,
+		os_end,
+		manufacturer_no,
+		client_identification,
+		os_packet_type,
+		start_hard,
+		end_hard,
+		start_hard_shift,
+		end_hard_shift,
+		description,
+		create_by,
+		create_date,
+		update_by,
+		update_date
+		)
+		VALUES (
+		#{osVersion},
+		#{osDeviceType},
+		#{romHash},
+		#{romPath},
+		#{romFileSize},
+		#{osStart},
+		#{osEnd},
+		#{manufacturerNo},
+		#{clientIdentification},
+		#{osPacketType},
+		#{startHard},
+		#{endHard},
+		#{startHardShift},
+		#{endHardShift},
+		#{description},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate}
+		)
+	</insert>
+
+	<delete id="delete">
+		DELETE FROM t_os_rom_info WHERE id = #{id}
+	</delete>
+
+</mapper>

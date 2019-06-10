@@ -1,0 +1,54 @@
+package ${package}.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
+
+import ${package}.dao.${className}Dao;
+import ${package}.domain.${className}DO;
+import ${package}.service.${className}Service;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+
+/**
+ * ${className}Service
+ */
+@Service
+@Transactional
+public class ${className}Service  {
+
+	@Autowired
+	private ${className}Dao ${classname}Dao;
+	
+	public ${className}DO get(${pk.attrType} ${pk.attrname}){
+		return ${classname}Dao.get(${pk.attrname});
+	}
+	
+	
+	public PageInfo<${className}DO> list(${className}DO ${classname}){
+	
+		  PageHelper.startPage(${classname});
+		  
+		  return new PageInfo<${className}DO>(${classname}Dao.list(${classname}));
+	}
+	
+	public int save(${className}DO ${classname}){
+		return ${classname}Dao.save(${classname});
+	}
+	
+	public int update(${className}DO ${classname}){
+		return ${classname}Dao.update(${classname});
+	}
+	
+	public int remove(${pk.attrType} ${pk.attrname}){
+		return ${classname}Dao.remove(${pk.attrname});
+	}
+	
+	public int batchRemove(${pk.attrType}[] ${pk.attrname}s){
+		return ${classname}Dao.batchRemove(${pk.attrname}s);
+	}
+	
+}

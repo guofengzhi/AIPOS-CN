@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.spp.modules.tms.dao.UpdateItemsDao">
+
+	<sql id="updateItemsColumns">
+		a.id,
+		a.file_name as fileName,
+		a.manufacture_no as
+		manufactureNo,
+		a.organ_id as organId,
+		a.file_type as fileType,
+		a.file_size as fileSize,
+		a.file_version as fileVersion,
+		a.file_path as
+		filePath,
+		a.upload_time as uploadTime,
+		a.remarks,
+		a.del_flag as delFlag,
+		a.md5
+	</sql>
+
+	<!-- 分页查询更新物信息 -->
+	<select id="findList" resultType="com.jiewen.spp.modules.tms.entity.UpdateItems">
+		SELECT
+		<include refid="updateItemsColumns" />
+		FROM
+		t_tms_file a where a.del_flag = '0'
+		<if test="manufactureNo != null and manufactureNo!= ''">
+			AND a.manufacture_no = #{manufactureNo}
+		</if>
+		<if test="fileType != null and fileType != ''">
+			AND a.file_type = #{fileType}
+		</if>
+		<if test="fileName != null and fileName != ''">
+			AND a.file_name like
+			<if test="dbName == 'oracle'">'%'||#{fileName}||'%'</if>
+			<if test="dbName == 'mssql'">'%'+#{fileName}+'%'</if>
+			<if test="dbName == 'mysql'">CONCAT('%', #{fileName}, '%')</if>
+		</if>
+		<if test="fileVersion != null and fileVersion != ''">
+			AND a.file_version like
+			<if test="dbName == 'oracle'">'%'||#{fileVersion}||'%'</if>
+			<if test="dbName == 'mssql'">'%'+#{fileVersion}+'%'</if>
+			<if test="dbName == 'mysql'">CONCAT('%', #{fileVersion}, '%')</if>
+		</if>
+		<if test="!currentUser.admin and organId != null and organId != ''">
+			AND a.organ_id IN (SELECT id FROM sys_office WHERE parent_ids LIKE
+			<if test="dbName == 'oracle'">'%,'||#{organId}||',%'</if>
+			<if test="dbName == 'mssql'">'%,'+#{organId}+',%'</if>
+			<if test="dbName == 'mysql'">CONCAT('%,', #{organId}, ',%')</if>
+			AND del_flag = '0'
+			UNION select id from sys_office where id =
+			#{organId}
+			AND del_flag = '0')
+		</if>
+		ORDER BY a.upload_time DESC
+	</select>
+
+	<select id="findNotConfigList" resultType="com.jiewen.spp.modules.tms.entity.UpdateItems">
+		SELECT
+		<include refid="updateItemsColumns" />
+		FROM
+		t_tms_file a WHERE a.del_flag = '0'
+		AND a.id NOT IN (SELECT
+		t.file_id AS id FROM t_tms_file_strategy t WHERE t.strategy_id =
+		#{strategyId})
+		<if test="manufactureNo!= null and manufactureNo!= ''">
+			AND a.manufacture_no = #{manufactureNo}
+		</if>
+		<if test="fileName != null and fileName!= ''">
+			AND a.file_name like
+			<if test="dbName == 'oracle'">'%'||#{fileName}||'%'</if>
+			<if test="dbName == 'mssql'">'%'+#{fileName}+'%'</if>
+			<if test="dbName == 'mysql'">CONCAT('%', #{fileName}, '%')</if>
+		</if>
+		<if test="fileType != null and fileType != ''">
+			AND a.file_type = #{fileType}
+		</if>
+		<if test="fileVersion != null and fileVersion != ''">
+			AND a.file_version like
+			<if test="dbName == 'oracle'">'%'||#{fileVersion}||'%'</if>
+			<if test="dbName == 'mssql'">'%'+#{fileVersion}+'%'</if>
+			<if test="dbName == 'mysql'">CONCAT('%', #{fileVersion}, '%')</if>
+		</if>
+		<if test="!currentUser.admin and organId != null and organId != ''">
+			AND a.organ_id IN (SELECT id FROM sys_office WHERE parent_ids LIKE
+			<if test="dbName == 'oracle'">'%,'||#{organId}||',%'</if>
+			<if test="dbName == 'mssql'">'%,'+#{organId}+',%'</if>
+			<if test="dbName == 'mysql'">CONCAT('%,', #{organId}, ',%')</if>
+			AND del_flag = '0'
+			UNION select id from sys_office where id =
+			#{organId}
+			AND del_flag = '0')
+		</if>
+		ORDER BY a.upload_time DESC
+	</select>
+
+	<!-- 根据编号获得更新物 -->
+	<select id="get" resultType="com.jiewen.spp.modules.tms.entity.UpdateItems">
+		SELECT
+		<include refid="updateItemsColumns" />
+		FROM t_tms_file a
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findByCondition" resultType="com.jiewen.spp.modules.tms.entity.UpdateItems">
+		SELECT
+		<include refid="updateItemsColumns" />
+		FROM t_tms_file a
+		WHERE a.manufacture_no=#{manufactureNo}
+		AND
+		a.file_type=#{fileType}
+		AND a.file_version=#{fileVersion}
+		AND
+		a.file_name=#{fileName}
+	</select>
+
+	<insert id="insert">
+		INSERT INTO t_tms_file(file_name, manufacture_no,
+		file_type,
+		file_size, file_version,
+		file_path, upload_time, remarks,
+		del_flag,
+		organ_id, md5)
+		VALUES(#{fileName},
+		#{manufactureNo},
+		#{fileType},
+		#{fileSize}, #{fileVersion},
+		#{filePath}, #{uploadTime},
+		#{remarks},
+		#{delFlag}, #{organId}, #{md5})
+	</insert>
+
+	<update id="update">
+		UPDATE t_tms_file SET
+		file_name = #{fileName},
+		manufacture_no =
+		#{manufactureNo},
+		file_type = #{fileType},
+		file_size = #{fileSize},
+		file_version =
+		#{fileVersion}
+		<if test="filePath!= null and filePath != ''">
+			,file_path = #{filePath}
+		</if>
+		<if test="uploadTime!= null">
+			,upload_time = #{uploadTime}
+		</if>
+		<if test="remarks!= null and remarks!= ''">
+			,remarks = #{remarks}
+		</if>
+		WHERE id=#{id}
+	</update>
+
+	<!-- 根据实体删除更新物：逻辑删除修改删除标识为1 -->
+	<update id="delete">
+		UPDATE t_tms_file SET del_flag = '1'
+		WHERE id =
+		#{id}
+	</update>
+</mapper>

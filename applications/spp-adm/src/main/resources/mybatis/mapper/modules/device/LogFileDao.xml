@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.spp.modules.device.dao.LogFileDao">
+  
+    <!-- 过滤查询列表 -->
+	<select id="findList" resultType="com.jiewen.spp.modules.device.entity.LogFile">
+	 	 SELECT 
+	 	 	 t.id,
+	 	 	 t.version,
+	 	 	 t.manufacturer_no,
+		     t.device_type,
+		     t.sn,
+		     t.log_name,
+		     t.log_md5,
+		     t.file_size,
+		     t.file_path,
+		     t.rec_date
+	 	  FROM `t_log_file` t
+	 	  WHERE 1 = 1
+	 	 <if test="sn != null and sn != ''">
+          AND t.sn = #{sn}
+         </if>
+         <if test="logName != null and logName != ''">
+          AND t.log_name = #{logName}
+         </if>
+         ORDER BY T.rec_date DESC
+	</select>
+	
+	<!-- 过滤查询实体 -->
+	<select id="findById" resultType="com.jiewen.spp.modules.device.entity.LogFile">
+	 	 SELECT 
+	 	 	 t.id,
+	 	 	 t.version,
+	 	 	 t.manufacturer_no,
+		     t.device_type,
+		     t.sn,
+		     t.log_name,
+		     t.log_md5,
+		     t.file_size,
+		     t.file_path,
+		     t.rec_date
+	 	  FROM `t_log_file` t
+	 	  WHERE 1 = 1
+          AND t.id = #{id}
+	</select>
+</mapper>

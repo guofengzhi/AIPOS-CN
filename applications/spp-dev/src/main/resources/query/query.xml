@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<queryContext xmlns="http://www.example.org/query"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.example.org/query query.xsd ">
+	<!-- 数据库表列表 -->
+	<query id="selectTable" key="id" tableName="sys.selectTable.table.name"   pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="rowIndex" header="common.serial.number" width="50"/>
+		<column key="id" header="id" hidden="true" />
+		<column key="tableName" header="sys.selectTable.name" width="100" allowSort="true" />
+		<column key="tableComment" header="sys.selectTable.tableComment" width="80" />
+		<column key="id" header="common.option" width="100" fnRender="fnRenderOperator"/>
+	</query>
+	<!-- 用户列表 -->
+	<query id="userTable" key="id" tableName="sys.user.table.name"   pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="rowIndex" header="common.serial.number" width="50"/>
+		<column key="id" header="id" hidden="true" />
+		<column key="name" header="sys.user.name" width="100" allowSort="true" />
+		<column key="office.name" header="sys.user.office.name" width="80"  allowSort="false" />
+		<column key="loginName" header="sys.user.login.name" width="80" allowSort="false"/>
+		<column key="phone" header="sys.user.tel"  width="100" />
+		<column key="mobile" header="sys.user.mobile" width="200" align="center" />
+	</query>
+  <query id="userRoleTable" key="id" tableName="sys.user.table.name" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="rowIndex" header="common.serial.number" width="50"/>
+		<column key="id" header="id" hidden="true" />
+		<column key="name" header="sys.user.name" width="100" allowSort="true" />
+		<column key="loginName" header="sys.user.login.name" width="80" allowSort="false"/>
+	</query>
+	<!-- 角色列表 -->
+	<query id="role_list" key="id" tableName="sys.role.table.name" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="rowIndex" header="common.serial.number" width="50" />
+		<column key="id" header="id" hidden="true" />
+		<column key="name" header="sys.role.table.roleName" width="100" allowSort="true"/>
+		<column key="enname" header="sys.role.table.enname" width="100" allowSort="false" />
+		<column key="dataScope" header="sys.role.table.dataScope"  width="100" dict="sys_data_scope" render="type=dict"/>
+	</query>
+
+	<!-- 日志列表 -->
+	<query id="log_list" key="id" tableName="sys.log.table.name" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="rowIndex" header="common.serial.number" width="50" allowSort="false" />
+		<column key="id" header="id" hidden="true" />
+		<column key="title" header="sys.log.table.option.menu" width="100" allowSort="false" />
+		<column key="createByName" header="sys.log.table.option.user" width="100" allowSort="false" />
+		<column key="officeName" header="sys.log.table.option.user.office" width="80" allowSort="false" />
+		<column key="requestUri" header="sys.log.table.request.uri" width="100"   allowSort="true" />
+		<column key="method" header="sys.log.table.submit.type" width="100"  allowSort="true"  />
+		<column key="remoteAddr" header="sys.log.table.option.ip" width="100"   allowSort="false" />
+		<column key="createDate" header="sys.log.table.option.time" width="100"  allowSort="true"  />
+		<column key="exception" header="sys.log.table.error.msg" width="100" render="type=alert"/>
+	</query>
+
+	<!-- 字典列表 -->
+	<query id="dict_list" key="id" tableName="sys.dict.table.name" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="id" hidden="true" />
+		<column key="type" header="sys.dict.type" width="100" allowSort="true" />
+		<column key="value" header="sys.dict.value" width="100" allowSort="false" />
+		<column key="label" header="sys.dict.label" width="100" allowSort="false" />
+		<column key="description" header="sys.dict.description" width="100" />
+		<column key="sort" header="sys.dict.sort" width="100" />
+	</query>
+	
+	<!--区域列表 -->
+	<query id="area_list" key="id" tableName="sys.area.table.name" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="id" hidden="true" />
+		<column key="name" header="sys.area.name" width="100" allowSort="true" fnRender="areaShow"/>
+		<column key="code" header="sys.area.code" width="100" allowSort="true" />
+		<column key="type" header="sys.area.type" width="100" allowSort="true" fnRender="dictType"/>
+		<column key="remarks" header="sys.area.remarks" width="100" allowSort="false"/>
+		<column key="id" header="common.option" width="100" fnRender="areaOperation"/>
+	</query>
+	
+	<!--文章内容 -->
+	<query id="essay_list" key="id" tableName="sys.essay.table.name" pageSize="10"
+		widthType="px" order="sort asc" allowPaging="true">
+		<column key="rowIndex" header="common.serial.number" width="50" allowSort="false" />
+		<column key="id" header="id" hidden="true" />
+		<column key="title" header="sys.essay.title" width="100" allowSort="false" />
+		<column key="keyWords" header="sys.essay.keyWords" width="100" allowSort="false" />
+		<column key="id" header="common.option" width="300" fnRender="operation"/>
+	</query>
+	
+	<!-- 业务定义列表 -->
+	<query id="module_list" key="id" tableName="workflow.module.table.name" pageSize="10"
+        widthType="px" order="updateDate desc" allowPaging="true">
+        <column key="id" header="id" hidden="true"/>
+        <column key="rowIndex" header="common.serial.number" width="80"/>
+        <column key="name" header="workflow.module.name" allowSort="true" width="150"/>
+        <column key="code" header="workflow.module.code" allowSort="true" width="150"/>
+        <column key="deleted" header="workflow.module.type" width="100" fnRender="moduleOperator"/>
+        <column key="remark" header="workflow.module.remarks" allowSort="true" width="150"/>
+    </query>
+    
+    <!-- 流程设计：模型 -->
+    <query id="model_list" key="id" tableName="workflow.model.table.name" pageSize="10"
+        widthType="px" order="updateDate desc" allowPaging="true">
+        <column key="id" header="id" hidden="true"/>
+        <column key="id" header="workflow.model.id" operator="eq" width="100"/>
+        <column key="name" header="workflow.model.name" align="left" allowSort="false" width="100"/>
+        <column key="key" header="workflow.model.key" width="100"/>
+        <column key="category" header="workflow.model.category" allowSort="false" width="100"/>
+        <column key="version" header="workflow.model.version" width="100"/>
+        <column key="createTime" header="workflow.model.createDate" classType="java.sql.Date" dateFormat="yyyy-MM-dd HH:mm:ss" width="100"/>
+        <column key="deploymentId" header="workflow.model.deploymentId"/>
+        <column key="id" header="common.option" width="100" fnRender="fnRenderOperator"/>
+    </query>
+    
+    <!--流程定义：解析表-->
+    <query id="processdef_list" key="id" tableName="workflow.procdef.table.name" pageSize="10"
+        widthType="px" order="updateDate desc" allowPaging="true">
+        <column key="id" header="id" hidden="true"/>
+        <column key="id" header="workflow.procdef.id" operator="eq" width="100"/>
+        <column key="name" header="workflow.procdef.name" allowSort="false" align="left" width="100"/>
+        <column key="key" header="workflow.procdef.key" allowSort="false" width="100"/>
+        <column key="category" header="workflow.procdef.category" allowSort="false" width="100" align="left"/>
+        <column key="version" header="workflow.procdef.version" width="100"/>
+        <column key="deploymentId" header="workflow.procdef.deployment"/>
+        <column key="description" header="workflow.procdef.description" width="100"/>
+        <column key="suspensionState" header="workflow.procdef.suspensionState" fnRender="processdefOperator"/>
+        <column key="id" header="common.option" width="100" fnRender="fnRenderOperator"/>
+    </query>
+    
+    <!--流程实例管理 对应act_ru_execution表-->
+    <query id="process_instance_list" key="id" tableName="workflow.proinst.table.name" pageSize="10"
+        widthType="px" order="updateDate desc" allowPaging="true">
+        <column key="id" header="id" hidden="true"/>
+        <column key="id" header="workflow.proinst.id" operator="eq" width="100"/>
+        <column key="name" header="workflow.proinst.name" align="left" allowSort="false" width="100"/>
+        <column key="category" header="workflow.proinst.category" allowSort="false" width="100"/>
+       <column key="startUserId" header="workflow.proinst.start.id" hidden="true" width="100"/>
+        <column key="startUserName" header="workflow.proinst.start.name" width="100"/>
+        <column key="processDefinitionId" header="workflow.proinst.procdef.id" width="100"/>
+        <column key="processDefinitionName" header="workflow.proinst.procdef.name" width="100"/>
+        <column key="activityId" header="workflow.proinst.activiti.id" width="100"/> 
+        <column key="deploymentId" header="workflow.proinst.deployment.id"/>
+        <column key="suspensionState" fnRender="fnRenderSuspensionState" header="workflow.proinst.sus.status"/>
+        <column key="id" header="common.option" width="100" fnRender="fnRenderOperator"/>
+    </query>
+    
+    <!-- 流程明细列表 -->
+    <query id="monitor_detail_list" key="id" tableName="workflow.monitor.detail.list" pageSize="20"
+        widthType="px" order="updateDate desc" allowPaging="true">
+        <column key="rowIndex" header="common.serial.number" width="70"/>
+        <column key="id" header="workflow.activity.id" operator="eq" width="100"/>
+        <column key="activityName" header="workflow.activity.name" allowSort="false" width="100"/>
+        <column key="assigneeName" header="workflow.assignee.name" allowSort="false" width="100"/>
+        <!-- <column key="businessKey" header="业务key" allowSort="false" width="100"/>-->
+        <column key="activityState" header="workflow.activity.state"  width="100" fnRender="fnRenderActivityState"/>
+        <column key="endTime" header="workflow.end.time" classType="java.sql.Date" dateFormat="yyyy-MM-dd HH:mm:ss" allowSort="false" width="100"/>
+        <column key="approved" header="workflow.approved" width="100" fnRender="fnRenderApproved"/>
+        <column key="suggestion" header="workflow.suggestion" width="150"/>
+    </query>
+    
+    <!--流程用户指派（选择流程代理人和候选人）-->
+    <query id="id_user_list" key="id" tableName="workflow.monitor.user.list" pageSize="10"
+        widthType="px" order="updateDate desc" allowPaging="true">
+        <column key="rowIndex" header="common.serial.number" width="70"/>
+        <column key="isSelected" header="workflow.is.select" fnRender="fnRenderSelectUser"/>
+        <column key="id" header="workflow.user.id" operator="eq" width="100"/>
+        <column key="firstName" header="sys.log.userName" width="120"/>
+        <column key="lastName" header="workflow.login.name" width="120"/>
+        <column key="email" header="workflow.user.email" width="120"/>
+    </query>
+
+    <!--流程候选用户组（选择候选组）-->
+    <query id="id_group_list" key="id" tableName="workflow.monitor.user.group.list" pageSize="10"
+        widthType="px" order="updateDate desc" allowPaging="true">
+        <column key="rowIndex" header="common.serial.number" width="70"/>
+        <column key="isSelected" header="workflow.is.select" fnRender="fnRenderSelectUser"/>
+        <column key="id" header="ID" operator="eq" width="100"/>
+        <column key="name" header="workflow.monitor.user.group.name" width="120"/>
+        <column key="type" header="workflow.monitor.user.group.type" width="120"/>
+    </query>
+    
+    <!--用户组管理用户-->
+    <query id="id_membership_list" key="id" tableName="workflow.monitor.user.list" pageSize="10"
+        widthType="px" order="updateDate desc" allowPaging="true">
+        <column key="rowIndex" header="common.serial.number" width="70"/>
+        <column key="id" header="workflow.user.id" hidden="true" operator="eq" width="100"/>
+        <column key="firstName" header="sys.log.userName" width="120"/>
+        <column key="lastName" header="workflow.login.name" width="120"/>
+        <column key="email" header="workflow.user.email" width="120"/>
+    </query>
+    
+     <!--App list-->
+    <query id="appTable" key="id" tableName="ota.table.application.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="id" hidden="true" />
+		<column key="appName" header="app.name" width="30" allowSort="false"/>
+		<column key="appLogo" header="app.logo" width="30" allowSort="false" fnRender="operationAppLogo"/>
+		<column key="appPackage" header="app.package" width="30" allowSort="false"/>
+		<!-- <column key="category" header="category" width="30" allowSort="false"/>
+		<column key="platform" header="app.information.platform" width="30" allowSort="false"/> -->
+		<!-- <column key="appDeveloper" header="ota.table.application.developer" width="30" allowSort="false"/> -->
+		<column key="currentApproveFlag" header="approval.status" width="30" allowSort="false" fnRender="operationApproveFlag"/>
+		<column key="currentApproveFlag" header="app.operation" width="30" fnRender="operation"/>
+	</query>
+    
+    
+    <!--流程待办列表:我的待办-->
+    <query id="task_todo_list" key="id" tableName="workflow.todo.list" pageSize="10"
+        widthType="px" order="updateDate desc" allowPaging="true">
+        <column key="rowIndex" header="common.serial.number" width="70"/>
+        <column key="id" header="workflow.activity.id" operator="eq" width="100"/>
+        <column key="name" header="workflow.activity.name" allowSort="false" width="100"/>
+        <column key="taskDefinitionKey" header="workflow.task.definition.key" allowSort="false" width="100"/>
+       <!-- <column key="businessKey" header="业务key" allowSort="false" width="100"/>-->
+       <!-- <column key="category" header="业务类别" allowSort="false" width="100"/>-->
+        <column key="processInstanceId" header="workflow.process.instance.id" hidden="false" allowSort="false" width="100"/>
+        <column key="processInstanceName" header="workflow.process.instance.name" align="left"  allowSort="false" width="100"/>
+        <column key="processDefinitionId" header="workflow.process.definition.id" allowSort="false" width="100"/>
+        <column key="assigneeName" header="workflow.assignee.name" width="100"/>
+        <column key="startUserId" header="workflow.start.user.id" hidden="true" width="100"/>
+        <column key="startUserName" header="workflow.start.user.name" width="100"/>
+        <column key="formKey" header="formKey" hidden="true" width="100"/>
+        <column key="createTime" header="workflow.create.time" classType="java.sql.Date" dateFormat="yyyy-MM-dd HH:mm:ss" allowSort="false"/>
+      <!--  <column key="activityId" header="当前节点ID" width="100"/>
+        <column key="deploymentId" header="部署ID"/>-->
+        <column key="suspensionState" fnRender="fnRenderSuspensionState" header="workflow.suspension.state"/>
+        <column key="id" header="common.option" width="100" align="left" fnRender="fnRenderOperator"/>
+    </query>
+    
+    <!--流程已办列表:我的已办-->
+    <query id="task_done_list" key="id" tableName="workflow.done.list" pageSize="10"
+        widthType="px" order="updateDate desc" allowPaging="true">
+        <column key="rowIndex" header="common.serial.number" width="70"/>
+        <column key="id" header="workflow.activity.id" operator="eq" width="100"/>
+        <column key="name" header="workflow.activity.name" align="left" allowSort="false" width="100"/>
+        <column key="businessKey" header="workflow.business.key" allowSort="false" width="100"/>
+        <!--<column key="category" header="业务类别" allowSort="false" width="100"/>-->
+        <column key="startUserId" header="workflow.start.user.id" hidden="true" width="100"/>
+        <column key="startUserName" header="workflow.start.user.name" width="100"/>
+        <column key="processDefinitionId" header="workflow.process.definition.id" width="100"/>
+        <column key="processDefinitionName" header="workflow.process.definition.name" width="100"/>
+        <column key="startTime" header="workflow.start.time" classType="java.sql.Date" dateFormat="yyyy-MM-dd HH:mm:ss" allowSort="false"/>
+        <column key="endTime" header="workflow.end.time" classType="java.sql.Date" dateFormat="yyyy-MM-dd HH:mm:ss" allowSort="false"/>
+        <column key="flowState" fnRender="fnRenderFlowState" header="workflow.suspension.state"/>
+        <column key="id" header="common.option" width="100" fnRender="fnRenderOperator" align="left"/>
+    </query>
+	 
+</queryContext>

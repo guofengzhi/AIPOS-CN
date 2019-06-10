@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.spp.dao.TmsLogMapper">
+
+	<sql id="tmsLogColumns">
+		tf.id,
+		tfs.file_id as fileId,
+		tf.file_name as fileName,
+		tf.file_type as fileType,
+		tf.file_size as fileSize,
+		tf.file_version as
+		fileVersion,
+		tf.file_path as filePath,
+		tfs.strategy_id as strategyId,
+		ts.strategy_name as strategyName,
+		ts.begin_date as beginDate,
+		ts.end_date as endDate,
+		ts.update_time as updateTime,
+		ts.device_type as
+		deviceType,
+		ts.device_sn_str as deviceSn,
+		ts.term_no as termNo,
+		ts.mer_no as
+		merNo,
+		ts.manufacture_no as manufacture
+	</sql>
+
+	<sql id="tmsFileColumns">
+		tf.id,
+		tf.file_name as fileName,
+		tf.manufacture_no as
+		manufactureNo,
+		tf.file_type as fileType,
+		tf.file_size as fileSize,
+		tf.file_version as fileVersion,
+		tf.file_path as filePath,
+		tf.upload_time as uploadTime,
+		tf.remarks,
+		tf.del_flag as delFlag,
+		tf.organ_id as organId,
+		tf.md5 as md5
+	</sql>
+
+	<select id="getFilesByStrategy" resultType="com.jiewen.spp.model.TmsFile">
+		SELECT
+		<include refid="tmsFileColumns"></include>
+		FROM t_tms_log tl, t_tms_file tf WHERE tl.`file_id`=tf.`id` AND
+		tf.`del_flag`='0' AND tl.`strategy_id`=#{id}
+	</select>
+
+	<select id="getLogInfoByFile" resultType="com.jiewen.spp.model.TmsLog"
+		parameterType="com.jiewen.spp.model.TmsFile">
+		SELECT
+		tfs.file_id as fileId,
+		tf.file_name as fileName,
+		tf.file_type as fileType,
+		tf.file_size as fileSize,
+		tf.file_version as
+		fileVersion,
+		tf.file_path as filePath,
+		tfs.strategy_id as strategyId,
+		ts.strategy_name as strategyName,
+		ts.begin_date as beginDate,
+		ts.end_date as endDate,
+		ts.update_time as updateTime,
+		ts.device_type as
+		deviceType,
+		ts.device_sn_str as deviceSn,
+		ts.term_no as termNo,
+		ts.mer_no as
+		merNo,
+		ts.manufacture_no as manufacture
+		FROM t_tms_file tf,
+		t_tms_file_strategy tfs,
+		t_tms_strategy ts
+		WHERE tf.id=tfs.file_id
+		AND
+		tfs.strategy_id=ts.id
+		AND tf.id=#{id}
+		AND tf.del_flag=0
+	</select>
+</mapper>

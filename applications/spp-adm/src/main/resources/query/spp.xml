@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<queryContext xmlns="http://www.example.org/query"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.example.org/query query.xsd ">
+
+	<!--更新物列表 -->
+	<query id="updateItems_list" key="id" tableName="tms.table.updateItems.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="id" hidden="true" />
+		<column key="fileName" header="tms.table.updateItems.fileName" width="40" allowSort="false" />
+		<column key="fileType" header="tms.table.updateItems.fileType" width="40" allowSort="false" dict="tms_file_type" render="type=dict"/>
+		<column key="manufactureNo" header="tms.table.updateItems.manufactureNo" width="40" allowSort="false" />
+		<column key="fileVersion" header="tms.table.updateItems.fileVersion" width="40" allowSort="false" />
+		<column key="filePath" header="tms.table.updateItems.filePath" width="40" allowSort="false" />
+		<column key="fileSize" header="tms.table.updateItems.fileSize" width="40" allowSort="false" fnRender="formatSize"/>
+		<column key="uploadTime" header="tms.table.updateItems.uploadTime" width="40" dateFormat="yyyy-MM-dd HH:mm:ss"/>
+		<column key="remarks" header="tms.table.updateItems.remarks" width="40" allowSort="false" />
+	</query>
+	
+	<!--更新文件列表 -->
+	<query id="updateFiles_list" key="id" tableName="tms.table.updateFiles.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="id" hidden="true" />
+		<column key="manufactureNo" header="tms.table.updateItems.manufactureNo" width="40" allowSort="false" />
+		<column key="fileType" header="tms.table.updateItems.fileType" width="40" allowSort="false" dict="tms_file_type" render="type=dict"/>
+		<column key="fileVersion" header="tms.table.updateItems.fileVersion" width="40" allowSort="false" />
+		<column key="fileName" header="tms.table.updateItems.fileName" width="40" allowSort="false" />
+		<column key="fileSize" header="tms.table.updateItems.fileSize" width="40" allowSort="false" fnRender="formatSize"/>
+		<column key="uploadTime" header="tms.table.updateItems.uploadTime" width="40" dateFormat="yyyy-MM-dd HH:mm:ss"/>
+		<column key="md5" header="tms.table.updateItems.md5" width="40" allowSort="false" />
+	</query>
+	
+	<!--更新策略列表 -->
+	<query id="updateStrategy_list" key="id" tableName="tms.table.updateStrategy.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="id" hidden="true" />
+		<column key="manufactureNo" header="tms.table.updateStrategy.manufactureNo" width="40" allowSort="false" />
+		<column key="deviceType" header="tms.table.updateStrategy.deviceType" width="40" allowSort="false" />
+		<column key="strategyName" header="tms.table.updateStrategy.strategyName" width="40" allowSort="false" />
+		<column key="updateTime" header="tms.table.updateStrategy.updateTime" width="40" allowSort="false" dict="tms_update_time" render="type=dict"/>
+		<column key="beginDate" header="tms.table.updateStrategy.beginDate" width="40" dateFormat="yyyy-MM-dd"/>
+		<column key="endDate" header="tms.table.updateStrategy.endDate" width="40" dateFormat="yyyy-MM-dd"/>
+		<column key="count" header="设备数量" width="40" allowSort="false" />
+	</query>
+	
+	<!--绑定更新物列表 -->
+	<query id="updateItemsConfig_list" key="id" tableName="tms.table.updateItems.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="" hidden="false" fnRender="addCheckBox"/>
+		<column key="fileName" header="tms.table.updateItems.fileName" width="40" allowSort="false" />
+		<column key="fileType" header="tms.table.updateItems.fileType" width="40" allowSort="false" dict="tms_file_type" render="type=dict"/>
+		<column key="manufactureNo" header="tms.table.updateStrategy.manufactureNo" width="40" allowSort="false" />
+		<column key="fileVersion" header="tms.table.updateItems.fileVersion" width="40" allowSort="false" />
+	</query>
+	
+	<!-- 更新日志 -->
+	<query id="updateLog_list" key="id" tableName="tms.table.updateLog.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="id" hidden="true" />
+		<column key="fileName" header="tms.table.updateItems.fileName" width="40" allowSort="false" />
+		<column key="fileType" header="tms.table.updateItems.fileType" width="40" allowSort="false" dict="tms_file_type" render="type=dict"/>
+		<column key="fileVersion" header="tms.table.updateItems.fileVersion" width="40" allowSort="false" />
+		<column key="manufactureNo" header="tms.table.updateItems.manufactureNo" width="40" allowSort="false" />
+		<column key="strategyName" header="tms.table.updateStrategy.strategyName" width="40" allowSort="false" />
+		<column key="deviceType" header="tms.table.updateStrategy.deviceType" width="40" allowSort="false" />
+		<column key="deviceSn" header="tms.table.updateStrategy.deviceSn" width="40" allowSort="false" />
+		<column key="operateDate" header="tms.table.updateLog.updateDate" width="40" dateFormat="yyyy-MM-dd HH:mm:ss"/>
+		<column key="id" header="tms.table.log.detail" width="300" fnRender="logDetail"/>
+	</query>
+	
+	<!--设备列表 -->
+	<query id="device_list" key="id" tableName="ota.table.device.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="id" hidden="true" />
+		<column key="manufacturerNo" header="ota.table.manufacturer.name" width="100" allowSort="false"/>
+		<column key="deviceType" header="ota.table.device.type" width="100" allowSort="false" />
+		<column key="deviceSn" header="ota.table.device.sn" width="100" allowSort="false"/>
+		<column key="deviceOsVersion" header="ota.table.system.version" width="100" allowSort="false"/>
+		<column key="merId" header="app.release.merchant" width="100" allowSort="false" hidden="true"/>
+		<column key="merName" header="app.release.merchant" width="100" allowSort="false"/>
+		<!-- <column key="id" header="ota.table.device.info" width="300" fnRender="check"/> -->
+		<column key="id" header="ota.table.operation" width="100" fnRender="operation"/>
+	</query>
+	
+	<!-- 绑定终端列表 -->
+	<query id="boundTermTable" key="id" tableName="sys.merchant.device.table.name" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="checked" width="50" fnRender="check" align="left" />
+		<column key="rowIndex" header="common.serial.number" width="50"  allowSort="true"/>
+	    <column key="id" header="id" hidden="true" />
+		<column key="deviceSn" header="sys.merchant.device.sn" width="100"  allowSort="true"/>
+		<column key="organName" header="sys.organ.orgName" width="80"  />
+		<column key="organId" header="sys.merchant.orgId" width="80"   allowSort="true"/>
+		<column key="merName" header="sys.merchant.name" width="80"  />
+		<column key="merId" header="sys.merchant.id" width="100"  allowSort="true"/>
+		<column key="shopName" header="sys.store.name" width="80"  />
+		<column key="shopId" header="sys.store.id" width="100"  allowSort="true"/>
+		<column key="deviceBundState" header="sys.merchant.device.boundState" width="100" fnRender="state"/>
+	<!-- 	<column key="id" header="bound.term.table.operation" width="100" fnRender="unBound"/> -->
+	</query>
+	
+	<!--设备更新版本查看列表 -->
+	<query id="record_device_list" key="id" tableName="ota.table.device.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="id" hidden="true" />
+		<column key="manufacturerNo" header="ota.table.manufacturer.name" width="100" allowSort="false"/>
+		<column key="deviceType" header="ota.table.device.type" width="100" allowSort="false" />
+		<column key="deviceSn" header="ota.table.device.sn" width="100" allowSort="false"/>
+		<column key="deviceOsVersion" header="ota.table.system.version" width="100" allowSort="false"/>
+		<column key="clientNo" header="ota.table.client" width="100" allowSort="false"/>
+		<column key="clientIdentification" header="ota.table.client.identification" width="100" allowSort="false" dict="client_identify" render="type=dict"/>
+		<column key="id" header="ota.table.operation" width="300" fnRender="operation"/>
+	</query>
+	
+	<!--设备发布选择列表 -->
+	<query id="os_device_list" key="id" tableName="ota.table.device.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		
+		<column key="id" header="" hidden="false" fnRender="addCheckBox"/>
+		<column key="manufacturerNo" header="ota.table.manufacturer.name" width="100" allowSort="false"/>
+		<column key="deviceType" header="ota.table.device.type" width="100" allowSort="false" />
+		<column key="deviceSn" header="ota.table.device.sn" width="100" allowSort="false"/>
+		<column key="deviceOsVersion" header="ota.table.system.version" width="100" allowSort="false"/>
+		<column key="clientNo" header="ota.table.client" width="100" allowSort="false"/>
+	</query>
+	
+	<!--设备发布选择列表按照类型发布 -->
+	<query id="device_type_list" key="id" tableName="ota.table.device.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="apkId" header="" hidden="false" fnRender="addCheckBox"/>
+		<column key="manufacturerName" header="ota.table.manufacturer.name" width="100" allowSort="false"/>
+		<column key="deviceType" header="ota.table.device.type" width="100" allowSort="false" />
+	</query>
+	
+	<!--已发布设备列表 -->
+	<query id="already_device_list" key="id" tableName="ota.table.device.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="manufacturerNo" header="ota.table.manufacturer.name" width="100" allowSort="false"/>
+		<column key="deviceType" header="ota.table.device.type" width="100" allowSort="false" />
+		<column key="deviceSn" header="ota.table.device.sn" width="100" allowSort="false"/>
+		<column key="clientNo" header="ota.table.client" width="100" allowSort="false"/>
+		<column key="clientIdentification" header="ota.table.client.identification" width="100" allowSort="false" dict="client_identify" render="type=dict"/>
+		<column key="deviceOsVersion" header="ota.table.device.current.version.number" width="100" allowSort="false"/>
+		<column key="osVersion" header="ota.table.to.upgrade.the.ROM.version.number" width="100" allowSort="false"/>
+		<column key="versionCompareValue" header="ota.table.upgrade.logo" width="100" fnRender="operation"/>
+	</query>
+	
+	<!--系统版本列表 -->
+	<query id="osRom_list" key="id" tableName="ota.table.system.version.list " pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="id" hidden="true" />
+		<column key="manufacturerNo" header="ota.table.manufacturer.name" width="30" allowSort="false"/>
+		<column key="osDeviceType" header="ota.table.device.type" width="40" allowSort="false" />
+		<column key="osVersion" header="ota.table.system.version" width="30" allowSort="false"/>
+		<column key="clientIdentification" header="ota.table.client.identification" width="30" allowSort="false" dict="client_identify" render="type=dict"/>
+		<column key="romPath" header="ota.table.file.name" width="100" allowSort="false" fnRender="formatFileUrl"/>
+		<column key="osStart" header="ota.table.start.version" width="50" allowSort="false"/>
+		<column key="osEnd" header="ota.table.end.version" width="50" allowSort="false"/>
+		<column key="osPacketType" header="ota.table.package.type" width="30" allowSort="false" dict="os_packet_type" render="type=dict"/>
+		<column key="romFileSize" header="ota.table.version.package.size" width="40" allowSort="false" fnRender="convertMb"/>
+		<column key="createDate" header="ota.table.time" width="100" allowSort="false"/>
+		<column key="createBy.name" header="ota.table.operator" width="100" allowSort="false"/>
+		<column key="id" header="ota.table.operation" width="300" fnRender="releaseOperation"/>
+	</query>
+	
+	<!--厂商列表 -->
+	<query id="manuFacturer_list" key="id" tableName="ota.table.vendor.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="id" hidden="true" />
+		<column key="manufacturerNo" header="ota.table.manufacturer.number" width="40" allowSort="false" />
+		<column key="manufacturerName" header="ota.table.manufacturer.name" width="30" allowSort="false"/>
+		<column key="manufacturerAddr" header="ota.table.manufacturer.address" width="50" allowSort="false" />
+	</query>
+	   
+	<!--客户列表 -->
+	<query id="client_list" key="id" tableName="ota.table.client.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="id" hidden="true" />
+		<column key="customerName" header="ota.table.client.name" width="40" allowSort="false" />
+		<column key="customerClass" header="ota.table.client.level" width="30" allowSort="false"/>
+		<column key="customerCredits" header="ota.table.consumer.reputation" width="30" allowSort="false"/>
+		<column key="accountPeriod" header="ota.table.account.period" width="30" allowSort="false"/>
+	</query>
+	
+	<!--设备型号列表 -->
+	<query id="deviceType_list" key="id" tableName="ota.table.device.type.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="id" hidden="true" />
+		<column key="manufacturerNo" header="ota.table.manufacturer.name" width="40" allowSort="false" />
+		<column key="deviceType" header="ota.table.device.type" width="30" allowSort="false"/>
+	</query>
+	
+	<!--版本发布列表 -->
+	<query id="recordRom_list" key="id" tableName="ota.table.version.release.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="id" hidden="true" />
+		<column key="manufacturerNo" header="ota.table.manufacturer.name" width="40" allowSort="false" />
+		<column key="osVersion" header="ota.table.version" width="40" allowSort="false" />
+		<column key="osDeviceType" header="ota.table.device.type" width="40" allowSort="false" />
+		<column key="createPerson" header="ota.table.publisher" width="40" allowSort="false" />
+		<column key="createDate" header="ota.table.release.time" width="40" allowSort="false" />
+		<column key="deviceCount" header="ota.table.device.count" width="40" allowSort="false" />
+		<column key="id" header="ota.table.operation" width="300" fnRender="operation"/>
+	</query>
+	
+	<!--系统版本列表 -->
+	<query id="osRom_record_list" key="id" tableName="ota.table.device.associated.version.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="id" hidden="true" />
+		<column key="manufacturerNo" header="ota.table.manufacturer.name" width="30" allowSort="false"/>
+		<column key="osDeviceType" header="ota.table.device.type" width="40" allowSort="false" />
+		<column key="osVersion" header="ota.table.system.version" width="30" allowSort="false"/>
+		<column key="osPacketType" header="ota.table.package.type" width="30" allowSort="false" dict="os_packet_type" render="type=dict"/>
+		<column key="romFileSize" header="ota.table.version.package.size" width="40" allowSort="false" fnRender="convertMb"/>
+		<column key="description" header="ota.table.update.information.description" width="100" allowSort="false"/>
+	</query>
+	
+		<!--客户列表 -->
+	<query id="strategy_list" key="id" tableName="ota.table.strategy.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="id" hidden="true" />
+		<column key="strategyName" header="ota.table.strategy.name" width="30" allowSort="false"/>
+		<column key="strategyDesc" header="ota.table.strategy.desc" width="30" allowSort="false"/>
+		<!--  <column key="upgradeType" header="升级方式" width="30" allowSort="false" fnRender="upgradeType"/>  -->
+		<column key="beginDate" header="ota.table.start.date" width="30" allowSort="false" dateFormat="yyyy-MM-dd"/>
+		<column key="endDate" header="ota.table.end.date" width="30" allowSort="false" dateFormat="yyyy-MM-dd"/>
+	</query>
+	
+	<!--应用列表 -->
+	<query id="appInfo_list" key="id" tableName="ota.table.application.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="id" hidden="true" />
+		<column key="appName" header="ota.table.application.name" width="30" allowSort="false"/>
+		<column key="appLogo" header="ota.table.application.logo" width="30" allowSort="false" fnRender="operationAppLogo"/>
+		<column key="appPackage" header="ota.table.application.appPackage" width="30" allowSort="false"/>
+		<column key="category" header="category" width="30" allowSort="false"/>
+		<column key="platform" header="app.information.platform" width="30" allowSort="false"/>
+		<column key="appDeveloper" header="ota.table.application.developer" width="30" allowSort="false"/>
+		<column key="currentApproveFlag" header="approval.status" width="30" allowSort="false" fnRender="operationApproveFlag"/>
+	</query>
+	
+	<!--应用审核列表 -->
+	<query id="approveInfo_list" key="id" tableName="ota.table.application.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="id" hidden="true" />
+		<column key="appName" header="ota.table.application.name" width="30" allowSort="false"/>
+		<column key="appLogo" header="ota.table.application.logo" width="30" allowSort="false" fnRender="operationAppLogo"/>
+		<column key="appPackage" header="ota.table.application.appPackage" width="30" allowSort="false"/>
+		<column key="category" header="app.information.type" width="30" allowSort="false"/>
+		<column key="platform" header="app.information.platform" width="30" allowSort="false"/>
+		<column key="appDeveloper" header="ota.table.application.developer" width="30" allowSort="false"/>
+		<column key="currentApproveFlag" header="app.information.approval.flag" width="30" allowSort="false" fnRender="operationApproveFlag"/>
+		<column key="operationFlag" header="operarition" width="300" fnRender="operation"/>
+	</query>
+	
+	<!-- 应用审核详情列表 -->
+	<query id="approveDetail_list" key="id" tableName="app.approval.detail.tab.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+	    <column key="id" header="id" hidden="true" />
+		<column key="appName" header="ota.table.application.name" width="30" allowSort="false"/>
+		<column key="organId" header="app.approval.organ" width="30" allowSort="false"/>
+		<column key="createBy.name" header="app.approval.persion" width="30" allowSort="false"/>
+		<column key="createDate" header="app.approval.datetime" width="30" allowSort="false"/>
+		<column key="approveRemarks" header="app.approval.remarks" width="30" allowSort="false" />
+		<column key="approveFlag" header="app.approval.flag" width="30" allowSort="false" fnRender="operationApproveFlag"/>
+		<column key="appDataScope" header="app.information.approval.data.scope" width="100" allowSort="false"/>
+	</query>
+	
+	<!--应用远程列表 -->
+	<query id="appTelemanagement_List" key="id" tableName="app.information.remote.management.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="id" hidden="true" />
+		<column key="appName" header="ota.table.application.name" width="30" allowSort="false"/>
+		<column key="appLogo" header="ota.table.application.logo" width="30" allowSort="false" fnRender="operationAppLogo"/>
+		<column key="appPackage" header="ota.table.application.appPackage" width="30" allowSort="false"/>
+		<column key="category" header="app.information.type" width="30" allowSort="false"/>
+		<column key="platform" header="app.information.platform" width="30" allowSort="false"/>
+		<column key="appDeveloper" header="ota.table.application.developer" width="30" allowSort="false"/>
+	</query>
+	
+	<!--应用版本应用列表 -->
+	<query id="appInfo_version_list" key="id" tableName="ota.table.application.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="id" hidden="true" />
+		<column key="appName" header="ota.table.application.name" width="30" allowSort="false"/>
+		<column key="appLogo" header="ota.table.application.logo" width="30" allowSort="false" fnRender="operationAppLogo"/>
+		<column key="clientIdentification" header="ota.table.client.identification" width="30" allowSort="false" fnRender="operationClientId"/>
+	</query>
+	
+	<!--App开发者列表 -->
+	<query id="appDeveloper_list" key="id" tableName="ota.table.application.developer.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="id" hidden="true" />
+		<column key="name" header="ota.table.name" width="30" allowSort="false"/>
+		<column key="phone" header="ota.table.phone" width="30" allowSort="false"/>
+		<column key="company" header="ota.table.company" width="30" allowSort="false"/>
+		<column key="address" header="ota.table.company.address" width="30" allowSort="false"/>
+	</query>
+	
+	<!--App版本列表 -->
+	<query id="appVersion_list" key="id" tableName="ota.table.application.version.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="id" hidden="true" />
+		<column key="appName" header="ota.table.application.name" width="30" allowSort="false"/>
+		<column key="appVersion" header="ota.table.application.version" width="30" allowSort="false"/>
+		<column key="appPackage" header="ota.table.application.appPackage" width="30" allowSort="false"/>
+		<column key="appFile" header="ota.table.application.file" width="120" allowSort="false" fnRender="formatFileUrl" />
+		<column key="createDate" header="ota.table.release.time" width="40" allowSort="false" />
+		<column key="upgradeType" header="app.release.type" width="40" allowSort="false" fnRender="operationUpgradeType"/>
+		<column key="upgradeDesc" header="app.update.description" width="120" allowSort="false" />
+	</query>
+	
+	<!--App版本管理列表 -->
+	<query id="appVersion_manager_list" key="id" tableName="ota.table.application.release.version.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="id" hidden="true" />
+		<column key="appVersion" header="ota.table.application.version" width="30" allowSort="false"/>
+		<column key="appFile" header="ota.table.application.file" width="30" allowSort="false" fnRender="formatFileUrl"/>
+		<column key="clientIdentification" header="ota.table.client.identification" width="100" allowSort="false" fnRender="operationClientId"/>
+		<column key="appDescription" header="ota.table.update.description" width="30" allowSort="false"/>
+	</query>
+	
+	<!--App版本发布列表 -->
+	<query id="release_appVersion_list" key="id" tableName="ota.table.application.release.version.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="id" hidden="true" />
+		<column key="appVersion" header="ota.table.application.version" width="30" allowSort="false"/>
+		<column key="appFile" header="ota.table.application.file" width="30" allowSort="false" fnRender="formatFileUrl"/>
+		<column key="clientIdentification" header="ota.table.client.identification" width="100" allowSort="false" fnRender="operationClientId"/>
+		<column key="id" header="ota.table.operation" width="300" fnRender="releaseOperation"/>
+	</query>
+	
+	<!--版本发布列表 -->
+	<query id="recordApp_list" key="id" tableName="ota.table.application.release.version.record.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="id" hidden="true" />
+		<column key="appName" header="ota.table.application.name" width="40" allowSort="false" />
+		<column key="appLogo" header="ota.table.application.logo" width="30" allowSort="false" fnRender="operationAppLogo"/>
+		<column key="appPackage" header="ota.table.application.appPackage" width="40" allowSort="false" />
+		<column key="appVersion" header="ota.table.application.version" width="40" allowSort="false" />
+		<column key="upgradeType" header="app.release.type" width="40" allowSort="false" fnRender="operationUpgradeType"/>
+		<column key="upgradeDesc" header="app.update.description" width="40" allowSort="false" />
+		<column key="createPerson" header="ota.table.publisher" width="40" allowSort="false" />
+		<column key="createDate" header="ota.table.release.time" width="40" allowSort="false" />
+		<column key="deviceCount" header="ota.table.release.count" width="40" allowSort="false" />
+	</query>
+	
+	<!--已发布应用版本设备列表 -->
+	<query id="already_app_device_list" key="id" tableName="ota.table.device.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="manufacturerNo" header="ota.table.manufacturer.name" width="100" allowSort="false"/>
+		<column key="deviceType" header="ota.table.device.type" width="100" allowSort="false" />
+		<column key="deviceSn" header="ota.table.device.sn" width="100" allowSort="false"/>
+		<column key="appName" header="ota.table.application.name" width="100" allowSort="false" />
+		<column key="currentAppVersion" header="app.table.device.current.version.number" width="100" allowSort="false" />
+		<column key="appVersion" header="app.table.to.upgrade.version.number" width="100" allowSort="false" />
+		<column key="upgradeType" header="app.release.type" width="100" allowSort="false" fnRender="operationUpgradeType"/>
+		<column key="upgradeDesc" header="app.update.description" width="40" allowSort="false" />
+		<column key="versionCompareValue" header="ota.table.upgrade.logo" width="100" fnRender="operation"/>
+	</query>
+	
+	<!--系统版本设备数量列表 -->
+	<query id="rom_device_count_list" key="id" tableName="ota.table.system.version.count.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="deviceOsVersion" header="ota.table.system.version" width="30" allowSort="false"/>
+		<column key="clientIdentification" header="ota.table.client.identification" width="30" allowSort="false" dict="client_identify" render="type=dict"/>
+		<column key="deviceCount" header="ota.table.device.count" width="300" />
+	</query>
+	
+	<!--app记录查询app版本设备列表 -->
+	<query id="app_device_list" key="id" tableName="ota.table.application.device.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="id" hidden="true" />
+		<column key="manufacturerNo" header="ota.table.manufacturer.name" width="100" allowSort="false"/>
+		<column key="deviceType" header="ota.table.device.type" width="100" allowSort="false" />
+		<column key="deviceSn" header="ota.table.device.sn" width="100" allowSort="false"/>
+		<column key="merId" header="sys.merchant.merId" width="100" allowSort="false"/>
+		<column key="shopId" header="sys.store.storeId" width="100" allowSort="false"/>
+	</query>
+	
+	
+	<!--远程控制设备列表 -->
+	<query id="remote_control_device_list" key="id" tableName="ota.table.device.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="" hidden="false" fnRender="addCheckBox"/>
+		<column key="manufacturerNo" header="ota.table.manufacturer.name" width="100" allowSort="false"/>
+		<column key="deviceType" header="ota.table.device.type" width="100" allowSort="false" />
+		<column key="deviceSn" header="ota.table.device.sn" width="100" allowSort="false"/>
+		<column key="deviceOsVersion" header="ota.table.system.version" width="100" allowSort="false"/>
+		<!-- <column key="clientNo" header="ota.table.client" width="100" allowSort="false"/> -->
+	</query>
+	
+	<!--产品列表 -->
+	<query id="product_list" key="id" tableName="ota.table.device.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="" hidden="false" fnRender="addCheckBox"/>
+		<column key="vendorCode" header="ota.table.manufacturer.name" width="100" allowSort="false"/>
+		<column key="productTypeCode" header="ota.table.terminal.type" width="100" allowSort="false" />
+		<column key="productId" header="ota.table.device.type" width="100" allowSort="false"/>
+		<column key="sn" header="ota.table.device.sn" width="100" allowSort="false"/>
+		<column key="pn" header="ota.table.device.pn" width="100" allowSort="false"/>
+		<column key="customerId" header="ota.table.client" width="100" allowSort="false"/>
+	</query>
+	
+	<!-- 日志文件列表 -->
+	<query id="log_table_list" key="id" tableName="ota.table.log.file.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="id" hidden="true" />
+		<column key="logName" header="ota.table.log.name" width="300" allowSort="false" maxLen="50" enableTooltip="true"/> 
+		<column key="recDate" header="ota.table.upload.date" width="100" allowSort="false"/>
+		<column key="id" header="ota.table.operation" width="100" fnRender="operation"/>
+	</query>
+	
+	<!--客户查看设备列表 -->
+	<query id="customer_device_list" key="id" tableName="ota.table.device.list" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="id" hidden="true" />
+		<column key="manufacturerNo" header="ota.table.manufacturer.name" width="100" allowSort="false"/>
+		<column key="deviceType" header="ota.table.device.type" width="100" allowSort="false" />
+		<column key="deviceSn" header="ota.table.device.sn" width="100" allowSort="false"/>
+		<column key="deviceOsVersion" header="ota.table.system.version" width="100" allowSort="false"/>
+		<column key="clientNo" header="ota.table.client" width="100" allowSort="false"/>
+		<column key="clientIdentification" header="ota.table.client.identification" width="100" allowSort="false" dict="client_identify" render="type=dict"/>
+		<column key="id" header="ota.table.operation" width="100" fnRender="operation"/>
+	</query>
+	
+	<!--广告列表 -->
+    <query id="advertisement_list" key="id" tableName="sys.advertisement.table.name" pageSize="10"
+        widthType="px" order="updateDate desc" allowPaging="true">
+        <!-- <column key="rowIndex" header="common.serial.number" width="50" allowSort="false" /> -->
+        <column key="id" header="id" hidden="true" />
+        <column key="adName" header="sys.advertisement.adName" width="100" allowSort="false" />
+        <!-- column key="adTitle" header="sys.advertisement.adTitle" width="100" allowSort="false" / -->       
+        <column key="adType" header="sys.advertisement.adType" width="100" allowSort="false"/>
+        <column key="merName" header="sys.log.table.option.user.office" width="100" allowSort="false"/>
+        <column key="startTime" header="sys.advertisement.adStartTime" width="40" allowSort="false" />
+        <column key="endTime" header="sys.advertisement.adEndTime" width="40" allowSort="false" />
+        <column key="adStatus" header="sys.advertisement.adStatus" width="100" allowSort="false" fnRender="operationadStatus"/>         
+        <column key="approvalStatus" header="sys.advertisement.approvalStatus" width="40" allowSort="false" fnRender="operationapprovalStatus"/>
+    </query>
+
+</queryContext>

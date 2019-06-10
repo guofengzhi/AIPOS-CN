@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.modules.baseinfo.dao.StrategyDao">
+
+
+	<sql id="DictJoins">
+		LEFT JOIN sys_dict sdi1 ON t.upgrade_type=sdi1.value AND
+		sdi1.type='upgrade_type'
+	</sql>
+
+	<sql id="baseCoumns">
+		t.id,
+		t.strategy_name,
+		t.upgrade_type,
+		t.begin_date,
+		t.end_date,
+		t.strategy_desc
+	</sql>
+
+	<!-- 过滤查询列表 -->
+	<select id="findList" resultType="com.jiewen.modules.baseinfo.entity.Strategy">
+		SELECT
+		t.id,
+		t.strategy_name,
+		sdi1.label AS upgrade_type,
+		t.begin_date,
+		t.end_date,
+		t.strategy_desc
+		FROM `t_strategy_info` t
+		<include refid="DictJoins" />
+		WHERE t.del_flag = '0'
+		AND t.organ_id IN (SELECT id FROM sys_office
+		WHERE parent_ids LIKE
+		<if test="dbName == 'oracle'">'%,'||#{organId}||',%'</if>
+		<if test="dbName == 'mssql'">'%,'+#{organId}+',%'</if>
+		<if test="dbName == 'mysql'">CONCAT('%,', #{organId}, ',%')</if>
+		AND del_flag = '0'
+		UNION select id from sys_office where id = #{organId}
+		AND del_flag = '0')
+		<if test="strategyName != null and strategyName != ''">
+			AND strategy_name = #{strategyName}
+		</if>
+		<if test="id != null and id != ''">
+			AND id = #{id}
+		</if>
+		ORDER BY t.create_date DESC
+	</select>
+
+	<!-- 通过id查询 -->
+	<select id="get" resultType="com.jiewen.modules.baseinfo.entity.Strategy">
+		SELECT
+		<include refid="baseCoumns" />
+		FROM `t_strategy_info` t
+		WHERE id = #{id} AND del_flag = '0'
+	</select>
+
+	<!-- 通过Name查询 -->
+	<select id="findStrategyByName" resultType="com.jiewen.modules.baseinfo.entity.Strategy">
+		SELECT
+		<include refid="baseCoumns" />
+		FROM `t_strategy_info` t
+		WHERE strategy_name = #{strategyName} AND
+		del_flag = '0'
+	</select>
+
+	<delete id="delete">
+		delete from t_strategy_info where id = #{id}
+	</delete>
+
+	<insert id="insert">
+		INSERT INTO `t_strategy_info`
+		(
+		strategy_name,
+		begin_date,
+		end_date,
+		strategy_desc,
+		upgrade_type,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		organ_id
+		)
+		VALUES (
+		#{strategyName},
+		#{beginDate},
+		#{endDate},
+		#{strategyDesc},
+		#{upgradeType},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{organId}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE t_strategy_info SET
+		<if test="strategyName != null and strategyName != ''">
+			strategy_name = #{strategyName},
+		</if>
+		<if test="upgradeType != null and upgradeType != ''">
+			upgrade_type = #{upgradeType},
+		</if>
+		<if test="strategyDesc != null and strategyDesc != ''">
+			strategy_desc = #{strategyDesc},
+		</if>
+		<if test="beginDate != null">
+			begin_date = #{beginDate},
+		</if>
+		<if test="endDate != null">
+			end_date = #{endDate},
+		</if>
+		update_by = #{updateBy.id},
+		update_date = #{updateDate},
+		organ_id = #{organId} WHERE id =
+		#{id}
+	</update>
+</mapper>

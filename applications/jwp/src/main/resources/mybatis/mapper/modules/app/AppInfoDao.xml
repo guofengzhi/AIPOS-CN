@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.modules.app.dao.AppInfoDao">
+
+	<sql id="DevelopJoins">
+		LEFT JOIN t_app_developer a ON a.id=t.app_developer
+	</sql>
+
+	<sql id="DevJoins">
+		LEFT JOIN sys_dict sdi2 ON t.category=sdi2.value AND
+		sdi2.type='app_category'
+		LEFT JOIN sys_dict sdi3 ON t.platform=sdi3.value AND
+		sdi3.type='app_platform'
+	</sql>
+
+	<sql id="OfficeJoins">
+		LEFT JOIN sys_office so
+		ON so.id = t.organ_id
+	</sql>
+	
+	<!-- 过滤查询列表 -->
+	<select id="findList" resultType="com.jiewen.modules.app.entity.AppInfo">
+		SELECT
+		t.id,
+		t.app_name,
+		t.app_logo,
+		t.app_package,
+		a.name AS app_developer,
+		sdi2.label AS category,
+		sdi3.label AS platform,
+		t.current_approve_flag,
+		CASE
+		WHEN
+		STRCMP(t.current_approve_grade, so.grade) &gt; 0
+		THEN '1'
+		WHEN
+		STRCMP(t.current_approve_grade, so.grade) &lt;= 0
+		THEN '0'
+		ELSE
+		'1' END AS operation_flag
+		FROM `t_app_info` t
+		<include refid="DevJoins" />
+		<include refid="DevelopJoins" />
+		<include refid="OfficeJoins" />
+		WHERE t.del_flag = '0'
+		AND t.organ_id IN (SELECT id FROM sys_office
+		WHERE parent_ids LIKE
+		<if test="dbName == 'oracle'">'%,'||#{organId}||',%'</if>
+		<if test="dbName == 'mssql'">'%,'+#{organId}+',%'</if>
+		<if test="dbName == 'mysql'">CONCAT('%,', #{organId}, ',%')</if>
+		AND del_flag = '0'
+		UNION select id from sys_office where id = #{organId}
+		AND del_flag = '0')
+		<if test="appName != null and appName != ''">
+			AND t.app_name like
+			<if test="dbName == 'oracle'">'%'||#{appName}||'%'</if>
+		    <if test="dbName == 'mssql'">'%'+#{appName}+'%'</if>
+		    <if test="dbName == 'mysql'">CONCAT('%', #{appName}, '%')</if>
+		</if>
+		<if test="appDeveloper != null and appDeveloper != ''">
+			AND a.name like
+			<if test="dbName == 'oracle'">'%'||#{appDeveloper}||'%'</if>
+		    <if test="dbName == 'mssql'">'%'+#{appDeveloper}+'%'</if>
+		    <if test="dbName == 'mysql'">CONCAT('%', #{appDeveloper}, '%')</if>
+		</if>
+		<if test="category != null and category != ''">
+			AND t.category = #{category}
+		</if>
+		<if test="platform != null and platform != ''">
+			AND t.platform = #{platform}
+		</if>
+		<if test="currentApproveFlag != null and currentApproveFlag != ''">
+			AND t.current_approve_flag = #{currentApproveFlag}
+		</if>
+		ORDER BY t.create_date DESC
+	</select>
+
+	<!-- 通过Name查询 -->
+	<select id="findAppInfoByName" resultType="com.jiewen.modules.app.entity.AppInfo">
+		SELECT
+		id,
+		app_name,
+		app_logo,
+		app_package,
+		app_developer,
+		category,
+		platform,
+		current_approve_flag,
+		current_approve_grade
+		FROM `t_app_info`
+		WHERE app_name = #{appName} AND del_flag = '0'
+	</select>
+
+	<!-- 通过package 和clientIdentification 查询 -->
+	<select id="findAppInfoByPAndOID" resultType="com.jiewen.modules.app.entity.AppInfo">
+		SELECT
+		id,
+		app_name,
+		app_logo,
+		app_package,
+		app_developer,
+		category,
+		platform,
+		current_approve_flag,
+		current_approve_grade
+		FROM `t_app_info`
+		WHERE app_package = #{appPackage} and organ_id =
+		#{organId} AND del_flag = '0'
+	</select>
+
+	<!-- 通过Name查询 -->
+	<select id="findAppInfoByPackage" resultType="com.jiewen.modules.app.entity.AppInfo">
+		SELECT
+		id,
+		app_name,
+		app_logo,
+		app_package,
+		app_developer,
+		category,
+		platform,
+		current_approve_flag,
+		current_approve_grade
+		FROM `t_app_info`
+		WHERE app_package = #{0} AND organ_id = #{1} AND
+		del_flag = '0'
+	</select>
+
+
+	<!-- 通过包名查询 -->
+	<select id="findAppInfoListByPackage" resultType="com.jiewen.modules.app.entity.AppInfo">
+		SELECT
+		id,
+		app_name,
+		app_logo,
+		app_package,
+		app_developer,
+		client_identification,
+		category,
+		platform,
+		current_approve_flag,
+		current_approve_grade
+		FROM `t_app_info`
+		WHERE app_package = #{packageName} AND del_flag = '0'
+	</select>
+
+	<!-- 通过id查询 -->
+	<select id="get" resultType="com.jiewen.modules.app.entity.AppInfo">
+		SELECT
+		id,
+		app_name,
+		app_logo,
+		app_package,
+		app_developer,
+		category,
+		platform,
+		current_approve_flag,
+		current_approve_grade,
+		app_img
+		FROM `t_app_info`
+		WHERE id = #{id} AND del_flag = '0'
+	</select>
+	<select id="getByPackageName" resultType="com.jiewen.modules.app.entity.AppInfo">
+		SELECT
+		id,
+		app_name,
+		app_logo,
+		app_package,
+		app_developer,
+		category,
+		platform,
+		current_approve_flag,
+		current_approve_grade,
+		app_img
+		FROM `t_app_info`
+		WHERE app_package = #{appPackage} AND del_flag = '0'
+	</select>
+	
+	<select id="getAppInfoById" resultType="com.jiewen.modules.app.entity.AppInfo">
+		SELECT
+		id,
+		app_name,
+		app_logo,
+		app_package,
+		app_developer,
+		category,
+		platform,
+		current_approve_flag,
+		current_approve_grade,
+		app_img
+		FROM `t_app_info`
+		WHERE id = #{id} AND del_flag = '0'
+	</select>
+
+	<select id="getDeviceCount" resultType="Integer">
+		SELECT
+		COUNT(*)
+		FROM `t_app_info` t
+		where t.del_flag = '0'
+		AND t.organ_id IN (SELECT id FROM sys_office
+		WHERE parent_ids LIKE
+		<if test="dbName == 'oracle'">'%,'||#{organId}||',%'</if>
+		<if test="dbName == 'mssql'">'%,'+#{organId}+',%'</if>
+		<if test="dbName == 'mysql'">CONCAT('%,', #{organId}, ',%')</if>
+		AND del_flag = '0'
+		UNION select id from sys_office where id = #{organId}
+		AND del_flag = '0')
+	</select>
+
+	<delete id="delete">
+		delete from t_app_info where id = #{id}
+	</delete>
+
+	<insert id="insert">
+		INSERT INTO `t_app_info`
+		(
+		app_name,
+		app_logo,
+		app_package,
+		app_developer,
+		organ_id,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		app_img,
+		platform,
+		category,
+		current_approve_flag
+		)
+		VALUES (
+		#{appName},
+		#{appLogo},
+		#{appPackage},
+		#{appDeveloper},
+		#{organId},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{appImg},
+		#{platform},
+		#{category},
+		#{currentApproveFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE t_app_info SET
+		<if test="appName != null and appName != ''">
+			app_name = #{appName},
+		</if>
+		<if test="appPackage != null and appPackage != ''">
+			app_package = #{appPackage},
+		</if>
+		<if test="appDeveloper != null and appDeveloper != ''">
+			app_developer = #{appDeveloper},
+		</if>
+		<if test="category != null and category != ''">
+			category = #{category},
+		</if>
+		<if test="platform != null and platform != ''">
+			platform = #{platform},
+		</if>
+		<if test="appImg != null and appImg != ''">
+			app_img = #{appImg},
+		</if>
+		<if test="currentApproveFlag != null and currentApproveFlag != ''">
+			current_approve_flag = #{currentApproveFlag},
+		</if>
+		<if test="currentApproveGrade != null and currentApproveGrade != ''">
+		    current_approve_grade = #{currentApproveGrade},
+		</if>
+		update_by = #{updateBy.id}, update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+</mapper>

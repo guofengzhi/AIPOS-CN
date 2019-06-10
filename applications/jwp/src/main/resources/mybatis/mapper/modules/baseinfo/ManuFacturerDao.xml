@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.modules.baseinfo.dao.ManuFacturerDao">
+
+	<!-- 过滤查询列表 -->
+	<select id="findList"
+		resultType="com.jiewen.modules.baseinfo.entity.ManuFacturer">
+		SELECT
+		id,
+		manufacturer_name,
+		manufacturer_no,
+		manufacturer_addr
+		FROM `t_manufacturer_info`
+		WHERE del_flag = '0'
+		<if test="manufacturerName != null and manufacturerName != ''">
+			AND manufacturer_name = #{manufacturerName}
+		</if>
+		<if test="manufacturerNo != null and manufacturerNo != ''">
+			AND manufacturer_no = #{manufacturerNo}
+		</if>
+		ORDER BY create_date DESC
+	</select>
+
+	<!-- 通过id查询 -->
+	<select id="findManuFacturerByNo" parameterType="String"
+		resultType="com.jiewen.modules.baseinfo.entity.ManuFacturer">
+		SELECT
+			id,
+			manufacturer_name,
+			manufacturer_no,
+			manufacturer_addr
+		FROM `t_manufacturer_info`
+		WHERE manufacturer_no = #{manufacturerNo} AND del_flag = '0'
+	</select>
+
+	<!-- 通过Name查询 -->
+	<select id="findManuFacturerByName" parameterType="String"
+		resultType="com.jiewen.modules.baseinfo.entity.ManuFacturer">
+		SELECT
+			id,
+			manufacturer_name,
+			manufacturer_no,
+			manufacturer_addr
+		FROM `t_manufacturer_info`
+		WHERE manufacturer_name = #{manuFacturerName} AND del_flag = '0'
+	</select>
+
+	<!-- 通过id查询 -->
+	<select id="get"
+		resultType="com.jiewen.modules.baseinfo.entity.ManuFacturer">
+		SELECT
+			id,
+			manufacturer_name,
+			manufacturer_no,
+			manufacturer_addr
+		FROM `t_manufacturer_info`
+		WHERE id = #{id} AND del_flag = '0'
+	</select>
+
+	<delete id="delete">
+		delete from t_manufacturer_info where id = #{id}
+	</delete>
+
+	<insert id="insert">
+		INSERT INTO `t_manufacturer_info`
+		(
+		manufacturer_name,
+		manufacturer_no,
+		manufacturer_addr,
+		create_by,
+		create_date,
+		update_by,
+		update_date
+		)
+		VALUES (
+		#{manufacturerName},
+		#{manufacturerNo},
+		#{manufacturerAddr},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE t_manufacturer_info SET 
+		<if test="manufacturerName != null and manufacturerName != ''">
+			manufacturer_name = #{manufacturerName}, 
+		</if>
+		<if test="manufacturerNo != null and manufacturerNo != ''">
+			manufacturer_no = #{manufacturerNo}, 
+		</if>
+		<if test="manufacturerAddr != null and manufacturerAddr != ''">
+			manufacturer_addr = #{manufacturerAddr}, 
+		</if>
+		update_by = #{updateBy.id},
+		update_date = #{updateDate} WHERE id = #{id}
+	</update>
+</mapper>

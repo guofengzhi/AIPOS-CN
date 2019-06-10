@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.spp.modules.tms.dao.TmsDeviceInfoDao">
+
+	<insert id="insert">
+		INSERT INTO `t_tms_device_info`
+		(device_sn,
+		device_type,
+		manu_no,
+		mer_id,
+		term_id,
+		create_date,
+		strategy_id
+		)
+		VALUES (
+		#{deviceSn},
+		#{deviceType},
+		#{manuNo},
+		#{merId},
+		#{termId},
+		#{createDate},
+		#{strategyId}
+		)
+	</insert>
+
+	<insert id="insertList">
+		INSERT INTO `t_tms_device_info`
+		(
+		device_sn,
+		device_type,
+		manu_no,
+		mer_id,
+		term_id,
+		create_date,
+		strategy_id
+		)
+		VALUES
+		<foreach collection="list" item="tmsDeviceInfo" index="index"
+			separator=",">
+			(
+			#{tmsDeviceInfo.deviceSn},
+			#{tmsDeviceInfo.deviceType},
+			#{tmsDeviceInfo.manuNo},
+			#{tmsDeviceInfo.merId},
+			#{tmsDeviceInfo.termId},
+			#{tmsDeviceInfo.createDate},
+			#{tmsDeviceInfo.strategyId}
+			)
+		</foreach>
+	</insert>
+
+	<update id="update">
+		update `t_tms_device_info` set
+		device_sn = #{deviceSn},
+		device_type = #{deviceType},
+		manu_no = #{manuNo},
+		mer_id = #{merId},
+		term_id =
+		#{termId},
+		create_date = #{createDate},
+		strategy_id = #{strategyId}
+		where id = #{id}
+	</update>
+	
+		<!-- 根据编号获得更新物 -->
+	<select id="get" resultType="com.jiewen.spp.modules.tms.entity.TmsDeviceInfo">
+		SELECT
+		id,
+		device_sn,
+		device_type,
+		manu_no,
+		mer_id,
+		term_id,
+		create_date,
+		strategy_id
+		FROM `t_tms_device_info` t
+		WHERE t.device_sn = #{deviceSn}
+	</select>
+</mapper>

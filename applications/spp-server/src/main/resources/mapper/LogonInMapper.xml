@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.spp.dao.DeviceLoginMapper">
+  <resultMap id="BaseResultMap" type="com.jiewen.spp.model.DeviceLogin">
+    <result column="device_sn" jdbcType="VARCHAR" property="deviceSn" />
+    <result column="password_err_num" property="passwordErrNum" jdbcType="INTEGER" />
+    <result column="last_login_success" property="lastLoginSuccess" jdbcType="TIMESTAMP" />
+    <result column="last_login_attempt" property="lastLoginAttempt" jdbcType="TIMESTAMP" />
+    <result column="session_id" property="sessionId" jdbcType="VARCHAR" />
+    <result column="last_operate_time" property="lastOperateTime" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <select id="getDeviceLoginBySession" resultMap="BaseResultMap">
+     select device_sn,
+            password_err_num,
+            last_login_success,
+            last_login_attempt,
+            session_id,
+            last_operate_time
+     from t_device_login
+     where session_id = #{sessionId}#
+  </select>
+</mapper>

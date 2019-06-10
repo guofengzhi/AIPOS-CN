@@ -1,0 +1,1 @@
+ALTER TABLE sys_user ADD COLUMN is_developer CHAR(1) DEFAULT '0' COMMENT '0-非开发者，1-开发者';

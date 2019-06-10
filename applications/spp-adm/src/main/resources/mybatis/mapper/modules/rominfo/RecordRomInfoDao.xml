@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.spp.modules.rom.dao.RecordRomInfoDao">
+
+	<sql id="ManuJoins">
+		LEFT JOIN t_manufacturer_info mi ON t.manufacturer_no=mi.manufacturer_no
+		LEFT JOIN sys_user u ON t.create_by=u.id
+	</sql>
+
+	<select id="findList" resultType="com.jiewen.spp.modules.rom.entity.RecordRomInfo">
+	   SELECT * FROM (
+		SELECT 
+			 t.id,
+			 t.os_id,
+		     t.os_version,
+		     t.os_device_type,
+		     mi.manufacturer_name AS manufacturer_no,
+		     (select count(1) from t_rom_device where record_rom_id = t.id ) as deviceCount,
+		     u.name AS createPerson,
+		     t.create_date
+		 FROM `t_record_rom_info` t
+		 	 <include refid="ManuJoins" />
+		 WHERE 1 = 1
+		 	<if test="manufacturerNo != null and manufacturerNo != ''">
+          		AND t.manufacturer_no = #{manufacturerNo}
+        	 </if>
+		 	 <if test="osVersion != null and osVersion != ''">
+          		AND os_version = #{osVersion}
+        	 </if>
+         	 <if test="osDeviceType != null and osDeviceType != ''">
+          		AND os_device_type = #{osDeviceType}
+             </if>
+             <if test="beginDate != null and endDate != null">
+				   AND t.create_date BETWEEN #{beginDate} AND #{endDate}
+			 </if>
+			  ) a
+			  where 1=1 
+			   <if test="deviceCount != null and deviceCount != '' ">
+				   AND a.deviceCount <![CDATA[ >= ]]>  #{deviceCount}
+			  </if>
+			  ORDER BY a.`create_date` DESC
+	</select>
+	
+	<insert id="insert" parameterType="com.jiewen.spp.modules.rom.entity.RecordRomInfo" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO `t_record_rom_info` 
+	    (
+	     os_id,
+	     os_version,
+	     os_version_shifter,
+	     os_device_type,
+	     manufacturer_no,
+	     remarks,
+	     create_by,
+	     create_date
+	     )
+        VALUES (
+        #{osId}, 
+        #{osVersion},
+        #{osVersionShifter},
+        #{osDeviceType},
+        #{manufacturerNo},
+        #{remarks},
+        #{createBy.id},
+        #{createDate}
+    	)
+	</insert>
+		
+	<delete id="deleteRomRecordByOsId" parameterType="String">
+		DELETE FROM t_record_rom_info WHERE os_id = #{osId}
+	</delete>
+
+</mapper>

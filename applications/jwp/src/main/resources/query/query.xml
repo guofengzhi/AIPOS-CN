@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<queryContext xmlns="http://www.example.org/query"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.example.org/query query.xsd ">
+	<!-- 数据库表列表 -->
+	<query id="selectTable" key="id" tableName="sys.selectTable.table.name"   pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="rowIndex" header="common.serial.number" width="50"/>
+		<column key="id" header="id" hidden="true" />
+		<column key="tableName" header="sys.selectTable.name" width="100" allowSort="true" />
+		<column key="tableComment" header="sys.selectTable.tableComment" width="80" />
+		<column key="id" header="common.option" width="100" fnRender="fnRenderOperator"/>
+	</query>
+	<!-- 用户列表 -->
+	<query id="userTable" key="id" tableName="sys.user.table.name"   pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="rowIndex" header="common.serial.number" width="50"/>
+		<column key="id" header="id" hidden="true" />
+		<column key="name" header="sys.user.name" width="100" allowSort="true" />
+		<column key="office.name" header="sys.user.office.name" width="80"  allowSort="false" />
+		<column key="loginName" header="sys.user.login.name" width="80" allowSort="false"/>
+		<column key="phone" header="sys.user.tel"  width="100" />
+		<column key="mobile" header="sys.user.mobile" width="200" align="center" />
+	</query>
+  <query id="userRoleTable" key="id" tableName="sys.user.table.name" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="rowIndex" header="common.serial.number" width="50"/>
+		<column key="id" header="id" hidden="true" />
+		<column key="name" header="sys.user.name" width="100" allowSort="true" />
+		<column key="loginName" header="sys.user.login.name" width="80" allowSort="false"/>
+	</query>
+	<!-- 角色列表 -->
+	<query id="role_list" key="id" tableName="sys.role.table.name" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="rowIndex" header="common.serial.number" width="50" />
+		<column key="id" header="id" hidden="true" />
+		<column key="name" header="sys.role.table.roleName" width="100" allowSort="true"/>
+		<column key="enname" header="sys.role.table.enname" width="100" allowSort="false" />
+		<column key="dataScope" header="sys.role.table.dataScope"  width="100" dict="sys_data_scope" render="type=dict"/>
+	</query>
+
+	<!-- 日志列表 -->
+	<query id="log_list" key="id" tableName="sys.log.table.name" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="rowIndex" header="common.serial.number" width="50" allowSort="false" />
+		<column key="id" header="id" hidden="true" />
+		<column key="title" header="sys.log.table.option.menu" width="100" allowSort="false" />
+		<column key="createByName" header="sys.log.table.option.user" width="100" allowSort="false" />
+		<column key="officeName" header="sys.log.table.option.user.office" width="80" allowSort="false" />
+		<column key="requestUri" header="sys.log.table.request.uri" width="100"   allowSort="true" />
+		<column key="method" header="sys.log.table.submit.type" width="100"  allowSort="true"  />
+		<column key="remoteAddr" header="sys.log.table.option.ip" width="100"   allowSort="false" />
+		<column key="createDate" header="sys.log.table.option.time" width="100"  allowSort="true"  />
+		<column key="exception" header="sys.log.table.error.msg" width="100" render="type=alert"/>
+	</query>
+
+	<!-- 字典列表 -->
+	<query id="dict_list" key="id" tableName="sys.dict.table.name" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="id" hidden="true" />
+		<column key="type" header="sys.dict.type" width="100" allowSort="true" />
+		<column key="value" header="sys.dict.value" width="100" allowSort="false" />
+		<column key="label" header="sys.dict.label" width="100" allowSort="false" />
+		<column key="description" header="sys.dict.description" width="100" />
+		<column key="sort" header="sys.dict.sort" width="100" />
+	</query>
+	
+	<!--区域列表 -->
+	<query id="area_list" key="id" tableName="sys.area.table.name" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="id" hidden="true" />
+		<column key="name" header="sys.area.name" width="100" allowSort="true" fnRender="areaShow"/>
+		<column key="code" header="sys.area.code" width="100" allowSort="true" />
+		<column key="type" header="sys.area.type" width="100" allowSort="true" fnRender="dictType"/>
+		<column key="remarks" header="sys.area.remarks" width="100" allowSort="false"/>
+		<column key="id" header="common.option" width="100" fnRender="areaOperation"/>
+	</query>
+	<!-- 商户列表 -->
+	<query id="merchantTable" key="id" tableName="sys.merchant.table.name" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="rowIndex" header="common.serial.number" width="50" allowSort="true"/>
+		<column key="id" header="id" hidden="true" />
+		<column key="merName" header="sys.merchant.name" width="80"  />
+		<column key="merId" header="sys.merchant.id" width="100"  allowSort="true"/>
+		<column key="orgName" header="sys.merchant.org" width="80"/>
+		<column key="orgId" header="sys.merchant.org" hidden="true"  width="80"  allowSort="true"/>
+		<column key="linkMan" header="sys.merchant.linkMan"  width="100" />
+		<column key="linkPhone" header="sys.merchant.mobile" width="200" align="center" />
+		<column key="address" header="sys.merchant.address" width="200" align="center" />
+		<!-- <column key="subMerCount" header="sys.merchant.subMerCount" width="200" align="center" /> -->
+		<column key="countTerm" header="sys.merchant.countTerm" width="200" align="center" fnRender="manageTerm"  allowSort="true"/>
+		<!-- <column key="id" header="to.manage.term" width="100" fnRender="manageTerm"/> -->
+	</query>
+	
+	<!-- 门店列表 -->
+	<query id="storeTable" key="id" tableName="sys.store.table.name" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="rowIndex" header="common.serial.number" width="50"  allowSort="true"/>
+		<column key="id" header="id" hidden="true" />
+		<column key="storeName" header="sys.store.name" width="80"  />
+		<column key="storeId" header="sys.store.id" width="100"  allowSort="true"/>
+		<column key="merName" header="sys.store.merName" width="80"/>
+		<column key="merId" header="sys.store.merId" hidden="true"  width="80"  allowSort="true"/>
+		<column key="orgName" header="sys.store.orgName"  width="80"/>
+		<column key="orgId" header="sys.store.orgName" hidden="true"  width="80"  allowSort="true"/>
+		<column key="linkMan" header="sys.store.linkMan"  width="100" />
+		<column key="linkPhone" header="sys.store.mobile" width="200" align="center" />
+		<column key="address" header="sys.store.address" width="200" align="center" />
+		<column key="countTerm" header="sys.merchant.countTerm" width="200" align="center" fnRender="manageTerm"  allowSort="true"/>
+		<!-- <column key="id" header="operarition" width="100" fnRender="manageStore"/> -->
+	</query>
+	
+	<!-- 未绑定终端列表 -->
+	<query id="unBoundTermTable" key="id" tableName="sys.merchant.device.table.name" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="checked" width="50" fnRender="check"/>
+		<column key="rowIndex" header="common.serial.number" width="50"/>
+	    <column key="id" header="id" hidden="true" />
+		<column key="deviceSn" header="sys.merchant.device.sn" width="100" />
+		<column key="merName" header="sys.merchant.name" width="80"  />
+		<column key="merId" header="sys.merchant.id" width="100" />
+		<column key="boundState" header="sys.merchant.device.boundState" width="100" />
+		<column key="id" header="bound.term.table.operation" width="100" fnRender="unBound"/>
+	</query>
+	
+	<!-- 已绑定门店终端列表 -->
+	<query id="boundStoreTermTable" key="id" tableName="sys.merchant.device.table.name" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="rowIndex" header="common.serial.number" width="50"/>
+	    <column key="id" header="id" hidden="true"/>
+	    <column key="storeName" header="sys.store.name" width="80"/>
+		<column key="storeId" header="sys.store.id" width="100" />
+		<column key="deviceSn" header="sys.merchant.device.sn" width="100" />
+		<column key="merName" header="sys.merchant.name" width="80"  hidden="true"/>
+		<column key="merId" header="sys.merchant.id" width="100" hidden="true"/>
+		<column key="boundState" header="sys.merchant.device.boundState" width="100" />
+		<column key="id" header="bound.term.table.operation" width="100" fnRender="unBound"/>
+	</query>
+	 
+	 <!-- 标签列表 -->
+	<query id="tagManagerTable" key="id" tableName="sys.labelManagement.labellist" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="rowIndex" header="common.serial.number" width="50"/>
+		<column key="id" header="id" hidden="true" />
+		<column key="tagName" header="sys.labelManagement.labelName" width="100"/>
+		<column key="orgName" header="sys.labelManagement.orgName" width="200"/>
+		<column key="tagCreateDate" header="sys.labelManagement.createtime"  width="100" />
+		<column key="deviceCount" header="sys.labelManagement.countTerm" width="100" align="center" />
+	</query>
+	
+	<!-- 绑定终端列表 -->
+	<query id="bundTagManagerDeviceTable" key="id" tableName="sys.merchant.device.table.name" pageSize="10"
+		widthType="px" order="updateDate desc" allowPaging="true">
+		<column key="id" header="checked" width="20" fnRender="check" align="center"/>
+		<column key="rowIndex" header="common.serial.number" width="50"/>
+	    <column key="id" header="id" hidden="true" />
+		<column key="deviceSn" header="sys.merchant.device.sn" width="100" />
+		<column key="organName" header="sys.organ.name" width="80"  />
+		<column key="merName" header="sys.merchant.name" width="80"  />
+		<column key="shopName" header="sys.store.name" width="80"  />
+	</query>
+</queryContext>

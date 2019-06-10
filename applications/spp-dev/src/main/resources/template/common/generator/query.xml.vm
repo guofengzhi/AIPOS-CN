@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<queryContext xmlns="http://www.example.org/query" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://www.example.org/query query.xsd">
+
+    <query id="${className}Table" 
+           key="id" 
+           tableName="${className}列表"   
+           pageSize="10"
+	     widthType="px" 
+	     order="updateDate desc" 
+	     allowPaging="true">
+	      <column key="rowIndex" header="common.serial.number" width="50"/>
+	       #foreach($column in $columns)
+		 <column key="$column.attrname" header="${column.comments}" width="100"  />
+	       #end
+	</query>
+</queryContext>

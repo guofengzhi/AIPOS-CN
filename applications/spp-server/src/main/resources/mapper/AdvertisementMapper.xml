@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.spp.dao.AdvertisementMapper">
+	<resultMap id="BaseResultMap" type="com.jiewen.spp.model.Advertisement">
+		<result column="ad_id" jdbcType="VARCHAR" property="adId" />
+		<result column="ad_name" property="adName" jdbcType="VARCHAR" />
+		<result column="ad_title" property="adTitle" jdbcType="VARCHAR" />
+		<result column="ad_desc" property="adDesc" jdbcType="VARCHAR" />
+		<result column="ad_type" property="adType" jdbcType="VARCHAR" />
+		<result column="ad_content" property="adContent" jdbcType="VARCHAR" />
+		<result column="ad_img" property="adImg" jdbcType="VARCHAR" />
+		<result column="ad_manufacturers" property="adManufacturers"
+			jdbcType="VARCHAR" />
+		<result column="ad_start_time" property="adStartTime" jdbcType="TIMESTAMP" />
+		<result column="ad_end_time" property="adEndTime" jdbcType="TIMESTAMP" />
+		<result column="organ_id" property="organId" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<select id="getAdvertisementList" parameterType="com.jiewen.spp.model.Advertisement"
+		resultMap="BaseResultMap">
+		select t1.ad_id,
+				t1.ad_name,
+				t1.ad_title,
+				t1.ad_desc,
+				t1.ad_type,
+				t1.ad_content,
+				t1.ad_img,
+				t1.ad_manufacturers,
+				t1.ad_start_time,
+				t1.ad_end_time from  
+		(select ad_id,ad_name,ad_title,ad_desc, ad_type,	ad_content,	ad_img,
+		ad_manufacturers,	ad_start_time,	ad_end_time,	create_time,organ_id	from t_advertisement
+		where 1 = 1
+		<if test="ids != null and ids != ''">
+			AND organ_id IN ${ids}
+		</if>
+		AND ad_start_time <![CDATA[ <= ]]>
+		#{adStartTime}
+		AND ad_end_time <![CDATA[ >= ]]>
+		#{adEndTime}
+		ORDER BY create_time
+		LIMIT #{startPageNum},#{pageSize}  ) t1
+		where 3 <![CDATA[ >]]> (select count(*) from (select ad_id,ad_name,ad_title,ad_desc, ad_type,	ad_content,	ad_img,
+		ad_manufacturers,	ad_start_time,	ad_end_time,	create_time,organ_id	from t_advertisement
+		where 1 = 1
+		<if test="ids != null and ids != ''">
+			AND organ_id IN ${ids}
+		</if>
+		AND ad_start_time <![CDATA[ <= ]]>
+		#{adStartTime}
+		AND ad_end_time <![CDATA[ >= ]]>
+		#{adEndTime}
+		ORDER BY create_time
+		LIMIT #{startPageNum},#{pageSize}) t2 where t2.organ_id = t1.organ_id and t2.create_time <![CDATA[ < ]]> t1.create_time) 
+		order by t1.organ_id,t1.create_time
+				
+	</select>
+
+	<select id="getAdvertisementCount" parameterType="com.jiewen.spp.model.Advertisement"
+		resultType="java.lang.Integer">
+		select count(*)
+		from t_advertisement
+		where 1 = 1
+		<if test="ids != null and ids != ''">
+			AND organ_id IN ${ids}
+		</if>
+		AND ad_start_time <![CDATA[ <= ]]>
+		#{adStartTime}
+		AND ad_end_time <![CDATA[ >= ]]>
+		#{adEndTime}
+	</select>
+</mapper>

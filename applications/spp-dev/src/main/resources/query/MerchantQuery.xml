@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<queryContext xmlns="http://www.example.org/query" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://www.example.org/query query.xsd">
+
+    <query id="MerchantTable" 
+           key="id" 
+           tableName="Merchant列表"   
+           pageSize="10"
+	     widthType="px" 
+	     order="updateDate desc" 
+	     allowPaging="true">
+	      <column key="rowIndex" header="common.serial.number" width="50"/>
+	       		 <column key="id" header="序号" width="100"  />
+	       		 <column key="merId" header="商户号" width="100"  />
+	       		 <column key="merName" header="商户名称" width="100"  />
+	       		 <column key="merAbbre" header="商户简称" width="100"  />
+	       	</query>
+</queryContext>

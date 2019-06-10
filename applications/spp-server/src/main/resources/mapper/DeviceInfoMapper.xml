@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.spp.dao.DeviceInfoMapper">
+	<sql id="baseCoumns">
+		id,device_sn,device_pn,device_type,device_os_version,os_version_shifter,device_version,tusn,
+		product_type_code,device_info,device_bank,client_no,manufacturer_no,organ_id,hardware_version,
+		hardware_shifter,device_status,os_status,os_upgrade_type,os_msg,app_info,create_by,create_date,
+		update_by,update_date,remarks,del_flag,mer_id,shop_id,device_bund_state,apply_date,install_location,
+		install_date,device_sort,mac_no,scope_mode,labels,location
+	</sql>
+	
+	<resultMap type="com.jiewen.spp.model.DeviceInfo" id="baseResultMap">
+		<result column="id" jdbcType="DECIMAL" property="id"/>	
+		<result column="device_sn" jdbcType="VARCHAR" property="deviceSn"/>	
+		<result column="device_pn" jdbcType="VARCHAR" property="devicePn"/>	
+		<result column="device_type" jdbcType="VARCHAR" property="deviceType"/>	
+		<result column="device_os_version" jdbcType="VARCHAR" property="deviceOsVersion"/>	
+		<result column="os_version_shifter" jdbcType="VARCHAR" property="osVersionShifter"/>	
+		<result column="device_version" jdbcType="VARCHAR" property="deviceVersion"/>	
+		<result column="tusn" jdbcType="VARCHAR" property="tusn"/>	
+		<result column="product_type_code" jdbcType="VARCHAR" property="productTypeCode"/>	
+		<result column="device_info" jdbcType="VARCHAR" property="deviceInfo"/>	
+		<result column="device_bank" jdbcType="VARCHAR" property="deviceBank"/>	
+		<result column="client_no" jdbcType="VARCHAR" property="clientNo"/>	
+		<result column="manufacturer_no" jdbcType="VARCHAR" property="manufacturerNo"/>	
+		<result column="organ_id" jdbcType="VARCHAR" property="organId"/>	
+		<result column="hardware_version" jdbcType="VARCHAR" property="hardwareVersion"/>
+		<result column="hardware_shifter" jdbcType="VARCHAR" property="hardwareShifter"/>
+		<result column="device_status" jdbcType="CHAR" property="deviceStatus"/>
+		<result column="os_status" jdbcType="CHAR" property="osStatus"/>
+		<result column="os_upgrade_type" jdbcType="CHAR" property="osUpgradeType"/>
+		<result column="os_msg" jdbcType="VARCHAR" property="osMsg"/>
+		<result column="app_info" jdbcType="VARCHAR" property="appInfo"/>
+		<result column="create_by" jdbcType="VARCHAR" property="createBy"/>
+		<result column="create_date" jdbcType="TIMESTAMP" property="createDate"/>
+		<result column="update_by" jdbcType="VARCHAR" property="updateBy"/>
+		<result column="update_date" jdbcType="TIMESTAMP" property="updateDate"/>
+		<result column="remarks" jdbcType="VARCHAR" property="remarks"/>
+		<result column="del_flag" jdbcType="CHAR" property="delFlag"/>
+		<result column="mer_id" jdbcType="VARCHAR" property="merId"/>
+		<result column="shop_id" jdbcType="VARCHAR" property="shopId"/>
+		<result column="device_bund_state" jdbcType="CHAR" property="deviceBundState"/>
+		<result column="apply_date" jdbcType="TIMESTAMP" property="applyDate"/>
+		<result column="install_location" jdbcType="VARCHAR" property="installLocation"/>
+		<result column="install_date" jdbcType="TIMESTAMP" property="installDate"/>
+		<result column="device_sort" jdbcType="VARCHAR" property="deviceSort"/>
+		<result column="mac_no" jdbcType="VARCHAR" property="macNo"/>
+		<result column="scope_mode" jdbcType="CHAR" property="scopeMode"/>
+		<result column="labels" jdbcType="VARCHAR" property="lables"/>
+		<result column="location" jdbcType="VARCHAR" property="location"/>
+	</resultMap>
+
+	<select id="get" parameterType="com.jiewen.spp.model.DeviceInfo" resultMap="baseResultMap">
+		select
+		<include refid="baseCoumns" />
+		FROM `t_device_info`
+		where device_sn = #{deviceSn}
+	</select>
+	
+	<update id="updateJwd" parameterType="com.jiewen.spp.model.DeviceInfo">
+		update t_device_info set location = #{location} where device_sn = #{deviceSn}
+	</update>
+</mapper>

@@ -1,0 +1,814 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jiewen.spp.modules.advertisement.dao.AdvertisementDao">
+	<resultMap id="BaseResultMap"
+		type="com.jiewen.spp.modules.advertisement.entity.Advertisement">
+		<id column="ad_id" property="adId" jdbcType="VARCHAR" />
+		<result column="organ_id" property="organId" jdbcType="VARCHAR" />
+		<result column="mer_id" property="merId" jdbcType="VARCHAR" />
+		<result column="ad_name" property="adName" jdbcType="VARCHAR" />
+		<result column="ad_title" property="adTitle" jdbcType="VARCHAR" />
+		<result column="ad_desc" property="adDesc" jdbcType="VARCHAR" />
+		<result column="ad_type" property="adType" jdbcType="VARCHAR" />
+		<result column="ad_img" property="adImg" jdbcType="VARCHAR" />
+		<result column="ad_img1" property="adImg1" jdbcType="VARCHAR" />
+		<result column="ad_manufacturers" property="adManufacturers"
+			jdbcType="VARCHAR" />
+		<result column="ad_status" property="adStatus" jdbcType="VARCHAR" />
+		<result column="ad_platform" property="adPlatform" jdbcType="VARCHAR" />
+		<result column="ad_start_time" property="adStartTime" jdbcType="TIMESTAMP" />
+		<result column="ad_end_time" property="adEndTime" jdbcType="TIMESTAMP" />
+		<result column="release_id" property="releaseId" jdbcType="VARCHAR" />
+		<result column="release_user" property="releaseUser" jdbcType="VARCHAR" />
+		<result column="release_time" property="releaseTime" jdbcType="TIMESTAMP" />
+		<result column="approval_status" property="approvalStatus"
+			jdbcType="VARCHAR" />
+		<result column="approval_user" property="approvalUser"
+			jdbcType="VARCHAR" />
+		<result column="approval_opinion" property="approvalOpinion"
+			jdbcType="VARCHAR" />
+		<result column="approval_time" property="approvalTime"
+			jdbcType="TIMESTAMP" />
+		<result column="creator" property="creator" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="updator" property="updator" jdbcType="VARCHAR" />
+		<result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+		<result column="del_flag" property="delFlag" jdbcType="CHAR" />
+		<result column="mer_name" property="merName" jdbcType="VARCHAR" />
+		<result column="start_time" property="startTime" jdbcType="VARCHAR" />
+		<result column="end_time" property="endTime" jdbcType="VARCHAR" />
+		<result column="ad_links" property="adLinks" jdbcType="VARCHAR" />
+		<result column="ad_attribution" property="adAttribution"
+			jdbcType="VARCHAR" />
+		<result column="ad_content" property="adContent" jdbcType="LONGVARCHAR" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		ad_id, organ_id, mer_id, ad_name, ad_title, ad_desc, ad_type, ad_img,
+		ad_img1, ad_manufacturers,
+		ad_status, ad_platform, ad_start_time, ad_end_time, release_id, release_user,
+		release_time,
+		approval_status, approval_user, approval_opinion, approval_time, creator, create_time,
+		updator, update_time, del_flag,ad_links,ad_attribution
+	</sql>
+	<sql id="Blob_Column_List">
+		ad_content
+	</sql>
+
+	<!-- <select id="selectAdvertisementByPrimaryKey" resultMap="BaseResultMap" 
+		parameterType="java.lang.String"> select <include refid="Base_Column_List" 
+		/> , <include refid="Blob_Column_List" /> from t_advertisement where ad_id 
+		= #{adId,jdbcType=VARCHAR} </select> -->
+
+	<select id="findListAdvertisement" resultMap="BaseResultMap"
+		parameterType="com.jiewen.spp.modules.advertisement.entity.Advertisement">
+		select
+		y.id,y.ad_name,y.ad_title,y.ad_type,y.ad_status,y.start_time,y.end_time,
+		y.ad_start_time,y.ad_end_time,y.approval_status,y.organ_id,y.mer_name
+		from (
+		select
+		t.ad_id as id,
+		t.ad_name,
+		t.ad_title,
+		CASE WHEN t.ad_type='T' THEN '文字'
+		WHEN t.ad_type='I' THEN '图片'
+		WHEN t.ad_type='V' THEN '视频'
+		WHEN t.ad_type='VO' THEN '语音'
+		ELSE '其他' END ad_type ,
+		case when
+		SYSDATE() between t.ad_start_time and t.ad_end_time
+		then '1'
+		when
+		t.ad_start_time >= SYSDATE()
+		then '1'
+		else '0' end as ad_status,
+		DATE_FORMAT(ad_start_time, '%Y-%m-%d') AS start_time,
+		DATE_FORMAT(ad_end_time, '%Y-%m-%d') AS end_time,
+		DATE_FORMAT(ad_start_time, '%Y-%m-%d') as ad_start_time,
+		DATE_FORMAT(ad_end_time, '%Y-%m-%d') as ad_end_time,
+		approval_status as approval_status,
+		t.organ_id ,
+		t1.name as mer_name
+		from t_advertisement t
+		left join sys_office t1
+		on t.organ_id = t1.id
+		where 1=1
+		<if test="organId!=null and organId!='' ">
+			and (t1.id = #{organId,jdbcType=VARCHAR} or t1.parent_ids like
+			'%${organId}%')
+		</if>
+		<if test="approvalStatus!=null and approvalStatus!='' ">
+			and t.approval_status= #{approvalStatus,jdbcType=VARCHAR}
+		</if>
+		<if test="adName!=null and adName!='' ">
+			and t.ad_name LIKE '%${adName}%'
+		</if>
+		<if test="adTitle!=null and adTitle!='' ">
+			and t.ad_title LIKE '%${adTitle}%'
+		</if>
+		<if test="adStartTime!=null">
+					           <![CDATA[ AND date(t.ad_start_time) >= date(#{adStartTime,jdbcType=DATE}) ]]>
+		</if>
+		<if test="adEndTime!=null">
+					           <![CDATA[ AND date(t.ad_end_time) <= date(#{adEndTime,jdbcType=DATE}) ]]>
+		</if>
+		) y order by y.ad_status desc ,y.organ_id,y.id desc
+	</select>
+	<!-- <select id="findListAdvertisement" resultMap="BaseResultMap" parameterType="com.jiewen.spp.modules.advertisement.entity.Advertisement"> 
+		( select t.ad_id as id, t.ad_name as ad_name , t.ad_title as ad_title , CASE 
+		WHEN t.ad_type='T' THEN '文字' WHEN t.ad_type='I' THEN '图片' WHEN t.ad_type='V' 
+		THEN '视频' WHEN t.ad_type='VO' THEN '语音' ELSE '其他' END ad_type , '1' as ad_status, 
+		DATE_FORMAT(ad_start_time,'%Y-%m-%d') AS start_time, DATE_FORMAT(ad_end_time,'%Y-%m-%d') 
+		AS end_time, ad_start_time as ad_start_time, ad_end_time as ad_end_time, 
+		approval_status as approval_status from t_advertisement t where 1=1 <if test="organId!=null 
+		and organId!='' "> and t.organ_id= #{organId,jdbcType=VARCHAR} </if> <if 
+		test="approvalStatus!=null and approvalStatus!='' "> and t.approval_status= 
+		#{approvalStatus,jdbcType=VARCHAR} </if> <if test="adName!=null and adName!='' 
+		"> and t.ad_name LIKE '%${adName}%' </if> <if test="adTitle!=null and adTitle!='' 
+		"> and t.ad_title LIKE '%${adTitle}%' </if> <if test="adStartTime!=null"> 
+		<![CDATA[ AND date(t.ad_start_time) >= date(#{adStartTime,jdbcType=DATE}) 
+		]]> </if> <if test="adStartTime!=null"> <![CDATA[ AND date(t.ad_start_time) 
+		<= date(#{adEndTime,jdbcType=DATE}) ]]> </if> order by t.ad_id desc ) UNION 
+		( select t.ad_id as id, t.ad_name as ad_name , t.ad_title as ad_title , CASE 
+		WHEN t.ad_type='T' THEN '文字' WHEN t.ad_type='I' THEN '图片' WHEN t.ad_type='V' 
+		THEN '视频' WHEN t.ad_type='VO' THEN '语音' ELSE '其他' END ad_type , '1' as ad_status, 
+		DATE_FORMAT(ad_start_time,'%Y-%m-%d') AS start_time, DATE_FORMAT(ad_end_time,'%Y-%m-%d') 
+		AS end_time, ad_start_time as ad_start_time, ad_end_time as ad_end_time, 
+		approval_status as approval_status from t_advertisement t where 1=1 <if test="organId!=null 
+		and organId!='' "> and t.organ_id= #{organId,jdbcType=VARCHAR} </if> <if 
+		test="approvalStatus!=null and approvalStatus!='' "> and t.approval_status= 
+		#{approvalStatus,jdbcType=VARCHAR} </if> <if test="adName!=null and adName!='' 
+		"> and t.ad_name LIKE '%${adName}%' </if> <if test="adTitle!=null and adTitle!='' 
+		"> and t.ad_title LIKE '%${adTitle}%' </if> <if test="adEndTime!=null"> <![CDATA[ 
+		AND date(t.ad_end_time) >= date(#{adStartTime,jdbcType=DATE}) ]]> </if> <if 
+		test="adEndTime!=null"> <![CDATA[ AND date(t.ad_end_time) <= date(#{adEndTime,jdbcType=DATE}) 
+		]]> </if> order by t.ad_id desc ) UNION ( select t.ad_id as id, t.ad_name 
+		as ad_name , t.ad_title as ad_title , CASE WHEN t.ad_type='T' THEN '文字' WHEN 
+		t.ad_type='I' THEN '图片' WHEN t.ad_type='V' THEN '视频' WHEN t.ad_type='VO' 
+		THEN '语音' ELSE '其他' END ad_type , '1' as ad_status, DATE_FORMAT(ad_start_time,'%Y-%m-%d') 
+		AS start_time, DATE_FORMAT(ad_end_time,'%Y-%m-%d') AS end_time, ad_start_time 
+		as ad_start_time, ad_end_time as ad_end_time, approval_status as approval_status 
+		from t_advertisement t where 1=1 <if test="organId!=null and organId!='' 
+		"> and t.organ_id= #{organId,jdbcType=VARCHAR} </if> <if test="approvalStatus!=null 
+		and approvalStatus!='' "> and t.approval_status= #{approvalStatus,jdbcType=VARCHAR} 
+		</if> <if test="adName!=null and adName!='' "> and t.ad_name LIKE '%${adName}%' 
+		</if> <if test="adTitle!=null and adTitle!='' "> and t.ad_title LIKE '%${adTitle}%' 
+		</if> <if test="adStartTime!=null"> <![CDATA[ AND date(t.ad_start_time) < 
+		date(#{adStartTime,jdbcType=DATE}) ]]> </if> <if test="adEndTime!=null"> 
+		<![CDATA[ AND date(t.ad_end_time) > date(#{adEndTime,jdbcType=DATE}) ]]> 
+		</if> order by t.ad_id desc ) UNION ( select t.ad_id as id, t.ad_name as 
+		ad_name , t.ad_title as ad_title , CASE WHEN t.ad_type='T' THEN '文字' WHEN 
+		t.ad_type='I' THEN '图片' WHEN t.ad_type='V' THEN '视频' WHEN t.ad_type='VO' 
+		THEN '语音' ELSE '其他' END ad_type , '0' as ad_status, DATE_FORMAT(ad_start_time,'%Y-%m-%d') 
+		AS start_time, DATE_FORMAT(ad_end_time,'%Y-%m-%d') AS end_time, ad_start_time 
+		as ad_start_time, ad_end_time as ad_end_time, approval_status as approval_status 
+		from t_advertisement t where 1=1 <if test="organId!=null and organId!='' 
+		"> and t.organ_id= #{organId,jdbcType=VARCHAR} </if> <if test="approvalStatus!=null 
+		and approvalStatus!='' "> and t.approval_status= #{approvalStatus,jdbcType=VARCHAR} 
+		</if> <if test="adName!=null and adName!='' "> and t.ad_name LIKE '%${adName}%' 
+		</if> <if test="adTitle!=null and adTitle!='' "> and t.ad_title LIKE '%${adTitle}%' 
+		</if> <if test="adStartTime1!=null"> <![CDATA[ AND date(t.ad_start_time) 
+		< date(#{adStartTime,jdbcType=DATE}) ]]> </if> <if test="adStartTime1!=null"> 
+		<![CDATA[ AND date(t.ad_end_time) >= date(#{adStartTime1,jdbcType=DATE}) 
+		]]> </if> <if test="adStartTime1!=null"> <![CDATA[ AND date(t.ad_end_time) 
+		< date(#{adStartTime,jdbcType=DATE}) ]]> </if> order by t.ad_id desc ,t.create_time 
+		desc ) UNION ( select t.ad_id as id, t.ad_name as ad_name , t.ad_title as 
+		ad_title , CASE WHEN t.ad_type='T' THEN '文字' WHEN t.ad_type='I' THEN '图片' 
+		WHEN t.ad_type='V' THEN '视频' WHEN t.ad_type='VO' THEN '语音' ELSE '其他' END 
+		ad_type , '0' as ad_status, DATE_FORMAT(ad_start_time,'%Y-%m-%d') AS start_time, 
+		DATE_FORMAT(ad_end_time,'%Y-%m-%d') AS end_time, ad_start_time as ad_start_time, 
+		ad_end_time as ad_end_time, approval_status as approval_status from t_advertisement 
+		t where 1=1 <if test="organId!=null and organId!='' "> and t.organ_id= #{organId,jdbcType=VARCHAR} 
+		</if> <if test="approvalStatus!=null and approvalStatus!='' "> and t.approval_status= 
+		#{approvalStatus,jdbcType=VARCHAR} </if> <if test="adName!=null and adName!='' 
+		"> and t.ad_name LIKE '%${adName}%' </if> <if test="adTitle!=null and adTitle!='' 
+		"> and t.ad_title LIKE '%${adTitle}%' </if> <if test="adEndTime1!=null"> 
+		<![CDATA[ AND date(t.ad_start_time) > date(#{adStartTime,jdbcType=DATE}) 
+		]]> </if> <if test="adEndTime1!=null"> <![CDATA[ AND date(t.ad_end_time) 
+		<= date(#{adEndTime1,jdbcType=DATE}) ]]> </if> <if test="adEndTime1!=null"> 
+		<![CDATA[ AND date(t.ad_end_time) > date(#{adStartTime,jdbcType=DATE}) ]]> 
+		</if> order by t.ad_id desc ,t.create_time desc ) </select> -->
+
+	<select id="findListAdvertisementCount" resultMap="BaseResultMap"
+		parameterType="com.jiewen.spp.modules.advertisement.entity.Advertisement">
+		( select
+		t.ad_id as id,
+		t.ad_name as ad_name ,
+		t.ad_title as ad_title ,
+		CASE WHEN t.ad_type='T' THEN '文字'
+		WHEN t.ad_type='I' THEN '图片'
+		WHEN t.ad_type='V' THEN '视频'
+		WHEN t.ad_type='VO' THEN '语音'
+		ELSE '其他' END ad_type ,
+		'1' as ad_status,
+		DATE_FORMAT(ad_start_time,'%Y-%m-%d') AS start_time,
+		DATE_FORMAT(ad_end_time,'%Y-%m-%d') AS end_time,
+		approval_status as approval_status
+		from t_advertisement t
+		where 1=1
+		<if test="organId!=null and organId!='' ">
+			and t.organ_id= #{organId,jdbcType=VARCHAR}
+		</if>
+		<if test="approvalStatus!=null and approvalStatus!='' ">
+			and t.approval_status= #{approvalStatus,jdbcType=VARCHAR}
+		</if>
+		<if test="adName!=null and adName!='' ">
+			and t.ad_name LIKE '%${adName}%'
+		</if>
+		<if test="adTitle!=null and adTitle!='' ">
+			and t.ad_title LIKE '%${adTitle}%'
+		</if>
+		<if test="adStartTime!=null">
+           <![CDATA[ AND date(t.ad_start_time) >= date(#{adStartTime,jdbcType=DATE}) ]]>
+		</if>
+		<if test="adStartTime!=null">
+           <![CDATA[ AND date(t.ad_start_time) <= date(#{adEndTime,jdbcType=DATE}) ]]>
+		</if>
+
+		order by t.ad_id desc )
+
+		UNION
+
+		( select
+		t.ad_id as id,
+		t.ad_name as ad_name ,
+		t.ad_title as ad_title ,
+		CASE WHEN t.ad_type='T' THEN '文字'
+		WHEN t.ad_type='I' THEN '图片'
+		WHEN t.ad_type='V' THEN '视频'
+		WHEN t.ad_type='VO' THEN '语音'
+		ELSE '其他' END ad_type ,
+		'1' as ad_status,
+		DATE_FORMAT(ad_start_time,'%Y-%m-%d') AS start_time,
+		DATE_FORMAT(ad_end_time,'%Y-%m-%d') AS end_time,
+		approval_status as approval_status
+		from t_advertisement t
+		where 1=1
+		<if test="organId!=null and organId!='' ">
+			and t.organ_id= #{organId,jdbcType=VARCHAR}
+		</if>
+		<if test="approvalStatus!=null and approvalStatus!='' ">
+			and t.approval_status= #{approvalStatus,jdbcType=VARCHAR}
+		</if>
+		<if test="adName!=null and adName!='' ">
+			and t.ad_name LIKE '%${adName}%'
+		</if>
+		<if test="adTitle!=null and adTitle!='' ">
+			and t.ad_title LIKE '%${adTitle}%'
+		</if>
+		<if test="adEndTime!=null">
+           <![CDATA[ AND date(t.ad_end_time) >= date(#{adStartTime,jdbcType=DATE}) ]]>
+		</if>
+		<if test="adEndTime!=null">
+           <![CDATA[ AND date(t.ad_end_time) <= date(#{adEndTime,jdbcType=DATE}) ]]>
+		</if>
+		order by t.ad_id desc )
+
+		UNION
+
+		( select
+		t.ad_id as id,
+		t.ad_name as ad_name ,
+		t.ad_title as ad_title ,
+		CASE WHEN t.ad_type='T' THEN '文字'
+		WHEN t.ad_type='I' THEN '图片'
+		WHEN t.ad_type='V' THEN '视频'
+		WHEN t.ad_type='VO' THEN '语音'
+		ELSE '其他' END ad_type ,
+		'1' as ad_status,
+		DATE_FORMAT(ad_start_time,'%Y-%m-%d') AS start_time,
+		DATE_FORMAT(ad_end_time,'%Y-%m-%d') AS end_time,
+		approval_status as approval_status
+		from t_advertisement t
+		where 1=1
+		<if test="organId!=null and organId!='' ">
+			and t.organ_id= #{organId,jdbcType=VARCHAR}
+		</if>
+		<if test="approvalStatus!=null and approvalStatus!='' ">
+			and t.approval_status= #{approvalStatus,jdbcType=VARCHAR}
+		</if>
+		<if test="adName!=null and adName!='' ">
+			and t.ad_name LIKE '%${adName}%'
+		</if>
+		<if test="adTitle!=null and adTitle!='' ">
+			and t.ad_title LIKE '%${adTitle}%'
+		</if>
+		<if test="adStartTime!=null">
+           <![CDATA[ AND date(t.ad_start_time) < date(#{adStartTime,jdbcType=DATE}) ]]>
+		</if>
+		<if test="adEndTime!=null">
+           <![CDATA[ AND date(t.ad_end_time) > date(#{adEndTime,jdbcType=DATE}) ]]>
+		</if>
+		order by t.ad_id desc )
+	</select>
+
+	<select id="findList" resultMap="BaseResultMap"
+		parameterType="com.jiewen.spp.modules.advertisement.entity.Advertisement">
+		select
+		t.ad_id as id,
+		t.ad_name as ad_name ,
+		t.ad_title as ad_title ,
+		CASE WHEN t.ad_type='T' THEN '文字'
+		WHEN t.ad_type='I' THEN '图片'
+		WHEN t.ad_type='V' THEN '视频'
+		WHEN t.ad_type='VO' THEN '语音'
+		ELSE '其他' END ad_type ,
+		case when
+		SYSDATE() between t.ad_start_time and t.ad_end_time
+		then '1'
+		when
+		t.ad_start_time >= SYSDATE()
+		then '1'
+		else '0' end as ad_status,
+		DATE_FORMAT(ad_start_time,'%Y-%m-%d') AS start_time,
+		DATE_FORMAT(ad_end_time,'%Y-%m-%d') AS end_time,
+		approval_status as approval_status
+		from t_advertisement t
+		where 1=1
+		<if test="organId!=null and organId!='' ">
+			and t.organ_id= #{organId,jdbcType=VARCHAR}
+		</if>
+		<if test="approvalStatus!=null and approvalStatus!='' ">
+			and t.approval_status= #{approvalStatus,jdbcType=VARCHAR}
+		</if>
+		<if test="adName!=null and adName!='' ">
+			and t.ad_name LIKE '%${adName}%'
+		</if>
+		<if test="adTitle!=null and adTitle!='' ">
+			and t.ad_title LIKE '%${adTitle}%'
+		</if>
+		<if test="adStartTime!=null">
+		           <![CDATA[ AND date(t.ad_start_time) >= date(#{adStartTime,jdbcType=DATE}) ]]>
+		</if>
+		<if test="adStartTime!=null">
+		           <![CDATA[ AND date(t.ad_end_time) <= date(#{adEndTime,jdbcType=DATE}) ]]>
+		</if>
+		order by t.ad_id desc
+		<!--( select t.ad_id as id, t.ad_name as ad_name , t.ad_title as ad_title 
+			, CASE WHEN t.ad_type='T' THEN '文字' WHEN t.ad_type='I' THEN '图片' WHEN t.ad_type='V' 
+			THEN '视频' WHEN t.ad_type='VO' THEN '语音' ELSE '其他' END ad_type , '1' as ad_status, 
+			DATE_FORMAT(ad_start_time,'%Y-%m-%d') AS start_time, DATE_FORMAT(ad_end_time,'%Y-%m-%d') 
+			AS end_time, approval_status as approval_status from t_advertisement t where 
+			1=1 <if test="organId!=null and organId!='' "> and t.organ_id= #{organId,jdbcType=VARCHAR} 
+			</if> <if test="approvalStatus!=null and approvalStatus!='' "> and t.approval_status= 
+			#{approvalStatus,jdbcType=VARCHAR} </if> <if test="adName!=null and adName!='' 
+			"> and t.ad_name LIKE '%${adName}%' </if> <if test="adTitle!=null and adTitle!='' 
+			"> and t.ad_title LIKE '%${adTitle}%' </if> <if test="adStartTime!=null"> 
+			<![CDATA[ AND date(t.ad_start_time) >= date(#{adStartTime,jdbcType=DATE}) 
+			]]> </if> <if test="adStartTime!=null"> <![CDATA[ AND date(t.ad_start_time) 
+			<= date(#{adEndTime,jdbcType=DATE}) ]]> </if> order by t.ad_id desc ) UNION 
+			( select t.ad_id as id, t.ad_name as ad_name , t.ad_title as ad_title , CASE 
+			WHEN t.ad_type='T' THEN '文字' WHEN t.ad_type='I' THEN '图片' WHEN t.ad_type='V' 
+			THEN '视频' WHEN t.ad_type='VO' THEN '语音' ELSE '其他' END ad_type , '1' as ad_status, 
+			DATE_FORMAT(ad_start_time,'%Y-%m-%d') AS start_time, DATE_FORMAT(ad_end_time,'%Y-%m-%d') 
+			AS end_time, approval_status as approval_status from t_advertisement t where 
+			1=1 <if test="organId!=null and organId!='' "> and t.organ_id= #{organId,jdbcType=VARCHAR} 
+			</if> <if test="approvalStatus!=null and approvalStatus!='' "> and t.approval_status= 
+			#{approvalStatus,jdbcType=VARCHAR} </if> <if test="adName!=null and adName!='' 
+			"> and t.ad_name LIKE '%${adName}%' </if> <if test="adTitle!=null and adTitle!='' 
+			"> and t.ad_title LIKE '%${adTitle}%' </if> <if test="adEndTime!=null"> <![CDATA[ 
+			AND date(t.ad_end_time) >= date(#{adStartTime,jdbcType=DATE}) ]]> </if> <if 
+			test="adEndTime!=null"> <![CDATA[ AND date(t.ad_end_time) <= date(#{adEndTime,jdbcType=DATE}) 
+			]]> </if> order by t.ad_id desc ) UNION ( select t.ad_id as id, t.ad_name 
+			as ad_name , t.ad_title as ad_title , CASE WHEN t.ad_type='T' THEN '文字' WHEN 
+			t.ad_type='I' THEN '图片' WHEN t.ad_type='V' THEN '视频' WHEN t.ad_type='VO' 
+			THEN '语音' ELSE '其他' END ad_type , '1' as ad_status, DATE_FORMAT(ad_start_time,'%Y-%m-%d') 
+			AS start_time, DATE_FORMAT(ad_end_time,'%Y-%m-%d') AS end_time, approval_status 
+			as approval_status from t_advertisement t where 1=1 <if test="organId!=null 
+			and organId!='' "> and t.organ_id= #{organId,jdbcType=VARCHAR} </if> <if 
+			test="approvalStatus!=null and approvalStatus!='' "> and t.approval_status= 
+			#{approvalStatus,jdbcType=VARCHAR} </if> <if test="adName!=null and adName!='' 
+			"> and t.ad_name LIKE '%${adName}%' </if> <if test="adTitle!=null and adTitle!='' 
+			"> and t.ad_title LIKE '%${adTitle}%' </if> <if test="adStartTime!=null"> 
+			<![CDATA[ AND date(t.ad_start_time) < date(#{adStartTime,jdbcType=DATE}) 
+			]]> </if> <if test="adEndTime!=null"> <![CDATA[ AND date(t.ad_end_time) > 
+			date(#{adEndTime,jdbcType=DATE}) ]]> </if> order by t.ad_id desc ) -->
+	</select>
+
+	<select id="getAdvertisementByAdName" resultMap="BaseResultMap"
+		parameterType="com.jiewen.spp.modules.advertisement.entity.Advertisement">
+		select
+		<include refid="Base_Column_List" />
+		from t_advertisement
+		where 1=1
+		<if test="organId!=null and organId!='' ">
+			and organ_id= #{organId,jdbcType=VARCHAR}
+		</if>
+		<if test="adName!=null and adName!='' ">
+			and ad_name= #{adName,jdbcType=VARCHAR}
+		</if>
+
+	</select>
+
+	<select id="selectByAdId" resultMap="BaseResultMap"
+		parameterType="com.jiewen.spp.modules.advertisement.entity.Advertisement">
+		select
+		<include refid="Base_Column_List" />
+		,
+		<include refid="Blob_Column_List" />
+		from t_advertisement
+		where ad_id = #{adId,jdbcType=VARCHAR}
+	</select>
+
+	<select id="selectAdvertisementByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.String">
+		select
+		<include refid="Base_Column_List" />
+		,
+		<include refid="Blob_Column_List" />
+		from t_advertisement
+		where ad_id = #{adId,jdbcType=VARCHAR}
+	</select>
+	<delete id="deleteAdvertisementByPrimaryKey" parameterType="java.lang.String">
+		delete from t_advertisement
+		where ad_id = #{adId,jdbcType=VARCHAR}
+	</delete>
+	<insert id="insertAdvertisement"
+		parameterType="com.jiewen.spp.modules.advertisement.entity.Advertisement">
+		insert into t_advertisement (ad_id, organ_id, mer_id,
+		ad_name, ad_title, ad_desc,
+		ad_type, ad_img, ad_img1,
+		ad_manufacturers, ad_status, ad_platform,
+		ad_start_time, ad_end_time, release_id,
+		release_user, release_time, approval_status,
+		approval_user, approval_opinion, approval_time,
+		creator, create_time, updator,
+		update_time, del_flag, ad_content
+		)
+		values (#{adId,jdbcType=VARCHAR}, #{organId,jdbcType=VARCHAR},
+		#{merId,jdbcType=VARCHAR},
+		#{adName,jdbcType=VARCHAR}, #{adTitle,jdbcType=VARCHAR}, #{adDesc,jdbcType=VARCHAR},
+		#{adType,jdbcType=VARCHAR}, #{adImg,jdbcType=VARCHAR},
+		#{adImg1,jdbcType=VARCHAR},
+		#{adManufacturers,jdbcType=VARCHAR}, #{adStatus,jdbcType=VARCHAR}, #{adPlatform,jdbcType=VARCHAR},
+		#{adStartTime,jdbcType=TIMESTAMP}, #{adEndTime,jdbcType=TIMESTAMP},
+		#{releaseId,jdbcType=VARCHAR},
+		#{releaseUser,jdbcType=VARCHAR}, #{releaseTime,jdbcType=TIMESTAMP},
+		#{approvalStatus,jdbcType=VARCHAR},
+		#{approvalUser,jdbcType=VARCHAR}, #{approvalOpinion,jdbcType=VARCHAR},
+		#{approvalTime,jdbcType=TIMESTAMP},
+		#{creator,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updator,jdbcType=VARCHAR},
+		#{updateTime,jdbcType=TIMESTAMP}, #{delFlag,jdbcType=CHAR},
+		#{adContent,jdbcType=LONGVARCHAR}
+		)
+	</insert>
+	<insert id="insertAdvertisementSelective"
+		parameterType="com.jiewen.spp.modules.advertisement.entity.Advertisement">
+		insert into t_advertisement
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="adId != null">
+				ad_id,
+			</if>
+			<if test="organId != null">
+				organ_id,
+			</if>
+			<if test="merId != null">
+				mer_id,
+			</if>
+			<if test="adName != null">
+				ad_name,
+			</if>
+			<if test="adTitle != null">
+				ad_title,
+			</if>
+			<if test="adDesc != null">
+				ad_desc,
+			</if>
+			<if test="adType != null">
+				ad_type,
+			</if>
+			<if test="adImg != null">
+				ad_img,
+			</if>
+			<if test="adImg1 != null">
+				ad_img1,
+			</if>
+			<if test="adManufacturers != null">
+				ad_manufacturers,
+			</if>
+			<if test="adStatus != null">
+				ad_status,
+			</if>
+			<if test="adPlatform != null">
+				ad_platform,
+			</if>
+			<if test="adStartTime != null">
+				ad_start_time,
+			</if>
+			<if test="adEndTime != null">
+				ad_end_time,
+			</if>
+			<if test="releaseId != null">
+				release_id,
+			</if>
+			<if test="releaseUser != null">
+				release_user,
+			</if>
+			<if test="releaseTime != null">
+				release_time,
+			</if>
+			<if test="approvalStatus != null">
+				approval_status,
+			</if>
+			<if test="approvalUser != null">
+				approval_user,
+			</if>
+			<if test="approvalOpinion != null">
+				approval_opinion,
+			</if>
+			<if test="approvalTime != null">
+				approval_time,
+			</if>
+			<if test="creator != null">
+				creator,
+			</if>
+			<if test="createTime != null">
+				create_time,
+			</if>
+			<if test="updator != null">
+				updator,
+			</if>
+			<if test="updateTime != null">
+				update_time,
+			</if>
+			<if test="delFlag != null">
+				del_flag,
+			</if>
+			<if test="adContent != null">
+				ad_content,
+			</if>
+			<if test="adAttribution != null">
+				ad_attribution,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="adId != null">
+				#{adId,jdbcType=VARCHAR},
+			</if>
+			<if test="organId != null">
+				#{organId,jdbcType=VARCHAR},
+			</if>
+			<if test="merId != null">
+				#{merId,jdbcType=VARCHAR},
+			</if>
+			<if test="adName != null">
+				#{adName,jdbcType=VARCHAR},
+			</if>
+			<if test="adTitle != null">
+				#{adTitle,jdbcType=VARCHAR},
+			</if>
+			<if test="adDesc != null">
+				#{adDesc,jdbcType=VARCHAR},
+			</if>
+			<if test="adType != null">
+				#{adType,jdbcType=VARCHAR},
+			</if>
+			<if test="adImg != null">
+				#{adImg,jdbcType=VARCHAR},
+			</if>
+			<if test="adImg1 != null">
+				#{adImg1,jdbcType=VARCHAR},
+			</if>
+			<if test="adManufacturers != null">
+				#{adManufacturers,jdbcType=VARCHAR},
+			</if>
+			<if test="adStatus != null">
+				#{adStatus,jdbcType=VARCHAR},
+			</if>
+			<if test="adPlatform != null">
+				#{adPlatform,jdbcType=VARCHAR},
+			</if>
+			<if test="adStartTime != null">
+				#{adStartTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="adEndTime != null">
+				#{adEndTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="releaseId != null">
+				#{releaseId,jdbcType=VARCHAR},
+			</if>
+			<if test="releaseUser != null">
+				#{releaseUser,jdbcType=VARCHAR},
+			</if>
+			<if test="releaseTime != null">
+				#{releaseTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="approvalStatus != null">
+				#{approvalStatus,jdbcType=VARCHAR},
+			</if>
+			<if test="approvalUser != null">
+				#{approvalUser,jdbcType=VARCHAR},
+			</if>
+			<if test="approvalOpinion != null">
+				#{approvalOpinion,jdbcType=VARCHAR},
+			</if>
+			<if test="approvalTime != null">
+				#{approvalTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="creator != null">
+				#{creator,jdbcType=VARCHAR},
+			</if>
+			<if test="createTime != null">
+				#{createTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="updator != null">
+				#{updator,jdbcType=VARCHAR},
+			</if>
+			<if test="updateTime != null">
+				#{updateTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="delFlag != null">
+				#{delFlag,jdbcType=CHAR},
+			</if>
+			<if test="adContent != null">
+				#{adContent,jdbcType=LONGVARCHAR},
+			</if>
+			<if test="adAttribution != null">
+				#{adAttribution,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateAdvertisementByPrimaryKeySelective"
+		parameterType="com.jiewen.spp.modules.advertisement.entity.Advertisement">
+		update t_advertisement
+		<set>
+			<if test="organId != null">
+				organ_id = #{organId,jdbcType=VARCHAR},
+			</if>
+			<if test="merId != null">
+				mer_id = #{merId,jdbcType=VARCHAR},
+			</if>
+			<if test="adName != null">
+				ad_name = #{adName,jdbcType=VARCHAR},
+			</if>
+			<if test="adTitle != null">
+				ad_title = #{adTitle,jdbcType=VARCHAR},
+			</if>
+			<if test="adDesc != null">
+				ad_desc = #{adDesc,jdbcType=VARCHAR},
+			</if>
+			<if test="adType != null">
+				ad_type = #{adType,jdbcType=VARCHAR},
+			</if>
+			<if test="adImg != null">
+				ad_img = #{adImg,jdbcType=VARCHAR},
+			</if>
+			<if test="adImg1 != null">
+				ad_img1 = #{adImg1,jdbcType=VARCHAR},
+			</if>
+			<if test="adManufacturers != null">
+				ad_manufacturers = #{adManufacturers,jdbcType=VARCHAR},
+			</if>
+			<if test="adStatus != null">
+				ad_status = #{adStatus,jdbcType=VARCHAR},
+			</if>
+			<if test="adPlatform != null">
+				ad_platform = #{adPlatform,jdbcType=VARCHAR},
+			</if>
+			<if test="adStartTime != null">
+				ad_start_time = #{adStartTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="adEndTime != null">
+				ad_end_time = #{adEndTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="releaseId != null">
+				release_id = #{releaseId,jdbcType=VARCHAR},
+			</if>
+			<if test="releaseUser != null">
+				release_user = #{releaseUser,jdbcType=VARCHAR},
+			</if>
+			<if test="releaseTime != null">
+				release_time = #{releaseTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="approvalStatus != null">
+				approval_status = #{approvalStatus,jdbcType=VARCHAR},
+			</if>
+			<if test="approvalUser != null">
+				approval_user = #{approvalUser,jdbcType=VARCHAR},
+			</if>
+			<if test="approvalOpinion != null">
+				approval_opinion = #{approvalOpinion,jdbcType=VARCHAR},
+			</if>
+			<if test="approvalTime != null">
+				approval_time = #{approvalTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="creator != null">
+				creator = #{creator,jdbcType=VARCHAR},
+			</if>
+			<if test="createTime != null">
+				create_time = #{createTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="updator != null">
+				updator = #{updator,jdbcType=VARCHAR},
+			</if>
+			<if test="updateTime != null">
+				update_time = #{updateTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="delFlag != null">
+				del_flag = #{delFlag,jdbcType=CHAR},
+			</if>
+			<if test="adContent != null">
+				ad_content = #{adContent,jdbcType=LONGVARCHAR},
+			</if>
+			<if test="adAttribution != null">
+				ad_attribution = #{adAttribution,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where ad_id = #{adId,jdbcType=VARCHAR}
+	</update>
+	<update id="updateAdvertisementByPrimaryKeyWithBLOBs"
+		parameterType="com.jiewen.spp.modules.advertisement.entity.Advertisement">
+		update t_advertisement
+		set organ_id = #{organId,jdbcType=VARCHAR},
+		mer_id = #{merId,jdbcType=VARCHAR},
+		ad_name = #{adName,jdbcType=VARCHAR},
+		ad_title = #{adTitle,jdbcType=VARCHAR},
+		ad_desc = #{adDesc,jdbcType=VARCHAR},
+		ad_type = #{adType,jdbcType=VARCHAR},
+		ad_img = #{adImg,jdbcType=VARCHAR},
+		ad_img1 = #{adImg1,jdbcType=VARCHAR},
+		ad_manufacturers = #{adManufacturers,jdbcType=VARCHAR},
+		ad_status = #{adStatus,jdbcType=VARCHAR},
+		ad_platform = #{adPlatform,jdbcType=VARCHAR},
+		ad_start_time = #{adStartTime,jdbcType=TIMESTAMP},
+		ad_end_time = #{adEndTime,jdbcType=TIMESTAMP},
+		release_id = #{releaseId,jdbcType=VARCHAR},
+		release_user = #{releaseUser,jdbcType=VARCHAR},
+		release_time = #{releaseTime,jdbcType=TIMESTAMP},
+		approval_status = #{approvalStatus,jdbcType=VARCHAR},
+		approval_user = #{approvalUser,jdbcType=VARCHAR},
+		approval_opinion = #{approvalOpinion,jdbcType=VARCHAR},
+		approval_time = #{approvalTime,jdbcType=TIMESTAMP},
+		creator = #{creator,jdbcType=VARCHAR},
+		create_time = #{createTime,jdbcType=TIMESTAMP},
+		updator = #{updator,jdbcType=VARCHAR},
+		update_time = #{updateTime,jdbcType=TIMESTAMP},
+		del_flag = #{delFlag,jdbcType=CHAR},
+		ad_attribution = #{adAttribution,jdbcType=VARCHAR},
+		ad_content = #{adContent,jdbcType=LONGVARCHAR}
+		where ad_id = #{adId,jdbcType=VARCHAR}
+	</update>
+	<update id="updateAdvertisementAdStatus"
+		parameterType="com.jiewen.spp.modules.advertisement.entity.Advertisement">
+		update t_advertisement
+		set
+		ad_status = #{adStatus,jdbcType=VARCHAR}
+		where ad_id = #{adId,jdbcType=VARCHAR}
+	</update>
+
+	<update id="updateAdvertisementApprovalStatus"
+		parameterType="com.jiewen.spp.modules.advertisement.entity.Advertisement">
+		update t_advertisement
+		set
+		approval_status = #{approvalStatus,jdbcType=VARCHAR},
+		approval_opinion = #{approvalOpinion,jdbcType=VARCHAR}
+		where ad_id = #{adId,jdbcType=VARCHAR}
+	</update>
+	<update id="updateAdvertisementByPrimaryKey"
+		parameterType="com.jiewen.spp.modules.advertisement.entity.Advertisement">
+		update t_advertisement
+		set organ_id = #{organId,jdbcType=VARCHAR},
+		mer_id = #{merId,jdbcType=VARCHAR},
+		ad_name = #{adName,jdbcType=VARCHAR},
+		ad_title = #{adTitle,jdbcType=VARCHAR},
+		ad_desc = #{adDesc,jdbcType=VARCHAR},
+		ad_type = #{adType,jdbcType=VARCHAR},
+		ad_img = #{adImg,jdbcType=VARCHAR},
+		ad_img1 = #{adImg1,jdbcType=VARCHAR},
+		ad_manufacturers = #{adManufacturers,jdbcType=VARCHAR},
+		ad_status = #{adStatus,jdbcType=VARCHAR},
+		ad_platform = #{adPlatform,jdbcType=VARCHAR},
+		ad_start_time = #{adStartTime,jdbcType=TIMESTAMP},
+		ad_end_time = #{adEndTime,jdbcType=TIMESTAMP},
+		release_id = #{releaseId,jdbcType=VARCHAR},
+		release_user = #{releaseUser,jdbcType=VARCHAR},
+		release_time = #{releaseTime,jdbcType=TIMESTAMP},
+		approval_status = #{approvalStatus,jdbcType=VARCHAR},
+		approval_user = #{approvalUser,jdbcType=VARCHAR},
+		approval_opinion = #{approvalOpinion,jdbcType=VARCHAR},
+		approval_time = #{approvalTime,jdbcType=TIMESTAMP},
+		creator = #{creator,jdbcType=VARCHAR},
+		create_time = #{createTime,jdbcType=TIMESTAMP},
+		updator = #{updator,jdbcType=VARCHAR},
+		ad_attribution = #{adAttribution,jdbcType=VARCHAR},
+		update_time = #{updateTime,jdbcType=TIMESTAMP},
+		del_flag = #{delFlag,jdbcType=CHAR}
+		where ad_id = #{adId,jdbcType=VARCHAR}
+	</update>
+
+	<select id="getAdCount" resultType="Integer">
+		SELECT
+		COUNT(*)
+		FROM `t_advertisement` t
+		where t.del_flag = '0'
+		AND
+		t.organ_id IN (SELECT id FROM sys_office
+		WHERE parent_ids LIKE
+		<if test="dbName == 'oracle'">'%,'||#{organId}||',%'</if>
+		<if test="dbName == 'mssql'">'%,'+#{organId}+',%'</if>
+		<if test="dbName == 'mysql'">CONCAT('%,', #{organId}, ',%')</if>
+		AND del_flag = '0'
+		UNION select id from sys_office where id =
+		#{organId}
+		AND del_flag = '0')
+	</select>
+</mapper>

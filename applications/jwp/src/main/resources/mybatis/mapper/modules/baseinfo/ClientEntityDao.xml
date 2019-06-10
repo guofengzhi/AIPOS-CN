@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.modules.baseinfo.dao.ClientEntityDao">
+
+	<sql id="clientColumns">
+		customer_id,
+		parent_id,
+		customer_name,
+		customer_class,
+		level,
+		customer_credits,
+		account_period,
+		remark,
+		customer_id_path,
+		province,
+		city,
+		industry
+	</sql>
+	
+	<select id="findList" resultType="com.jiewen.modules.baseinfo.entity.ClientEntity">
+		SELECT
+		<include refid="clientColumns" />
+		FROM sass_customer
+		WHERE 1 = 1
+		<if test="customerId != null and customerId != ''">
+			AND  customer_id_path like  CONCAT('%/', #{customerId}, '%')
+		</if>
+		<if test="customerName != null and customerName != ''">
+			AND customer_name = #{customerName}
+		</if>
+		ORDER BY level
+	</select>
+	
+	<select id="findClientBySn" parameterType="String" resultType="com.jiewen.modules.baseinfo.entity.ClientEntity">
+	 	 SELECT 
+	 	 	    sa.customer_id,
+	 	 	    sa.customer_name 
+    	 	    FROM sass_product_sn t, sass_customer sa
+                WHERE t.sn = #{sn} and sa.customer_id = t.customer_id
+	</select>
+	
+	<select id="findAllList" resultType="com.jiewen.modules.baseinfo.entity.ClientEntity">
+		SELECT
+		<include refid="clientColumns" />
+		FROM sass_customer 
+		WHERE 1 = 1
+		 <if test="industry != null and industry != ''">
+          AND industry = #{industry}
+         </if>
+		ORDER BY level
+	</select>
+	
+	
+	<!-- 通过id查询 -->
+	<select id="get" resultType="com.jiewen.modules.baseinfo.entity.ClientEntity">
+	 	 SELECT 
+	 	 	<include refid="clientColumns" />
+	 	  FROM `sass_customer`
+	 	   WHERE customer_id = #{customerId}
+	</select>
+	
+	
+	<!-- 通过Name查询 -->
+	<select id="findClientByName" resultType="com.jiewen.modules.baseinfo.entity.ClientEntity">
+	 	 SELECT 
+	 	 	customer_id,
+			customer_name
+	 	  FROM `sass_customer`
+	 	   WHERE customer_name = #{customerName}
+	</select>
+	
+	
+</mapper>

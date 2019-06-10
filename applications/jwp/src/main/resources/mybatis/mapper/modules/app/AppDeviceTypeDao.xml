@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.modules.app.dao.AppDeviceTypeDao">
+
+	<sql id="DevelopJoins">
+		LEFT JOIN t_app_developer a ON a.id=t.app_developer
+	</sql>
+
+	<sql id="ManuJoins">
+		LEFT JOIN t_manufacturer_info mi ON
+		t.manu_no=mi.manufacturer_no
+	</sql>
+
+
+	<!-- 过滤查询列表 -->
+	<select id="findList"
+		resultType="com.jiewen.modules.app.entity.AppDeviceType">
+		SELECT
+		t.id,
+		t.apk_id,
+		t.manu_no,
+		mi.manufacturer_name AS manufacturer_name,
+		t.device_type
+		FROM `t_app_device_type` t
+		<include refid="ManuJoins" />
+		WHERE t.del_flag = '0'
+		<if test="apkId != null and apkId != ''">
+			AND apk_id = ${apkId}
+		</if>
+		<if test="deviceType != null and deviceType != ''">
+			AND device_type = #{deviceType}
+		</if>
+		<if test="manuNo != null and manuNo != ''">
+			AND manu_no = ${manuNo}
+		</if>
+		ORDER BY t.create_date
+		DESC
+	</select>
+	
+	<!-- 通过Name查询 -->
+	<select id="findAppDeviceTypeByApkId"
+		resultType="com.jiewen.modules.app.entity.AppDeviceType">
+		SELECT
+		id,
+		apk_id,
+		manu_no,
+		device_type
+		FROM `t_app_device_type`
+		WHERE apk_id = #{apkId} AND del_flag = '0'
+	</select>
+
+	<!-- 通过apkId删除查询 -->
+	<delete id="deleteByApkId"
+		parameterType="com.jiewen.modules.app.entity.AppDeviceType">
+		DELETE FROM `t_app_device_type`
+		WHERE apk_id = #{apkId} AND del_flag = '0'
+	</delete>
+
+
+
+	<!-- 通过id查询 -->
+	<select id="findAppDeviceTypeById"
+		resultType="com.jiewen.modules.app.entity.AppDeviceType">
+		SELECT
+		id,
+		apk_id,
+		manu_no,
+		device_type
+		FROM `t_app_device_type`
+		WHERE id = #{id} AND del_flag = '0'
+	</select>
+
+	<!-- 通过apkid manuNo deviceType查询 -->
+	<select id="getAppDeviceTypeByApkId"
+		resultType="com.jiewen.modules.app.entity.AppDeviceType">
+		SELECT
+		id,
+		apk_id,
+		manu_no,
+		device_type
+		FROM `t_app_device_type`
+		WHERE apk_id = #{apkId} AND del_flag = '0'
+		<if test="deviceType != null and deviceType != ''">
+			AND device_type = #{deviceType}
+		</if>
+		<if test="manuNo != null and manuNo != ''">
+			AND manu_no = ${manuNo}
+		</if>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO `t_app_device_type`
+		(
+		apk_id,
+		manu_no,
+		device_type,
+		create_by,
+		create_date,
+		update_by,
+		update_date
+		)
+		VALUES (
+		#{apkId},
+		#{manuNo},
+		#{deviceType},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate}
+		)
+	</insert>
+</mapper>

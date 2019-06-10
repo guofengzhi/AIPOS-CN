@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.modules.device.dao.RecordInfoDao">
+  
+    <!-- 过滤查询列表 -->
+	<select id="findList" resultType="com.jiewen.modules.device.entity.RecordInfo">
+	 	 SELECT 
+	 	 	 t.id,
+	 	 	 t.parent_id,
+	 	 	 t.status,
+		     t.package_info,
+		     t.record_datetime,
+		     t.package_path,
+		     t.package_name
+	 	  FROM `t_record_info` t
+	 	  WHERE 1 = 1
+	 	 <if test="id != null and id != ''">
+          AND t.id = #{id}
+         </if>
+         ORDER BY T.record_datetime DESC
+	</select>
+	
+	<!-- 过滤查询实体 -->
+	<select id="findById" resultType="com.jiewen.modules.device.entity.RecordInfo">
+	 	  SELECT 
+	 	 	 t.id,
+	 	 	 t.parent_id,
+	 	 	 t.status,
+		     t.package_info,
+		     t.record_datetime,
+		     t.package_path,
+		     t.package_name
+	 	  FROM `t_record_info` t
+	 	  WHERE 1 = 1
+          AND t.id = #{id}
+	</select>
+	
+	<insert id="insert" parameterType="com.jiewen.modules.device.entity.RecordInfo">
+		INSERT INTO `t_record_info` 
+	    (id,
+	     parent_id,
+	     status,
+	     package_info,
+	     record_datetime,
+	     package_path,
+	     package_name
+	     )
+        VALUES (
+        #{id}, 
+        #{parentId}, 
+        #{status}, 
+        #{packageInfo},
+        #{recordDateTime}, 
+        #{packagePath}, 
+        #{packageName}
+    	)
+	</insert>
+</mapper>

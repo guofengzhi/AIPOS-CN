@@ -1,0 +1,30 @@
+package ${package}.dao;
+
+import ${package}.domain.${className}DO;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.transaction.annotation.Transactional;
+
+/**
+ * ${comments}
+ * @author ${author} 捷文科技
+ * @email ${email}
+ * @date ${datetime}
+ */
+@Transactional
+public interface ${className}Dao {
+
+	${className}DO get(${pk.attrType} ${pk.attrname});
+	
+	List<${className}DO> list(${className}DO ${classname});
+	
+	int save(${className}DO ${classname});
+	
+	int update(${className}DO ${classname});
+	
+	int remove(${pk.attrType} ${pk.columnName});
+	
+	int batchRemove(${pk.attrType}[] ${pk.attrname}s);
+}

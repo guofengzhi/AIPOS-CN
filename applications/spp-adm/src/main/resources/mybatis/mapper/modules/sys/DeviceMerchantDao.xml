@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.base.sys.dao.DeviceMerchantDao">
+	<resultMap id="BaseResultMap" type="com.jiewen.base.sys.entity.DeviceMerchant">
+		<result column="id" jdbcType="DECIMAL" property="id" />
+	    <result column="device_sn" jdbcType="VARCHAR" property="deviceSn"/>
+	    <result column="store_id" jdbcType="VARCHAR" property="storeId"/>
+		<result column="mer_id" jdbcType="VARCHAR" property="merId" />
+		<result column="reverse1" jdbcType="VARCHAR" property="reverse1" />
+		<result column="reverse2" jdbcType="VARCHAR" property="reverse2" />
+		<result column="reverse3" jdbcType="VARCHAR" property="reverse3" />
+		<result column="reverse4" jdbcType="VARCHAR" property="reverse4" />
+		<result column="reverse5" jdbcType="VARCHAR" property="reverse5" />
+	</resultMap>
+	
+	<resultMap id="BoundTermsMap" type="com.jiewen.base.sys.entity.DeviceMerchant">
+		<result column="id" jdbcType="DECIMAL" property="id" />
+		<result column="mer_id" jdbcType="VARCHAR" property="merId" />
+		<result column="mer_name" jdbcType="VARCHAR" property="merName" />
+		<result column="store_id" jdbcType="VARCHAR" property="storeId" />
+		<result column="store_name" jdbcType="VARCHAR" property="storeName" />
+		<result column="device_sn" jdbcType="VARCHAR" property="deviceSn"/>
+		<result column="boundState" jdbcType="VARCHAR" property="boundState" />
+	</resultMap>
+	
+	<resultMap type="com.jiewen.spp.modules.device.entity.Device" id="fullResultMap">
+		<result column="id" property="id" jdbcType="VARCHAR"/>
+		<result column="device_sn" property="deviceSn" jdbcType="VARCHAR"/>
+		<result column="device_pn" property="devicePn" jdbcType="VARCHAR"/>
+		<result column="device_type" property="deviceType" jdbcType="VARCHAR"/>
+		<result column="device_os_version" property="deviceOsVersion" jdbcType="VARCHAR"/>
+		<result column="os_version_shifter" property="osVersionShifter" jdbcType="VARCHAR"/>
+		<result column="device_version" property="deviceVersion" jdbcType="VARCHAR"/>
+		<result column="tusn" property="tusn" jdbcType="VARCHAR"/>
+		<result column="product_type_code" property="productTypeCode" jdbcType="VARCHAR"/>
+		<result column="device_info" property="deviceInfo" jdbcType="VARCHAR"/>
+		<result column="device_bank" property="deviceBank" jdbcType="VARCHAR"/>
+		<result column="client_no" property="clientNo" jdbcType="VARCHAR"/>
+		<result column="manufacturer_no" property="manufacturerNo" jdbcType="VARCHAR"/>
+		<!-- <result column="client_identification" property="clientIdentification" jdbcType="VARCHAR"/>-->
+		<result column="hardware_version" property="hardwareVersion" jdbcType="VARCHAR"/>
+		<result column="hardware_shifter" property="hardwareShifter" jdbcType="VARCHAR"/>
+		<result column="device_status" property="deviceStatus" jdbcType="VARCHAR"/>
+		<result column="os_status" property="osStatus" jdbcType="VARCHAR"/>
+		<result column="os_msg" property="osMsg" jdbcType="VARCHAR"/>
+		<result column="app_info" property="appInfo" jdbcType="VARCHAR"/>
+		<!-- <result column="create_by" property="createBy" jdbcType="VARCHAR"/> -->
+		<result column="create_date" property="createDate" jdbcType="VARCHAR"/>
+		<!-- <result column="update_by" property="updateBy" jdbcType="VARCHAR"/> -->
+		<result column="update_date" property="updateDate" jdbcType="VARCHAR"/>
+		<result column="remarks" property="remarks" jdbcType="VARCHAR"/>
+		<result column="del_flag" property="delFlag" jdbcType="VARCHAR"/>
+	</resultMap>
+	
+	
+	<select id="selectDeviceMerchantList" parameterType="com.jiewen.base.sys.entity.DeviceMerchant" resultMap="BoundTermsMap">
+		select 
+			dm.id,dm.mer_id,m.mer_name,dm.device_sn,'已绑定' boundState <!-- TODO修改boundState -->
+		from 
+			t_device_merchant dm join t_merchant m 
+		on 
+			dm.mer_id = m.mer_id 
+		<if test=" orgId != null and orgId !='' ">
+		where m.org_id = #{orgId,jdbcType=VARCHAR}
+		</if>
+		<if test=" merId != null and merId !='' ">
+		and m.mer_id = #{merId,jdbcType=VARCHAR}
+		</if>
+		<if test=" deviceSn != null and deviceSn !='' ">
+		and dm.device_sn = #{deviceSn,jdbcType=VARCHAR}
+		</if>
+	</select>
+	
+	<select id="findDeviceUnBoundPage" parameterType="com.jiewen.base.sys.entity.DeviceMerchant" resultMap="BoundTermsMap">
+		SELECT 
+				 "" id,
+				  "" mer_id,
+				  "" mer_name,
+				  di.device_sn,
+				  '未绑定' boundState 
+		FROM t_device_info di WHERE NOT EXISTS(
+			SELECT dm.device_sn FROM t_device_merchant dm WHERE dm.device_sn = di.device_sn)
+			<if test=" deviceSn != null and deviceSn !='' ">
+				and di.device_sn = #{deviceSn,jdbcType=VARCHAR}
+			</if>
+	</select>
+	
+	<select id="boundAndUnBound" parameterType="com.jiewen.base.sys.entity.DeviceMerchant" resultMap="BoundTermsMap">
+	
+		select 
+			dm.id,dm.mer_id,m.mer_name,dm.device_sn,'已绑定' boundState <!-- TODO修改boundState -->
+		from 
+			t_device_merchant dm join t_merchant m 
+		on 
+			dm.mer_id = m.mer_id 
+		<if test=" orgId != null and orgId !='' ">
+		where m.org_id = #{orgId,jdbcType=VARCHAR}
+		</if>
+		<if test=" merId != null and merId !='' ">
+		and m.mer_id = #{merId,jdbcType=VARCHAR}
+		</if>
+		<if test=" deviceSn != null and deviceSn !='' ">
+		and dm.device_sn = #{deviceSn,jdbcType=VARCHAR}
+		</if>
+		<if test=" merId == null or merId =='' ">
+				union all
+			SELECT 
+				 "" id,
+				  "" mer_id,
+				  "" mer_name,
+				  di.device_sn,
+				  '未绑定' boundState 
+		FROM t_device_info di WHERE NOT EXISTS(
+			SELECT dm.device_sn FROM t_device_merchant dm WHERE dm.device_sn = di.device_sn)
+			<if test=" deviceSn != null and deviceSn !='' ">
+				and di.device_sn = #{deviceSn,jdbcType=VARCHAR}
+			</if> 
+		</if>
+	</select>
+	
+	
+	
+	<select id="selectDeviceStoreList" parameterType="com.jiewen.base.sys.entity.DeviceMerchant" resultMap="BoundTermsMap">
+		select 
+			dm.id,dm.mer_id,m.mer_name,dm.store_id,s.store_name,dm.device_sn,'已绑定' boundState <!-- TODO修改boundState -->
+		from 
+			t_device_merchant dm join t_merchant m 
+		on 
+			dm.mer_id = m.mer_id 
+		join 
+			t_store s
+		on 
+			s.store_id = dm.store_id
+		<if test=" orgId != null and orgId !='' ">
+		where m.org_id = #{orgId,jdbcType=VARCHAR}
+		</if>
+		<if test=" merId != null and merId !='' ">
+		and m.mer_id = #{merId,jdbcType=VARCHAR}
+		</if>
+		<if test=" storeId != null and storeId !='' ">
+		and dm.store_id = #{storeId,jdbcType=VARCHAR}
+		</if>
+		<if test=" deviceSn != null and deviceSn !='' ">
+		and dm.device_sn = #{deviceSn,jdbcType=VARCHAR}
+		</if>
+	</select>
+	
+	<sql id="baseColumns">
+		device_sn,
+		store_id,
+		mer_id,
+		reverse1,
+		reverse2,
+		reverse3,
+		reverse4,
+		reverse5
+	</sql>
+	
+	<delete id="updateBoundState" parameterType="java.lang.String">
+		delete from t_device_merchant where id = #{id,jdbcType=DECIMAL}
+	</delete>
+	
+	<insert id="insertDeviceMerchant" parameterType="com.jiewen.base.sys.entity.DeviceMerchant">
+		insert into t_device_merchant(<include refid="baseColumns"/>) values(#{deviceSn,jdbcType=VARCHAR},
+		#{storeId,jdbcType=VARCHAR},#{merId,jdbcType=VARCHAR},#{reverse1,jdbcType=VARCHAR},#{reverse2,jdbcType=VARCHAR},#{reverse3,jdbcType=VARCHAR},#{reverse4,jdbcType=VARCHAR},#{reverse5,jdbcType=VARCHAR})
+	</insert>
+	
+		
+	<select id="getUnBoundTerms" resultMap="fullResultMap" parameterType="com.jiewen.spp.modules.device.entity.Device">
+			SELECT 
+				di.id,
+				di.device_sn,
+				di.device_pn,
+				di.device_type,
+				di.device_os_version,
+				di.os_version_shifter,
+				di.device_version,
+				di.tusn,
+				di.product_type_code,
+				di.device_info,
+				di.device_bank,
+				di.client_no,
+				di.manufacturer_no,
+				<!-- di.client_identification, -->
+				di.hardware_version,
+				di.hardware_shifter,
+				di.device_status,
+				di.os_status,
+				di.os_upgrade_type,
+				di.os_msg,app_info,
+				<!-- di.create_by, -->
+				di.create_date,
+				<!--di.update_by,-->
+				di.update_date,
+				di.remarks,
+				di.del_flag 
+		FROM t_device_info di WHERE NOT EXISTS(
+			SELECT dm.device_sn FROM t_device_merchant dm WHERE dm.device_sn = di.device_sn) 
+			order by di.device_sn
+	</select>
+	<select id="getUnBoundStoreTerms" resultMap="fullResultMap" parameterType="com.jiewen.spp.modules.device.entity.Device">
+			SELECT 
+				di.id,
+				di.device_sn,
+				di.device_pn,
+				di.device_type,
+				di.device_os_version,
+				di.os_version_shifter,
+				di.device_version,
+				di.tusn,
+				di.product_type_code,
+				di.device_info,
+				di.device_bank,
+				di.client_no,
+				di.manufacturer_no,
+				<!-- di.client_identification, -->
+				di.hardware_version,
+				di.hardware_shifter,
+				di.device_status,
+				di.os_status,
+				di.os_upgrade_type,
+				di.os_msg,app_info,
+				<!-- di.create_by, -->
+				di.create_date,
+				<!--di.update_by,-->
+				di.update_date,
+				di.remarks,
+				di.del_flag 
+		FROM t_device_info di WHERE NOT EXISTS(
+			SELECT dm.device_sn FROM t_device_merchant dm WHERE dm.device_sn = di.device_sn) 
+			
+		union all
+		
+		SELECT 
+				di2.id,
+				di2.device_sn,
+				di2.device_pn,
+				di2.device_type,
+				di2.device_os_version,
+				di2.os_version_shifter,
+				di2.device_version,
+				di2.tusn,
+				di2.product_type_code,
+				di2.device_info,
+				di2.device_bank,
+				di2.client_no,
+				di2.manufacturer_no,
+				<!-- di.client_identification, -->
+				di2.hardware_version,
+				di2.hardware_shifter,
+				di2.device_status,
+				di2.os_status,
+				di2.os_upgrade_type,
+				di2.os_msg,app_info,
+				<!-- di.create_by, -->
+				di2.create_date,
+				<!--di.update_by,-->
+				di2.update_date,
+				di2.remarks,
+				di2.del_flag 
+		FROM t_device_info di2
+		join t_device_merchant dm
+		on di2.device_sn = dm.device_sn
+		and dm.store_id is null
+		<if test="merId != null and merId != ''">
+			and dm.mer_id = #{merId,jdbcType=VARCHAR}
+		</if>
+	</select>
+	
+	<insert id="insertList">
+		insert into t_device_merchant(
+				device_sn
+				,store_id
+				,mer_id
+				,reverse1
+				,reverse2
+				,reverse3
+				,reverse4
+				,reverse5
+			)  
+			values
+				<foreach collection="list" item="deviceMerchant" index="index" separator="," >  
+				(
+				
+					#{deviceMerchant.deviceSn,jdbcType=VARCHAR}
+					,#{deviceMerchant.storeId,jdbcType=VARCHAR}
+					,#{deviceMerchant.merId,jdbcType=VARCHAR}
+					,#{deviceMerchant.reverse1,jdbcType=VARCHAR}
+					,#{deviceMerchant.reverse2,jdbcType=VARCHAR}
+					,#{deviceMerchant.reverse3,jdbcType=VARCHAR}
+					,#{deviceMerchant.reverse4,jdbcType=VARCHAR}
+					,#{deviceMerchant.reverse5,jdbcType=VARCHAR}
+				)
+			</foreach>
+	</insert>
+	
+	<delete id="batchUnBound">
+		delete from t_device_merchant where device_sn in(
+		<foreach collection="list" item="deviceMerchant" index="index" separator="," >  
+			#{deviceMerchant.deviceSn}
+		</foreach>
+		)
+	</delete>
+	
+	<select id="getBoundTermBySn" parameterType="java.lang.String" resultMap="BaseResultMap">
+		select <include refid="baseColumns"/> from t_device_merchant where device_sn = #{sn,jdbcType=VARCHAR}
+	</select>
+	
+	<update id="updateDeviceMerchant" parameterType="com.jiewen.base.sys.entity.DeviceMerchant">
+		update t_device_merchant device_sn = #{deviceSn,jdbcType=VARCHAR}
+		<if test="deviceSn != null and deviceSn != ''">
+			,device_sn = #{deviceSn,jdbcType=VARCHAR}
+		</if>
+		<if test="storeId != null and storeId != ''">
+			,store_id = #{storeId,jdbcType=VARCHAR}
+		</if>
+		<if test="merId != null and merId != ''">
+			,mer_id = #{merId,jdbcType=VARCHAR}
+		</if>
+		<if test="reverse1 != null and reverse1 != ''">
+			,reverse1 = #{reverse1,jdbcType=VARCHAR}
+		</if>
+		<if test="reverse2 != null and reverse2 != ''">
+			,reverse2 = #{reverse2,jdbcType=VARCHAR}
+		</if>
+		<if test="reverse3 != null and reverse3 != ''">
+			,reverse3 = #{reverse3,jdbcType=VARCHAR}
+		</if>
+		<if test="reverse4 != null and reverse4 != ''">
+			,reverse4 = #{reverse4,jdbcType=VARCHAR}
+		</if>
+		<if test="reverse5 != null and reverse5 != ''">
+			,reverse5 = #{reverse5,jdbcType=VARCHAR}
+		</if>
+		where id = #{id,jdbcType=VARCHAR}
+	</update>
+</mapper>

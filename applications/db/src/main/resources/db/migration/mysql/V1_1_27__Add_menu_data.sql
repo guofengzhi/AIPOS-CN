@@ -1,0 +1,1 @@
+﻿INSERT INTO `sys_menu` VALUES ('a43aa9a2a90f469ba12016c93fe0ade5', '3f9f735e67184feab91dde2a0b1a8ab1', '0,3f9f735e67184feab91dde2a0b1a8ab1,', '版本设备数量信息', 'VERSION_DEVICE_COUNT_INFO', '1', 'fa fa-chevron-right', '000033000003', '/osRom/romDeviceCountIndex', '0', null, null, '1', '1', '2018-02-09 14:50:46', '1', '2018-02-09 14:50:46');

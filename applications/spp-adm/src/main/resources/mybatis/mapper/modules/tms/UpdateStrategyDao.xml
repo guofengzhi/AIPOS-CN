@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.spp.modules.tms.dao.UpdateStrategyDao">
+
+	<sql id="updateStrategyColumns">
+		a.id,
+		a.strategy_name as strategyName,
+		a.begin_date as
+		beginDate,
+		a.end_date as endDate,
+		a.update_time as updateTime,
+		a.device_type as deviceType,
+		a.device_sn_str as deviceSnStr,
+		a.manufacture_no as manufactureNo,
+		a.organ_id as organId,
+		a.mer_no as
+		merNo,
+		a.term_no as termNo,
+		a.create_by as createBy,
+		a.create_date as
+		createDate,
+		a.update_by as updateBy,
+		a.update_date as updateDate,
+		a.del_flag as delFlag,
+		a.remarks,
+		a.device_count as count
+	</sql>
+
+	<!-- 分页查询更新策略 -->
+	<select id="findList" resultType="com.jiewen.spp.modules.tms.entity.UpdateStrategy">
+		SELECT
+		<include refid="updateStrategyColumns" />
+		<!-- ,b.file_id as fileId -->
+		FROM
+		t_tms_strategy a 
+		<!-- LEFT JOIN t_tms_file_strategy
+		b ON a.id=b.strategy_id -->
+		where a.del_flag = '0'
+		<if test="manufactureNo != null and manufactureNo!= ''">
+			AND a.manufacture_no = #{manufactureNo}
+		</if>
+		<if test="strategyName != null and strategyName != ''">
+			AND a.strategy_name like
+			<if test="dbName == 'oracle'">'%'||#{strategyName}||'%'</if>
+			<if test="dbName == 'mssql'">'%'+#{strategyName}+'%'</if>
+			<if test="dbName == 'mysql'">CONCAT('%', #{strategyName}, '%')</if>
+		</if>
+		<if test="beginDate!= null">
+			<![CDATA[ AND (a.begin_date >= date(#{beginDate,jdbcType=DATE}) 
+			OR (a.begin_date <= date(#{beginDate,jdbcType=DATE}) AND a.end_date >= date(#{beginDate,jdbcType=DATE})))]]>
+		</if>
+		<if test="endDate!= null">
+			<![CDATA[ AND (a.end_date <= date(#{endDate,jdbcType=DATE}) 
+			OR (a.end_date >= date(#{endDate,jdbcType=DATE}) AND a.begin_date <= date(#{endDate,jdbcType=DATE})))]]>
+		</if>
+		<if test="!currentUser.admin and organId != null and organId != ''">
+			AND a.organ_id IN (SELECT id FROM sys_office WHERE parent_ids LIKE
+			<if test="dbName == 'oracle'">'%,'||#{organId}||',%'</if>
+			<if test="dbName == 'mssql'">'%,'+#{organId}+',%'</if>
+			<if test="dbName == 'mysql'">CONCAT('%,', #{organId}, ',%')</if>
+			AND del_flag = '0'
+			UNION select id from sys_office where id =
+			#{organId}
+			AND del_flag = '0')
+		</if>
+		ORDER BY a.create_date DESC
+	</select>
+
+	<!-- 根据编号获得更新策略 -->
+	<select id="get" resultType="com.jiewen.spp.modules.tms.entity.UpdateStrategy">
+		SELECT
+		<include refid="updateStrategyColumns" />
+		FROM t_tms_strategy a
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="getFileById" resultType="java.lang.Integer">
+		SELECT a.file_id
+		FROM
+		t_tms_file_strategy a
+		WHERE a.strategy_id = #{id}
+	</select>
+
+	<select id="findByCondition" resultType="com.jiewen.spp.modules.tms.entity.UpdateStrategy">
+		SELECT
+		<include refid="updateStrategyColumns" />
+		FROM t_tms_strategy a
+		WHERE a.manufacture_no=#{manufactureNo}
+		AND
+		a.file_type=#{fileType}
+		AND a.file_version=#{fileVersion}
+	</select>
+
+	<insert id="insert" parameterType="com.jiewen.spp.modules.tms.entity.UpdateStrategy"
+		useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO
+		t_tms_strategy(strategy_name, begin_date, end_date, update_time,
+		device_type, device_sn_str, manufacture_no, create_by, create_date,
+		update_by, update_date, remarks, mer_no, term_no,
+		organ_id,device_count)
+		VALUES(#{strategyName}, #{beginDate},
+		#{endDate}, #{updateTime},
+		#{deviceType}, #{deviceSnStr},
+		#{manufactureNo}, #{createBy.id}, #{createDate},
+		#{updateBy.id},
+		#{updateDate}, #{remarks}, #{merNo}, #{termNo},
+		#{organId}, #{count})
+	</insert>
+
+	<update id="update">
+		UPDATE t_tms_strategy SET
+		strategy_name=#{strategyName},
+		begin_date=#{beginDate},
+		end_date=#{endDate},
+		update_time=#{updateTime},
+		device_type=#{deviceType},
+		device_sn_str=#{deviceSnStr},
+		mer_no=#{merNo},
+		term_no=#{termNo},
+		manufacture_no=#{manufactureNo},
+		update_by=#{updateBy.id},
+		update_date=#{updateDate},
+		device_count=#{count}
+		WHERE id=#{id}
+	</update>
+
+	<!-- 根据实体删除更新物：逻辑删除修改删除标识为1 -->
+	<update id="delete">
+		UPDATE t_tms_strategy SET del_flag = '1'
+		WHERE id
+		= #{id}
+	</update>
+</mapper>

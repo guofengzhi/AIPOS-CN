@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.spp.modules.tms.dao.UpdateLogDao">
+
+	<sql id="updateLogColumns">
+		a.id,
+		a.file_id as fileId,
+		a.file_name as fileName,
+		a.file_type as fileType,
+		a.file_size as fileSize,
+		a.file_version as fileVersion,
+		a.file_path as filePath,
+		a.strategy_id as strategyId,
+		a.strategy_name as strategyName,
+		a.begin_date as beginDate,
+		a.end_date as endDate,
+		a.manufacture_no as manufactureNo,
+		a.organ_id as organId,
+		a.update_time as updateTime,
+		a.device_type as deviceType,
+		a.device_sn as deviceSn,
+		a.mer_no as merNo,
+		a.term_no as termNo,
+		a.operate_date as operateDate,
+		a.remarks
+	</sql>
+
+	<!-- 分页查询更新物信息 -->
+	<select id="findList" resultType="com.jiewen.spp.modules.tms.entity.UpdateLog">
+		SELECT
+			<include refid="updateLogColumns" />
+		FROM 
+			t_tms_log a where 1=1
+		<if test="manufactureNo != null and manufactureNo != ''">
+			AND a.manufacture_no like
+			<if test="dbName == 'oracle'">'%'||#{manufactureNo}||'%'</if>
+			<if test="dbName == 'mssql'">'%'+#{manufactureNo}+'%'</if>
+			<if test="dbName == 'mysql'">CONCAT('%', #{manufactureNo}, '%')</if>
+		</if>
+		<if test="fileType != null and fileType != ''">
+			AND a.file_type like
+			<if test="dbName == 'oracle'">'%'||#{fileType}||'%'</if>
+			<if test="dbName == 'mssql'">'%'+#{fileType}+'%'</if>
+			<if test="dbName == 'mysql'">CONCAT('%', #{fileType}, '%')</if>
+		</if>
+		<if test="fileName != null and fileName != ''">
+			AND a.file_name like
+			<if test="dbName == 'oracle'">'%'||#{fileName}||'%'</if>
+			<if test="dbName == 'mssql'">'%'+#{fileName}+'%'</if>
+			<if test="dbName == 'mysql'">CONCAT('%', #{fileName}, '%')</if>
+		</if>
+		<if test="fileVersion != null and fileVersion != ''">
+			AND a.file_version like 
+			<if test="dbName == 'oracle'">'%'||#{fileVersion}||'%'</if>
+			<if test="dbName == 'mssql'">'%'+#{fileVersion}+'%'</if>
+			<if test="dbName == 'mysql'">CONCAT('%', #{fileVersion}, '%')</if>
+		</if>
+		 ORDER BY a.update_time DESC
+	</select>
+
+	<select id="get" resultType="com.jiewen.spp.modules.tms.entity.UpdateLog">
+		SELECT <include refid="updateLogColumns" />
+		FROM t_tms_log a
+		WHERE a.id=#{id}
+	</select>
+</mapper>

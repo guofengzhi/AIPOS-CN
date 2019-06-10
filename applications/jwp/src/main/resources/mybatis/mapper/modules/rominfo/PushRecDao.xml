@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.modules.rom.dao.PushRecDao">
+
+	<insert id="insert">
+		INSERT INTO `t_push_rec` 
+	    (
+	     os_id,
+	     device_id,
+	     message_content,
+	     create_by,
+	     create_date,
+	     update_by,
+	     update_date
+	     )
+        VALUES (
+        #{osId}, 
+        #{deviceId}, 
+        #{messageContent}, 
+        #{createBy.id},
+        #{createDate}, 
+        #{updateBy.id}, 
+        #{updateDate}
+    	)
+	</insert>
+	
+	
+	<insert id="insertList">
+		INSERT INTO `t_push_rec` 
+	    (
+		     os_id,
+		     device_id,
+		     message_content,
+		     create_by,
+		     create_date,
+		     update_by,
+		     update_date
+	     )
+        VALUES
+      	     <foreach collection="list" item="pushRec" index="index" separator="," >  
+                 (
+                    #{pushRec.osId}, 
+			        #{pushRec.deviceId}, 
+			        #{pushRec.messageContent}, 
+			        #{pushRec.createBy.id},
+			        #{pushRec.createDate}, 
+			        #{pushRec.updateBy.id}, 
+			        #{pushRec.updateDate}
+                 )  
+   			 </foreach> 
+	</insert>
+	
+	
+	<delete id="deletePushRecByOsId" parameterType="String">
+		DELETE FROM t_push_rec WHERE os_id = #{osId}
+	</delete>
+	
+	<delete id="deletePushRecByDeviceId" parameterType="String">
+		DELETE FROM t_push_rec WHERE device_id = #{deviceId}
+	</delete>
+	
+	
+	
+</mapper>

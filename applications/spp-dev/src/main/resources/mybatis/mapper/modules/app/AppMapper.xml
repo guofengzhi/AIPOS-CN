@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jiewen.modules.sys.dao.AppDao">
+	
+	<select id="selectAppList" resultType="com.jiewen.modules.sys.entity.App">
+		select <include refid="baseColumns"/> 
+		from t_app_info where 
+		create_by = #{createBy.id}
+		<if test="currentApproveFlag != null and currentApproveFlag != ''">
+			and current_approve_flag = #{currentApproveFlag}
+		</if>
+		<if test="appName != null and appName != ''">
+			and app_name like '%'||#{appName}||'%'
+		</if>
+	</select>
+	<sql id="baseColumns">
+		id,
+		app_name,
+		app_logo,
+		app_img,
+		app_package,
+		app_developer,
+		organ_id,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag,
+		current_approve_flag,
+		current_approve_grade,
+		category,
+		platform
+	</sql>
+	
+	<delete id="delete">
+		delete from t_app_info where id = #{id}
+	</delete>
+	
+		<insert id="insert">
+		INSERT INTO `t_app_info`
+		(
+		app_name,
+		app_logo,
+		app_package,
+		app_developer,
+		organ_id,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		app_img,
+		platform,
+		category,
+		current_approve_flag
+		)
+		VALUES (
+		#{appName},
+		#{appLogo},
+		#{appPackage},
+		#{appDeveloper},
+		#{organId},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{appImg},
+		#{platform},
+		#{category},
+		#{currentApproveFlag}
+		)
+	</insert>
+	
+	<select id="getAppInfoById" resultType="com.jiewen.modules.sys.entity.App">
+		SELECT
+		id,
+		app_name,
+		app_logo,
+		app_package,
+		app_developer,
+		category,
+		platform,
+		current_approve_flag,
+		current_approve_grade,
+		app_img
+		FROM `t_app_info`
+		WHERE id = #{id} AND del_flag = '0'
+	</select>
+	
+	<update id="update">
+		UPDATE t_app_info SET
+		<if test="appName != null and appName != ''">
+			app_name = #{appName},
+		</if>
+		<if test="appPackage != null and appPackage != ''">
+			app_package = #{appPackage},
+		</if>
+		<if test="appDeveloper != null and appDeveloper != ''">
+			app_developer = #{appDeveloper},
+		</if>
+		<if test="category != null and category != ''">
+			category = #{category},
+		</if>
+		<if test="platform != null and platform != ''">
+			platform = #{platform},
+		</if>
+		<if test="appImg != null and appImg != ''">
+			app_img = #{appImg},
+		</if>
+		<if test="currentApproveFlag != null and currentApproveFlag != ''">
+			current_approve_flag = #{currentApproveFlag},
+		</if>
+		<if test="currentApproveGrade != null and currentApproveGrade != ''">
+		    current_approve_grade = #{currentApproveGrade},
+		</if>
+		update_by = #{updateBy.id}, update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+</mapper>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.spp.modules.device.dao.MessageDao">
+
+	<!-- 过滤查询列表 -->
+	<select id="findList" resultType="com.jiewen.spp.modules.device.entity.Message">
+	 	 SELECT 
+	 	 	 t.id,
+	 	 	 t.action,
+		     t.message
+	 	  FROM `t_remote_message` t
+	 	  WHERE t.del_flag = '0'
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO `t_device_info` 
+	    (
+	 	  action,
+	 	  message,
+		  create_by,
+	      create_date,
+	      update_by,
+	      update_date
+	     )
+        VALUES (
+          #{action}, 
+          #{message}, 
+          #{createBy.id},
+          #{createDate}, 
+          #{updateBy.id}, 
+          #{updateDate}
+    	)
+	</insert>
+	
+	<insert id="batchInsert">
+		INSERT INTO `t_device_info` 
+	    (
+	 	 	 action,
+	 	 	 message,
+		 	 create_by,
+	     	 create_date,
+	     	 update_by,
+	     	 update_date
+	     )
+        VALUES
+      	     <foreach collection="list" item="message" index="index" separator="," >  
+                 (
+             #{message.action}, 
+             #{message.message}, 
+			 #{message.createBy.id},
+			 #{message.createDate}, 
+			 #{message.updateBy.id}, 
+			 #{message.updateDate}
+                )  
+   			 </foreach> 
+	</insert>
+	
+</mapper>

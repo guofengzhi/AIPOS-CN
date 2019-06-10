@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.spp.dao.TmsDeviceInfoMapper">
+
+	<sql id="tmsStrategyColumns">
+		ts.id,
+		ts.strategy_name as strategyName,
+		ts.begin_date as
+		beginDate,
+		ts.end_date as endDate,
+		ts.update_time as updateTime,
+		ts.device_type as deviceType,
+		ts.mer_no as
+		merNo,
+		ts.create_by as createBy,
+		ts.create_date as createDate,
+		ts.update_by as updateBy,
+		ts.update_date as updateDate,
+		ts.del_flag as
+		delFlag,
+		ts.remarks
+	</sql>
+
+	<select id="getStrategyByCondition" resultType="com.jiewen.spp.model.TmsStrategy">
+		SELECT
+		<include refid="tmsStrategyColumns"></include>
+		FROM
+		t_tms_strategy ts,
+		t_tms_device_info tdi
+		WHERE tdi.`strategy_id` = ts.`id`
+		AND tdi.manu_no = #{manufacturer}
+		AND tdi.`device_sn` = #{sn}
+	</select>
+
+</mapper>

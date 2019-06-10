@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.modules.workflow.dao.TblActModuleDao">
+  <select id="get" resultType="com.jiewen.modules.workflow.entity.TblActModule">
+		SELECT
+		*
+		FROM tbl_act_module
+		WHERE id = #{id}
+  </select>
+	
+  <select id="getByCode" resultType="com.jiewen.modules.workflow.entity.TblActModule" >
+    SELECT t.id,
+           t.create_date_time,
+           t.deleted,
+           t.update_date_time,
+           t.version,
+           t.code,
+           t.name,
+           t.remark
+    FROM tbl_act_module t
+    where (t.deleted=0 or t.deleted is null)
+    <if test="code != null and code != ''">
+        AND t.code = ${code}
+    </if>
+  </select>
+  
+  <select id="getAll" resultType="com.jiewen.modules.workflow.entity.TblActModule" >
+    SELECT t.id,
+           t.create_date_time,
+           t.deleted,
+           t.update_date_time,
+           t.version,
+           t.code,
+           t.name,
+           t.remark
+    FROM tbl_act_module t
+    where (t.deleted=0 or t.deleted is null)
+  </select>
+  
+  <select id="getModuleList" resultType="string">
+    SELECT code
+    FROM tbl_act_module 
+    where (deleted=0 or deleted is null)
+    GROUP BY code
+    ORDER BY code
+  </select>
+  
+    <select id="findList" resultType="com.jiewen.modules.workflow.entity.TblActModule" >
+    SELECT t.id,
+           t.create_date_time,
+           t.deleted,
+           t.update_date_time,
+           t.version,
+           t.code,
+           t.name,
+           t.remark
+    FROM tbl_act_module t
+    where (t.deleted=0 or t.deleted is null)
+    <if test="code != null and code != ''">
+          AND t.code = #{code}
+    </if>
+    <if test="name != null and name != ''">
+          AND t.name = #{name}
+    </if>
+    ORDER BY t.update_date_time desc
+  </select>
+  
+  <update id="update">
+		UPDATE tbl_act_module SET
+		code = #{code},
+		name = #{name},
+		deleted = #{deleted},
+		update_date_time = #{updateDate},
+		remark = #{remark}
+		WHERE
+		id = #{id}
+  </update>
+	
+  <update id="delete">
+		UPDATE tbl_act_module SET
+		deleted = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+  </update>
+  
+  	<insert id="insert">
+		INSERT INTO tbl_act_module(
+		   id,
+           create_date_time,
+           deleted,
+           update_date_time,
+           version,
+           code,
+           name,
+           remark
+		) VALUES (
+		#{id},
+		#{createDate},
+		#{deleted},
+		#{updateDate},
+		#{version},
+		#{code},
+		#{name},
+		#{remark}
+		)
+	</insert>
+</mapper>

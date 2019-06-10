@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.modules.sys.dao.AppVersionDao">
+
+	<sql id="DevelopJoins">
+		LEFT JOIN t_app_developer a ON a.id=t.app_developer
+	</sql>
+
+	<sql id="DevJoins">
+		LEFT JOIN sys_dict sdi1 ON t.upgrade_mode=sdi1.value AND
+		sdi1.type='app_upgrade_type'
+	</sql>
+
+	<sql id="ApkDictJoins">
+		LEFT JOIN t_app_version v ON v.id = t.apk_id
+		LEFT JOIN
+		sys_dict sdi1
+		ON t.upgrade_desc = sdi1.value
+		AND sdi1.type =
+		'app_upflag'
+	</sql>
+
+	<!-- 过滤查询列表 -->
+	<select id="findList" resultType="com.jiewen.modules.sys.entity.AppVersion">
+		SELECT
+		t.id,
+		t.app_name,
+		t.app_package,
+		t.app_version,
+		t.app_file,
+		t.app_md5,
+		t.app_description,
+		sdi1.label AS upgrade_mode
+		FROM
+		`t_app_version` t
+		<include refid="DevJoins" />
+		WHERE t.del_flag = '0'
+		AND t.organ_id IN (SELECT id FROM sys_office
+		WHERE parent_ids LIKE
+		<if test="dbName == 'oracle'">'%,'||#{organId}||',%'</if>
+		<if test="dbName == 'mssql'">'%,'+#{organId}+',%'</if>
+		<if test="dbName == 'mysql'">CONCAT('%,', #{organId}, ',%')</if>
+		AND del_flag = '0'
+		UNION select id from sys_office where id = #{organId}
+		AND del_flag = '0')
+		<if test="appName != null and appName != ''">
+			AND t.app_name like
+			<if test="dbName == 'oracle'">'%'||#{appName}||'%'</if>
+		    <if test="dbName == 'mssql'">'%'+#{appName}+'%'</if>
+		    <if test="dbName == 'mysql'">CONCAT('%', #{appName}, '%')</if>
+		</if>
+		<if test="appVersion != null and appVersion != ''">
+			AND t.app_version like
+			<if test="dbName == 'oracle'">'%'||#{appVersion}||'%'</if>
+		    <if test="dbName == 'mssql'">'%'+#{appVersion}+'%'</if>
+		    <if test="dbName == 'mysql'">CONCAT('%', #{appVersion}, '%')</if>
+		</if>
+		<if test="appPackage != null and appPackage != ''">
+			AND t.app_package = #{appPackage}
+		</if>
+		ORDER BY t.app_version DESC
+	</select>
+
+	<!-- 通过参数查询 -->
+	<select id="findAppVerListByParams" resultType="com.jiewen.modules.sys.entity.AppVersion">
+		SELECT
+		id,
+		app_name,
+		app_package,
+		app_version,
+		app_file,
+		app_md5,
+		app_description,
+		upgrade_mode
+		FROM `t_app_version`
+		WHERE del_flag = '0'
+		<if test="appName != null and appName != ''">
+			AND app_name = #{appName}
+		</if>
+		<if test="appVersion != null and appVersion != ''">
+			AND app_version = #{appVersion}
+		</if>
+		<if test="appPackage != null and appPackage != ''">
+			AND app_package = #{appPackage}
+		</if>
+		<if test="id != null and id != ''">
+			AND id <![CDATA[ <>  ]]>#{id}
+		</if>
+	</select>
+
+	<!-- 获取最新版本应用版本 -->
+	<select id="findAppVerByVersion" resultType="com.jiewen.modules.sys.entity.AppVersion">
+		SELECT
+		id,
+		app_name,
+		app_package,
+		app_version,
+		app_file,
+		app_md5,
+		app_description,
+		upgrade_mode
+		FROM `t_app_version` t
+		WHERE 1 = 1
+		<if test="appPackage != null and appPackage != ''">
+			AND t.app_package = #{appPackage}
+		</if>
+		AND t.app_version in (SELECT MAX(app_version) FROM t_app_version WHERE
+		app_package = #{appPackage})
+	</select>
+
+
+	<!-- 通过设备SN查询 -->
+	<select id="findAppVersionByDeviceSn" resultType="com.jiewen.modules.sys.entity.AppVersion">
+		SELECT t.apk_id AS id,
+		t.upgrade_type,
+		sdi1.label AS upgrade_desc,
+		v.app_name,
+		v.app_package,
+		v.app_version,
+		v.app_file,
+		v.app_md5,
+		v.app_description,
+		t.create_date
+		FROM t_app_device t
+		<include refid="ApkDictJoins" />
+		WHERE device_sn = #{appDescription}
+		AND t.del_flag = '0'
+		<if test="appName != null and appName != ''">
+			AND v.app_name like
+			<if test="dbName == 'oracle'">'%'||#{appName}||'%'</if>
+		    <if test="dbName == 'mssql'">'%'+#{appName}+'%'</if>
+		    <if test="dbName == 'mysql'">CONCAT('%', #{appName}, '%')</if>
+		</if>
+		<if test="appVersion != null and appVersion != ''">
+			AND v.app_version like
+			<if test="dbName == 'oracle'">'%'||#{appVersion}||'%'</if>
+		    <if test="dbName == 'mssql'">'%'+#{appVersion}+'%'</if>
+		    <if test="dbName == 'mysql'">CONCAT('%', #{appVersion}, '%')</if>
+		</if>
+		ORDER BY
+		t.create_date DESC
+	</select>
+
+	<!-- 通过设备SN查询 按包名去重 -->
+	<select id="findAppVersionBySn" resultType="com.jiewen.modules.sys.entity.AppVersion">
+		SELECT
+		DISTINCT(t.app_package)
+		FROM `t_app_version` t
+		WHERE t.id IN (SELECT
+		apk_id FROM `t_app_device`
+		WHERE device_sn = #{appDescription}) AND
+		t.del_flag = '0'
+	</select>
+
+	<!-- 通过id查询 -->
+	<select id="get" resultType="com.jiewen.modules.sys.entity.AppVersion">
+		SELECT
+		id,
+		app_name,
+		app_package,
+		app_version,
+		app_file,
+		app_md5,
+		app_description,
+		start_hard,
+		end_hard,
+		upgrade_mode
+		FROM `t_app_version` t
+		WHERE id = #{id} AND del_flag = '0'
+	</select>
+
+
+
+	<delete id="delete">
+		delete from t_app_version where id = #{id}
+	</delete>
+
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT
+		INTO `t_app_version`
+		(
+		app_name,
+		app_package,
+		app_version,
+		app_file,
+		app_file_size,
+		app_md5,
+		app_description,
+		organ_id,
+		app_version_compare_val,
+		start_hard,
+		end_hard,
+		start_hard_shift,
+		end_hard_shift,
+		upgrade_mode,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		app_version_number
+		)
+		VALUES (
+		#{appName},
+		#{appPackage},
+		#{appVersion},
+		#{appFile},
+		#{appFileSize},
+		#{appMd5},
+		#{appDescription},
+		#{organId},
+		#{appVersionCompareVal},
+		#{startHard},
+		#{endHard},
+		#{startHardShift},
+		#{endHardShift},
+		#{upgradeMode},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{appVersionNumber}
+		)
+	</insert>
+
+
+	<update id="update">
+		UPDATE t_app_version SET
+		app_name = #{appName},
+		app_package =
+		#{appPackage},
+		app_version = #{appVersion},
+		<if test="appFile != null and appFile != ''">
+			app_file = #{appFile},
+		</if>
+		<if test="appFileSize != null and appFileSize != ''">
+			app_file_size = #{appFileSize},
+		</if>
+		<if test="appMd5 != null and appMd5 != ''">
+			app_md5 = #{appMd5},
+		</if>
+		<if test="appDescription != null and appDescription != ''">
+			app_description = #{appDescription},
+		</if>
+		<if test="upgradeMode != null and upgradeMode != ''">
+			upgrade_mode = #{upgradeMode},
+		</if>
+		update_by = #{updateBy.id},
+		update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+</mapper>

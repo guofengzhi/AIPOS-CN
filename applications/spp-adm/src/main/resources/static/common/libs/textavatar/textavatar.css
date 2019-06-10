@@ -1,0 +1,21 @@
+.textavatar {
+	margin: auto;
+    display: table;
+    border-radius: 50%;
+    background-color: #4aa3df;
+    color: #fff;
+}
+
+.textavatar span {
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+    font-weight: bold;
+    line-height: 1em;
+    padding-left: .1em;
+    letter-spacing: .1em;
+    /* Avoid Bootstrap css*/
+    border-bottom: 0 !important;
+    cursor: default !important;
+
+}

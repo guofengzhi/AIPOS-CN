@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.modules.sys.dao.RoleDao">
+
+
+	<resultMap id="roleResult" type="com.jiewen.modules.sys.entity.Role">
+		<id property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="enname" column="enname" />
+		<result property="roleName" column="roleName" />
+		<result property="roleType" column="roleType" />
+		<result property="officeName" column="officeName" />
+		<result property="dataScope" column="dataScope" />
+		<result property="remarks" column="remarks" />
+		<result property="useable" column="useable" />
+		<result property="sysData" column="sysData" />
+		<result property="officeId" column="officeId" />
+		<!-- <collection property="userList" ofType="User"> <id property="id" column="userList.id" 
+			/> <id property="loginName" column="userList.loginName" /> <id property="name" 
+			column="userList.name" /> <id property="email" column="userList.email" /> 
+			<id property="phone" column="userList.phone" /> <id property="mobile" column="userList.mobile" 
+			/> <id property="office.name" column="userList.office.name" /> <id property="company.name" 
+			column="userList.company.name" /> </collection> -->
+
+		<collection property="menuList" ofType="com.jiewen.modules.sys.entity.Menu">
+			<id property="id" column="menuList.id" />
+		</collection>
+		<!-- <collection property="officeList" ofType="Office"> <id property="id" 
+			column="officeList.id" /> </collection> -->
+	</resultMap>
+	<sql id="roleColumns">
+		a.id,
+		a.office_id AS "office.id",
+		a.office_id as officeId,
+		a.name,
+		a.name as roleName,
+		a.enname,
+		a.role_type AS roleType,
+		a.data_scope AS dataScope,
+		a.remarks,
+		a.create_by AS
+		"createBy.id",
+		a.create_date,
+		a.update_by AS
+		"updateBy.id",
+		a.update_date,
+		a.del_flag,
+		o.name AS "office.name",
+		o.name AS  officeName ,
+		o.code,
+		a.useable AS useable,
+		a.is_sys AS sysData
+	</sql>
+
+	<select id="get" resultMap="roleResult">
+		SELECT
+		<include refid="roleColumns" />
+		,
+		rm.menu_id AS "menuList.id"
+		FROM sys_role a
+		LEFT JOIN sys_office o ON
+		o.id =
+		a.office_id
+		LEFT JOIN sys_role_menu rm ON rm.role_id = a.id
+		WHERE
+		a.id =
+		#{id}
+	</select>
+
+	<select id="getByName" resultType="com.jiewen.modules.sys.entity.Role">
+		SELECT
+		<include refid="roleColumns" />
+		FROM sys_role a
+		JOIN sys_office o ON o.id = a.office_id
+		WHERE a.name =
+		#{name} 
+	</select>
+
+	<select id="getByEnname" resultType="com.jiewen.modules.sys.entity.Role">
+		SELECT
+		<include refid="roleColumns" />
+		FROM sys_role a
+		JOIN sys_office o ON o.id = a.office_id
+		WHERE a.enname =
+		#{enname} 
+	</select>
+	<!-- 查询用户角色-->
+	<select id="findUserRoleList" resultType="com.jiewen.modules.sys.entity.SysUserRole">
+		SELECT * from sys_user_role t  where user_id=#{id}
+	</select>
+     <!-- 分页根据角色查询-->
+	<select id="findRoleList" resultType="com.jiewen.modules.sys.entity.Role">
+		SELECT 
+		*
+		from sys_role t 
+		 
+		  <!-- 新增查询该用户未绑定的角色-->
+	        <if test="addAndUpdate != null  and selectedType != null and selectedType == 1 and selectedType != ''">
+				 where  1=1
+		  </if>
+		   <!-- 新增查询该用户未绑定的角色-->
+	        <if test="addAndUpdate != null  and selectedType != null and selectedType == 2 and selectedType != ''">
+				 where   1 !=1
+		  </if>
+		  <!-- 修改查询该用户未绑定的角色-->
+	        <if test="user != null  and selectedType != null and selectedType == 1 and selectedType != ''">
+				 where  t.id  not  in (select role_id from sys_user_role where user_id=#{user.id})
+		  </if>
+		  <!-- 修改查询该用户已绑定的角色-->
+	        <if test="user != null  and selectedType != null and selectedType == 2 and selectedType != ''">
+				 where  t.id   in (select role_id from sys_user_role where role_id=#{user.id})
+		  </if>
+		 <if test="name != null and name != ''">
+		 AND  name like
+			<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+			<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+			<if test="dbName == 'mysql'">CONCAT('%', #{name}, '%')</if>
+		   </if>
+	        order by name
+	</select>
+	<select id="findList" resultType="com.jiewen.modules.sys.entity.Role">
+		SELECT  DISTINCT 
+		<include refid="roleColumns" />
+		FROM sys_role a
+		LEFT JOIN sys_office o ON o.id = a.office_id
+		LEFT JOIN
+		sys_user_role ur ON ur.role_id = a.id
+		LEFT JOIN sys_user u ON u.id =
+		ur.user_id
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL} AND
+		a.useable=#{useable}
+		<if test="user != null and user.id != null and user.id != ''">
+			AND u.id = #{user.id}
+		</if>
+		<if test="user != null and user.loginName != null and user.loginName != ''">
+			AND u.login_name = #{user.loginName}
+		</if>
+		<if test="name != null and name != ''">
+			AND a.name like 
+			<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+			<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+			<if test="dbName == 'mysql'">CONCAT('%', #{name}, '%')</if>
+		</if>
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf}
+		ORDER BY o.code, a.name
+	</select>
+
+	<select id="findAllList" resultType="com.jiewen.modules.sys.entity.Role">
+		SELECT
+		<include refid="roleColumns" />
+		FROM sys_role a
+		LEFT JOIN sys_office o ON o.id = a.office_id
+		WHERE
+		a.del_flag = #{DEL_FLAG_NORMAL}
+		ORDER BY o.code, a.name
+	</select>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+	<!-- 	INSERT INTO sys_role(
+		id,
+		office_id,
+		name,
+		enname,
+		role_type,
+		data_scope,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag,
+		is_sys,
+		useable
+		) VALUES (
+		#{id},
+		#{office.id},
+		#{name},
+		#{enname},
+		#{roleType},
+		#{dataScope},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{delFlag},
+		#{sysData},
+		#{useable}
+		)
+		-->
+		 insert into SYS_ROLE
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        ID,
+      </if>
+      <if test="office!=null and office.Id != null" >
+        OFFICE_ID,
+      </if>
+      <if test="roleName != null" >
+        NAME,
+      </if>
+      <if test="enname != null" >
+        ENNAME,
+      </if>
+      <if test="roleType != null" >
+        ROLE_TYPE,
+      </if>
+      <if test="dataScope != null" >
+        DATA_SCOPE,
+      </if>
+      <if test="sysData != null" >
+        IS_SYS,
+      </if>
+      <if test="useable != null" >
+        USEABLE,
+      </if>
+      <if test="createBy !=null and createBy.id != null" >
+        CREATE_BY,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="updateBy !=null and updateBy.id != null" >
+        UPDATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="remarks != null" >
+        REMARKS,
+      </if>
+      <if test="delFlag != null" >
+        DEL_FLAG,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="office!=null and office.id != null" >
+        #{office.id,jdbcType=VARCHAR},
+      </if>
+      <if test="roleName != null" >
+        #{roleName,jdbcType=VARCHAR},
+      </if>
+      <if test="enname != null" >
+        #{enname,jdbcType=VARCHAR},
+      </if>
+      <if test="roleType != null" >
+        #{roleType,jdbcType=VARCHAR},
+      </if>
+      <if test="dataScope != null" >
+        #{dataScope,jdbcType=CHAR},
+      </if>
+      <if test="sysData != null" >
+        #{sysData,jdbcType=VARCHAR},
+      </if>
+      <if test="useable != null" >
+        #{useable,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy !=null and createBy.id != null" >
+        #{createBy.id,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy !=null and updateBy.id != null" >
+        #{updateBy.id,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null" >
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+      <if test="delFlag != null" >
+        #{delFlag,jdbcType=CHAR},
+      </if>
+    </trim>
+	</insert>
+
+	<update id="update">
+	<!-- 	UPDATE sys_role SET
+		office_id = #{office.id},
+		name =
+		#{name},
+		enname = #{enname},
+		role_type = #{roleType},
+		data_scope =
+		#{dataScope},
+		update_by = #{updateBy.id},
+		update_date = #{updateDate},
+		remarks = #{remarks},
+		is_sys = #{sysData},
+		useable = #{useable}
+		WHERE id
+		= #{id}
+		 -->
+		 UPDATE sys_role SET
+		<trim suffixOverrides=",">
+		<if test = "office != null and office.id != null">
+		office_id = #{office.id},
+		</if>
+		<if test = "roleName !=null and roleName != ''">
+		name =	#{roleName},
+		</if>
+		<if test ="enname !=null and enname != '' ">
+		enname = #{enname},
+		</if>
+		<if test ="roleType !=null and roleType != ''">
+		role_type = #{roleType},
+		</if>
+		<if test = "dataScope != null and dataScope != ''">
+		data_scope = #{dataScope},
+		</if>
+		<if test="updateBy != null and updateBy != null">
+		update_by = #{updateBy.id},
+		</if>
+		<if test = "updateDate !=null">
+		update_date = #{updateDate},
+		</if>
+		<if test="remarks = null and remarks != ''">
+		remarks = #{remarks},
+		</if>
+		is_sys = #{sysData},
+		<if test="useable != null and useable != ''">
+		useable = #{useable},
+		</if>
+		</trim>
+		WHERE id = #{id}
+	</update>
+
+	<delete id="deleteRoleMenu">
+		DELETE FROM sys_role_menu WHERE role_id = #{id}
+	</delete>
+
+	<insert id="insertRoleMenu">
+		INSERT INTO sys_role_menu(role_id, menu_id)
+		<foreach collection="menuList" item="menu" separator=" union all ">
+			SELECT #{id}, #{menu.id}
+			<if test="dbName != 'mssql'">
+				FROM dual
+			</if>
+		</foreach>
+	</insert>
+
+	<delete id="deleteRoleOffice">
+		DELETE FROM sys_role_office WHERE role_id = #{id}
+	</delete>
+
+	<insert id="insertRoleOffice">
+		INSERT INTO sys_role_office(role_id, office_id)
+		<foreach collection="officeList" item="office" separator=" union all ">
+			SELECT #{id}, #{office.id}
+			<if test="dbName != 'mssql'">
+				FROM dual
+			</if>
+		</foreach>
+	</insert>
+
+	<update id="delete">
+		UPDATE sys_role SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+</mapper>

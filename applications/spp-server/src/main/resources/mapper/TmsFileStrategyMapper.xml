@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.spp.dao.TmsFileStrategyMapper">
+
+	<sql id="tmsFileColumns">
+		tf.id,
+		tf.file_name as fileName,
+		tf.manufacture_no as
+		manufactureNo,
+		tf.file_type as fileType,
+		tf.file_size as fileSize,
+		tf.file_version as fileVersion,
+		tf.file_path as filePath,
+		tf.upload_time as uploadTime,
+		tf.remarks,
+		tf.del_flag as delFlag,
+		tf.organ_id as organId,
+		tf.md5 as md5
+	</sql>
+
+	<select id="findFilesByStrategy" resultType="com.jiewen.spp.model.TmsFile">
+		SELECT
+		<include refid="tmsFileColumns"></include>
+		FROM
+		t_tms_file_strategy tfs,
+		t_tms_file tf
+		WHERE tfs.`file_id` = tf.`id`
+		AND tf.`del_flag` = '0'
+		AND tfs.`strategy_id` = #{id} ;
+	</select>
+
+</mapper>

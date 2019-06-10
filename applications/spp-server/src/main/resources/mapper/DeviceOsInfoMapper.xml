@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.spp.dao.DeviceOsInfoMapper">
+
+	<resultMap id="BaseResultMap" type="com.jiewen.spp.dto.DeviceOsInfoDto">
+		<result column="os_version" jdbcType="VARCHAR" property="osVersion" />
+		<result column="description" jdbcType="VARCHAR" property="description" />
+		<result column="os_packet_type" jdbcType="VARCHAR" property="osPacketType" />
+		<result column="os_start" jdbcType="VARCHAR" property="osStart" />
+		<result column="os_end" jdbcType="VARCHAR" property="osEnd" />
+		<result column="rom_path" jdbcType="VARCHAR" property="romPath" />
+		<result column="rom_hash" jdbcType="CHAR" property="romHash" />
+		<result column="device_status" jdbcType="CHAR" property="deviceStatus" />
+		<result column="os_status" jdbcType="CHAR" property="osStatus" />
+		<result column="os_upgrade_type" jdbcType="CHAR" property="osUpgradeType" />
+		<result column="manufacturer_no" jdbcType="CHAR" property="manufacturerNo" />
+		<result column="os_msg" jdbcType="VARCHAR" property="osMsg" />
+		<result column="device_os_version" jdbcType="VARCHAR" property="deviceOsVersion" />
+		<result column="device_type" jdbcType="VARCHAR" property="deviceType" />
+		<result column="client_identification" jdbcType="VARCHAR" property="clientIdentification" />
+		<result column="start_hard_shift" jdbcType="VARCHAR" property="startHardShift" />
+		<result column="end_hard_shift" jdbcType="VARCHAR" property="endHardShift" />
+		<result column="strategy_desc" jdbcType="VARCHAR" property="strategy" />
+	</resultMap>
+
+	<sql id="baseCoumns">
+		a.os_version,
+		a.description,
+		a.os_packet_type,
+		a.rom_path,
+		a.rom_hash,
+		a.os_start,
+		a.os_end,
+		a.client_identification,
+		a.start_hard_shift,
+		a.end_hard_shift,
+		t.device_status,
+		t.os_status,
+		t.device_type,
+		t.device_os_version,
+		t.os_upgrade_type,
+		t.manufacturer_no,
+		r.strategy_desc
+	</sql>
+
+	<sql id="joinTables">
+		LEFT JOIN t_rom_device r
+		on a.id = r.os_id
+		LEFT JOIN t_device_info t
+		on
+		t.id = r.device_id
+	</sql>
+	
+	<select id="getCheckVersion" resultMap="BaseResultMap">
+	   SELECT 
+	   <include refid="baseCoumns"/>
+	   FROM t_os_rom_info a 
+	   <include refid="joinTables"/>
+	   WHERE t.device_sn = #{deviceSn}
+	    <if test="manufacturerNo != null and manufacturerNo != '' ">
+        AND t.manufacturer_no = #{manufacturerNo}
+        </if> 
+        <if test="deviceType != null and deviceType != '' ">
+        AND a.os_device_type = #{deviceType}
+        </if> 
+        <if test="hardWare != null and hardWare != '' ">
+        AND a.start_hard_shift <![CDATA[ <= ]]> #{hardWare} AND a.end_hard_shift <![CDATA[ >= ]]> #{hardWare}
+        </if>
+        <if test="clientIdentification != null and clientIdentification != '' ">
+        AND a.client_identification = #{clientIdentification}
+        </if>
+	</select>
+
+</mapper>

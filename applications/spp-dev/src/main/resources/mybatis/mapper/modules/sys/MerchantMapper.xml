@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jiewen.modules.sys.dao.MerchantDao">
+       <!--根据ID查询信息-->  
+	<select id="get" resultType="com.jiewen.modules.sys.domain.MerchantDO">
+		select  id , MER_ID , MER_NAME , MER_ABBRE  from merchant where id = #{value}
+	</select>
+      <!--分页查询-->
+	<select id="list" resultType="com.jiewen.modules.sys.domain.MerchantDO">
+	
+		select  id , MER_ID , MER_NAME , MER_ABBRE  from merchant
+        <where>  
+		  		  <if test="id != null and id != ''"> and id = #{id} </if>
+		  		  <if test="merId != null and merId != ''"> and MER_ID = #{merId} </if>
+		  		  <if test="merName != null and merName != ''"> and MER_NAME = #{merName} </if>
+		  		  <if test="merAbbre != null and merAbbre != ''"> and MER_ABBRE = #{merAbbre} </if>
+		  		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.jiewen.modules.sys.domain.MerchantDO">
+		insert into merchant
+		(
+			id , 
+			MER_ID , 
+			MER_NAME , 
+			MER_ABBRE 
+		)
+		values
+		(
+			#{id}, 
+			#{merId}, 
+			#{merName}, 
+			#{merAbbre}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.jiewen.modules.sys.domain.MerchantDO">
+		update merchant 
+		<set>
+			<if test="merId != null">MER_ID = #{merId}, </if>
+			<if test="merName != null">MER_NAME = #{merName}, </if>
+			<if test="merAbbre != null">MER_ABBRE = #{merAbbre}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from merchant where id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from merchant where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

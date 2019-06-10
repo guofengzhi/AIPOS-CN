@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.modules.app.dao.AppDeviceDao">
+
+	<!-- 过滤查询列表 -->
+	<select id="findList" resultType="com.jiewen.modules.app.entity.AppDevice">
+	 	SELECT 
+	 	    id,
+	 		apk_id,
+		    manu_no,
+		    device_type,
+		    device_sn,
+		    app_record_id
+	 	 FROM `t_app_device` 
+	 	WHERE t.del_flag = '0'
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO `t_app_device` 
+	    ( 
+	      apk_id,
+	      manu_no,
+	      device_type,
+	      device_sn,
+	      app_record_id,
+	      create_by,
+	      create_date,
+	      update_by,
+	      update_date,
+	      remarks,
+	      device_apk_version,
+	      apk_version_shifter,
+	      strategy_desc,
+	      upgrade_type,
+	      upgrade_desc
+	     )
+        VALUES (
+          #{apkId}, 
+          #{maunNo},
+          #{deviceType}, 
+	      #{deviceSn}, 
+	      #{appRecordId}, 
+	      #{createBy.id},
+	      #{createDate}, 
+	      #{updateBy.id}, 
+	      #{updateDate},
+	      #{remarks},
+	      #{deviceApkVersion},
+	      #{apkVersionShifter},
+	      #{strategyDesc},
+	      #{upgradeType},
+	      #{upgradeDesc}
+    	)
+	</insert>
+	
+		<insert id="insertList">
+		INSERT INTO `t_app_device` 
+	    (
+		      apk_id,
+		      manu_no,
+		      device_type,
+		      device_sn,
+		      app_record_id,
+		      create_by,
+		      create_date,
+		      update_by,
+		      update_date,
+		      remarks,
+	      	  device_apk_version,
+	          apk_version_shifter,
+	          strategy_desc,
+	          upgrade_type,
+	          upgrade_desc
+	     )
+        VALUES
+      	     <foreach collection="list" item="appDevice" index="index" separator="," >  
+                 (
+                      #{appDevice.apkId}, 
+			          #{appDevice.maunNo},
+			          #{appDevice.deviceType}, 
+				      #{appDevice.deviceSn}, 
+				      #{appDevice.appRecordId}, 
+				      #{appDevice.createBy.id},
+				      #{appDevice.createDate}, 
+				      #{appDevice.updateBy.id}, 
+				      #{appDevice.updateDate},
+				      #{appDevice.remarks},
+	                  #{appDevice.deviceApkVersion},
+	                  #{appDevice.apkVersionShifter},
+	                  #{appDevice.strategyDesc},
+	                  #{appDevice.upgradeType},
+	                  #{appDevice.upgradeDesc}
+                 )  
+   			 </foreach> 
+	</insert>
+	
+	<delete id="deleteAppDeviceByApkId" parameterType="String">
+		 delete from t_app_device where apk_id = #{apkId} 
+	</delete>
+	
+	<delete id="deleteAppDeviceByDeviceSn" parameterType="String">
+		 delete from t_app_device where device_sn = #{deviceSn} 
+	</delete>
+		
+</mapper>

@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.modules.dao.TagManagerDao">
+	
+	<resultMap type="com.jiewen.modules.entity.TagManager" id="baseTagManagerResultMap">
+		<result column="id" property="id" jdbcType="DECIMAL"/>
+		<result column="tag_name" property="tagName" jdbcType="VARCHAR"/>
+		<result column="org_id" property="orgId" jdbcType="VARCHAR"/>
+		<result column="create_date" property="tagCreateDate" jdbcType="VARCHAR"/>
+		<result column="tag_status" property="tagStatus" jdbcType="VARCHAR"/>
+	</resultMap>
+	
+	<resultMap type="com.jiewen.modules.entity.TagManager" id="tagManagerResultMap">
+		<result column="id" property="id" jdbcType="DECIMAL"/>
+		<result column="tag_name" property="tagName" jdbcType="VARCHAR"/>
+		<result column="org_id" property="orgId" jdbcType="VARCHAR"/>
+		<result column="create_date" property="tagCreateDate" jdbcType="VARCHAR"/>
+		<result column="tag_status" property="tagStatus" jdbcType="VARCHAR"/>
+		<result column="device_count" property="deviceCount" jdbcType="VARCHAR"/>
+	</resultMap>
+	
+	<resultMap type="com.jiewen.modules.device.entity.Device"  id="baseDeviceResultMap">
+		<result column="id" property="sId" jdbcType="DECIMAL"/>
+		<result column="device_sn" property="deviceSnStr" jdbcType="VARCHAR"/>
+		<result column="org_id" property="organId" jdbcType="VARCHAR"/>
+		<result column="tag_id" property="labels" jdbcType="VARCHAR"/>
+	</resultMap>
+	
+	<sql id="tagManagerColumns">
+		t.tag_id as id,
+		t.tag_name,
+		t.create_date,
+		t.tag_status,
+		t.org_id
+	</sql>
+	
+	<select id="selectTagManagerList" parameterType="com.jiewen.modules.entity.TagManager" resultMap="tagManagerResultMap">
+		select  t.tag_id as id,
+					t.tag_name,
+					t.create_date,
+					t.tag_status,
+					t.org_id,
+					t1.name as org_name,
+					COUNT(t2.device_sn) as device_count
+			 	from t_tag_info t 
+				JOIN sys_office t1 on t.org_id = t1.id 
+				LEFT JOIN t_device_tag t2 on t.tag_id = t2.tag_id and t.org_id = t2.org_id
+				where 1=1 
+			<if test="tagName != null and tagName != ''">
+				and t.tag_name like 
+				<if test="dbName == 'oracle'">'%'||#{tagName,jdbcType=VARCHAR}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{tagName,jdbcType=VARCHAR}+'%'</if>
+				<if test="dbName == 'mysql'">CONCAT('%', #{tagName,jdbcType=VARCHAR}, '%')</if>
+			</if>
+			<if test="orgId != null and orgId != ''">
+          	  and t.org_id IN (SELECT id FROM sys_office WHERE parent_ids LIKE
+					<if test="dbName == 'oracle'">'%,'||#{orgId}||',%'</if>
+					<if test="dbName == 'mssql'">'%,'+#{orgId}+',%'</if>
+					<if test="dbName == 'mysql'">CONCAT('%,', #{orgId}, ',%')</if>
+					AND del_flag = '0'
+					    UNION select id from sys_office where id = #{orgId}
+				    AND del_flag = '0')
+         	</if>
+			GROUP BY t.tag_id
+	</select>
+	
+	<select id="getTagManagerByTagId" parameterType="java.lang.String" resultMap="baseTagManagerResultMap">
+		select <include refid="tagManagerColumns"/> from t_tag_info t where t.tag_id = #{id,jdbcType=VARCHAR}
+	</select>
+	
+	<insert id="insertTagManager" parameterType="com.jiewen.modules.entity.TagManager">
+		insert into t_tag_info(tag_name,create_date,tag_status,org_id) values(
+		#{tagName,jdbcType=VARCHAR},SYSDATE(),
+		'1',#{orgId,jdbcType=VARCHAR}
+		)
+	</insert>
+	
+	<delete id="deleteTagManager" parameterType="java.lang.String">
+		delete from t_tag_info where tag_id=#{id,jdbcType=VARCHAR}
+	</delete>
+	
+	<select id="getTagManagerBundTermByTagId" parameterType="java.lang.String" resultMap="baseDeviceResultMap">
+		select  t.id,t.device_sn,t.tag_id,t.org_id  from t_device_tag t 
+			where t.tag_id = #{id,jdbcType=VARCHAR}
+	</select>
+	
+	<update id="updateTagManager" parameterType="com.jiewen.modules.entity.TagManager">
+		update t_tag_info set tag_name = #{tagName,jdbcType=VARCHAR} 
+		<if test="tagStatus != null and tagStatus != ''">
+			,tag_status = #{tagStatus,jdbcType=VARCHAR} 
+		</if>
+		<if test="orgId != null and orgId != ''">
+			,org_id = #{orgId,jdbcType=VARCHAR} 
+		</if>
+		where tag_id = #{id,jdbcType=DECIMAL}
+	</update>
+	
+	<select id="getTagManagerByTag"  parameterType="com.jiewen.modules.entity.TagManager" resultMap="baseTagManagerResultMap">
+		select <include refid="tagManagerColumns"/> from t_tag_info t 
+		where t.tag_name = #{tagName,jdbcType=VARCHAR}
+		and t.org_id = #{orgId,jdbcType=VARCHAR}
+		<if test="id != null and id != ''">
+			and t.tag_id != #{id,jdbcType=VARCHAR}
+		</if>
+	</select>
+	
+	<resultMap type="com.jiewen.modules.device.entity.Device" id="deviceBoundList">
+		   <result column="id" jdbcType="VARCHAR" property="id" />
+		   <result column="device_sn" jdbcType="VARCHAR" property="deviceSn" />
+		   <result column="device_sort" jdbcType="VARCHAR" property="deviceSort" />
+		   <result column="device_type" jdbcType="VARCHAR" property="deviceType" />
+		   <result column="mer_id" jdbcType="VARCHAR" property="merId"/>
+		   <result column="mer_name" jdbcType="VARCHAR" property="merName"/>
+		   <result column="organ_id" jdbcType="VARCHAR" property="organId"/>
+		   <result column="organ_name" jdbcType="VARCHAR" property="organName"/>
+		   <result column="shop_id" jdbcType="VARCHAR" property="shopId"/>
+		   <result column="shop_name" jdbcType="VARCHAR" property="shopName"/>
+		   <result column="device_bund_state" jdbcType="VARCHAR" property="deviceBundState"/>
+	</resultMap>
+	<select id="getTagManagerDevices"  parameterType="com.jiewen.modules.device.entity.Device"  resultMap="deviceBoundList">
+		select 
+				t.id,
+				t.device_sn,
+				t.device_sort,
+				t.device_type,
+				t.organ_id,
+				t3.name organ_name,
+				t.mer_id,
+				t1.mer_name,
+				t.shop_id,
+				t2.store_name shop_name,
+				t.device_bund_state 
+			from t_device_info t
+			left join t_merchant t1
+				on t.mer_id = t1.mer_id
+		left join t_store t2
+				on t.shop_id = t2.store_id
+			left join sys_office t3
+				on t.organ_id = t3.id 
+		where 1=1
+		<if test="organId != null and organId != ''">
+				and t.organ_id = #{organId,jdbcType=VARCHAR}
+		</if>
+		<if test="merId != null and merId != ''">
+				and t.mer_id = #{merId,jdbcType=VARCHAR}
+		</if>
+		<if test="shopId != null and shopId != ''">
+				and t.shop_id = #{shopId,jdbcType=VARCHAR}
+		</if>
+		<if test="deviceSn != null and deviceSn != ''">
+				and t.device_sn = #{deviceSn,jdbcType=CHAR}
+		</if>	
+		<choose>
+				<when test="deviceBundState != null and deviceBundState != '' ">
+					and EXISTS(
+						SELECT d.device_sn FROM t_device_tag d WHERE d.device_sn = t.device_sn
+						and d.tag_id = #{labels,jdbcType=VARCHAR} and d.org_id =  #{organId,jdbcType=VARCHAR}
+					)
+				</when>
+				<otherwise>
+					and not EXISTS(
+						SELECT d.device_sn FROM t_device_tag d WHERE d.device_sn = t.device_sn
+						and d.tag_id = #{labels,jdbcType=VARCHAR} and d.org_id =  #{organId,jdbcType=VARCHAR}
+					)
+				</otherwise>
+			</choose>
+	</select>
+	
+	<insert id="batchBundTagManagerDevice"  parameterType="java.util.List"> 
+		  	  insert into t_device_tag(device_sn,tag_id,org_id) VALUES
+		  <foreach separator=","  index="index"  item="item"  collection="list" > 
+			 (
+			  	#{item.id,jdbcType=VARCHAR}, #{item.labels,jdbcType=VARCHAR}, #{item.organId,jdbcType=VARCHAR}
+			  )
+		  </foreach> 
+	  </insert>
+	
+	<delete id="batchUnBundTagManagerDevice" parameterType="java.util.List"> 
+			 delete from t_device_tag where 
+		 <foreach separator="or"  index="index"  item="item"  collection="list" >  
+			 	(device_sn = #{item.id,jdbcType=VARCHAR}
+			 	and  tag_id = #{item.labels,jdbcType=VARCHAR})
+		  </foreach> 
+	</delete>
+</mapper>

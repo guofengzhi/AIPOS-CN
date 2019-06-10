@@ -1,0 +1,1 @@
+﻿drop TABLES t_client_info

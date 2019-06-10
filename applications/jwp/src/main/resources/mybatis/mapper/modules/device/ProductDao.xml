@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.modules.device.dao.ProductDao">
+
+	<resultMap id="BaseResultMap" type="com.jiewen.modules.device.entity.Product">
+		<result column="id" jdbcType="VARCHAR" property="id" />
+		<result column="sn" jdbcType="VARCHAR" property="sn" />
+		<result column="pn" jdbcType="VARCHAR" property="pn" />
+		<result column="customer_id" jdbcType="VARCHAR" property="customerId" />
+		<result column="product_id" jdbcType="VARCHAR" property="productId" />
+		<result column="version" jdbcType="VARCHAR" property="version" />
+		<result column="vendor_code" jdbcType="VARCHAR" property="vendorCode" />
+		<result column="product_type_code" jdbcType="CHAR" property="productTypeCode" />
+		<result column="union_pay_term_id" jdbcType="CHAR" property="unionPayTermId" />
+	</resultMap>
+
+	<sql id="baseCoumns">
+		t.id,
+		t.sn,
+		t.pn,
+		t.customer_id,
+		t.product_id,
+		t.version,
+		case when t.vendor_code is null or t.vendor_code = '' then substr(t.union_pay_term_id,0,6)
+        when t.union_pay_term_id is null or t.union_pay_term_id = '-' or t.union_pay_term_id = '' then '000014'
+        else t.vendor_code end as vendor_code,
+		t.union_pay_term_id
+	</sql>
+
+	<sql id="ManuJoins">
+		LEFT JOIN t_manufacturer_info mi ON
+		(t.vendor_code=mi.manufacturer_no or mi.manufacturer_no = '000014')
+	</sql>
+
+	<sql id="ClientJoins">
+		JOIN sass_customer sa ON t.customer_id=sa.customer_id
+	</sql>
+
+	<sql id="TerminalTypeJoins">
+		LEFT JOIN sys_dict d ON t.product_type_code=d.value AND
+		d.type='TERMINAL_TYPE'
+	</sql>
+
+	<sql id="DeviceInfoLeftJoins">
+		LEFT JOIN t_device_info di on di.device_sn = t.sn
+	</sql>
+
+	<!-- 过滤查询列表 -->
+	<select id="findList" resultMap="BaseResultMap">
+		SELECT c.* FROM (
+		SELECT a.* FROM (
+		SELECT
+		t.id,
+		t.sn,
+		t.pn,
+		sa.customer_name AS customer_id,
+		t.product_id,
+		t.version,
+		mi.manufacturer_name AS vendor_code,
+		d.label as product_type_code,
+		t.union_pay_term_id
+		FROM `sass_product_sn` t
+		<include refid="ClientJoins" />
+		<include refid="ManuJoins" />
+		<include refid="TerminalTypeJoins" />
+		WHERE 1 = 1 AND t.pn in
+		("C159-5ADF-0464-3CN","C159-5ADF-0464-3CN-001")
+		<if test="sn != null and sn != ''">
+			AND t.sn = #{sn}
+		</if>
+		<if test="pn != null and pn != ''">
+			AND t.pn = #{pn}
+		</if>
+		<if test="customerId != null and customerId != ''">
+			AND t.customer_id in (select customer_id from  sass_customer where customer_id_path like  CONCAT('%/', #{customerId}, '%'))
+		</if>
+		<if test="vendorCode != null and vendorCode != ''">
+			AND t.vendor_code = #{vendorCode}
+		</if>
+		UNION ALL
+		SELECT
+		NULL AS id,
+		td.device_sn AS sn,
+		NULL AS pn,
+		NULL AS customer_id,
+		NULL AS product_id,
+		NULL AS version,
+		NULL AS vendor_code,
+		NULL AS product_type_code,
+		NULL AS union_pay_term_id
+		FROM
+		t_device_info td
+		) a GROUP BY a.sn HAVING count(a.sn) = 1
+		) c where c.id is not null
+	</select>
+
+	<!-- 过滤查询列表 -->
+	<select id="findList_COUNT" resultType="Long">
+		SELECT
+		COUNT(1) from (
+		SELECT c.sn FROM (
+		SELECT a.sn,a.id FROM (
+		SELECT t.sn,t.id FROM `sass_product_sn` t
+		<include refid="ClientJoins" />
+		<include refid="ManuJoins" />
+		<include refid="TerminalTypeJoins" />
+		WHERE 1 = 1 AND t.pn in
+		("C159-5ADF-0464-3CN","C159-5ADF-0464-3CN-001")
+		<if test="sn != null and sn != ''">
+			AND t.sn = #{sn}
+		</if>
+		<if test="pn != null and pn != ''">
+			AND t.pn = #{pn}
+		</if>
+		<if test="customerId != null and customerId != ''">
+			AND t.customer_id in (select customer_id from  sass_customer where customer_id_path like  CONCAT('%/', #{customerId}, '%'))
+		</if>
+		<if test="vendorCode != null and vendorCode != ''">
+			AND t.vendor_code = #{vendorCode}
+		</if>
+		UNION ALL
+		select td.device_sn as sn,NULL AS id from t_device_info td
+		) a GROUP BY a.sn HAVING count(a.sn) =1
+		) c where c.id is NOT NULL)	temp
+	</select>
+
+
+	<select id="findProductListByIds" resultMap="BaseResultMap">
+		SELECT
+		<include refid="baseCoumns" />
+		FROM sass_product_sn t
+		WHERE id IN
+		<foreach collection="list" item="idList" open="(" separator=","
+			close=")">
+			#{idList}
+		</foreach>
+	</select>
+
+
+	<!-- 查询出没有导入的设备 -->
+	<select id="findNoImportDeviceList" resultMap="BaseResultMap">
+		SELECT
+		<include refid="baseCoumns" />
+		FROM `sass_product_sn` t
+		<include refid="DeviceInfoLeftJoins" />
+		WHERE 1 = 1
+		AND t.pn in ("C159-5ADF-0464-3CN" ,"C159-5ADF-0464-3CN-001")
+		AND di.device_sn is null
+		<if test="sn != null and sn != ''">
+			AND t.sn = #{sn}
+		</if>
+		<if test="pn != null and pn != ''">
+			AND t.pn = #{pn}
+		</if>
+		<if test="customerId != null and customerId != ''">
+			AND t.customer_id = #{customerId}
+		</if>
+		<if test="vendorCode != null and vendorCode != ''">
+			AND t.vendor_code = #{vendorCode}
+		</if>
+
+	</select>
+
+
+</mapper>

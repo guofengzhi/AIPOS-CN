@@ -1,0 +1,1101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.modules.device.dao.DeviceDao">
+
+	<resultMap id="BaseResultMap" type="com.jiewen.modules.device.entity.Device">
+	    <result column="id" jdbcType="VARCHAR" property="id" />
+		<result column="manufacturer_no" jdbcType="VARCHAR" property="manufacturerNo" />
+		<result column="device_sn" jdbcType="VARCHAR" property="deviceSn" />
+		<result column="device_type" jdbcType="VARCHAR" property="deviceType" />
+		<result column="client_no" jdbcType="VARCHAR" property="clientNo" />
+		<result column="device_os_version" jdbcType="VARCHAR" property="deviceOsVersion" />
+		<result column="device_bank" jdbcType="VARCHAR" property="deviceBank" />
+		<result column="device_info" jdbcType="CHAR" property="deviceInfo" />
+		<result column="os_upgrade_type" jdbcType="CHAR" property="osUpgradeType" />
+		<result column="device_status" jdbcType="CHAR" property="deviceStatus" />
+		<result column="os_status" jdbcType="CHAR" property="osStatus" />
+		<result column="os_msg" jdbcType="CHAR" property="osMsg" />
+		<result column="apply_date" jdbcType="DATE" property="applyDate"/>
+		<result column="install_location" jdbcType="VARCHAR" property="installLocation"/>
+		<result column="install_date" jdbcType="DATE" property="installDate"/>
+		<result column="deviceSort" jdbcType="VARCHAR" property="deviceSort"/>
+		<result column="mac_no" jdbcType="VARCHAR" property="macNo"/>
+		<result column="scope_mode" jdbcType="CHAR" property="scopeMode"/>
+		<result column="merId" jdbcType="VARCHAR" property="merId"/>
+		<result column="mer_name" jdbcType="VARCHAR" property="merName"/>
+		<result column="hardware_version" jdbcType="VARCHAR" property="hardwareVersion"/>
+	</resultMap>
+
+	<sql id="baseCoumns">
+		 t.id,
+	 	 mi.manufacturer_name AS manufacturer_no,
+	 	 t.device_sn,
+		 t.device_type,
+		 t.device_os_version,
+		 t.device_bank,
+		 t.device_info,
+		 t.device_status,
+		 t.os_status,
+		 t.os_upgrade_type,
+		 t.os_msg,
+		 t.mer_id AS merId,
+		 t.shop_id,
+		 t.apply_date,
+		 t.install_location,
+		 t.install_date,
+		 t.device_sort,
+		 t.mac_no,
+		 t.scope_mode,
+		 t.labels,
+		 m.mer_name,
+		 t.organ_id,
+		 t.mer_id
+	</sql>
+
+	<sql id="DevJoins">
+		LEFT JOIN sys_dict sdi1 ON t.device_status=sdi1.value AND
+		sdi1.type='device_status'
+		LEFT JOIN sys_dict sdi2 ON
+		t.os_status=sdi2.value AND
+		sdi2.type='os_status'
+		LEFT JOIN sys_dict sdi3
+		ON t.os_upgrade_type=sdi3.value AND
+		sdi3.type='os_upgrade_type'
+	</sql>
+
+
+	<sql id="ManuJoins">
+		LEFT JOIN t_manufacturer_info mi ON
+		t.manufacturer_no=mi.manufacturer_no
+	</sql>
+	
+	<sql id="ClientJoins">
+	    INNER JOIN sass_customer sa ON t.client_no=sa.customer_id
+	</sql>
+	
+	<sql id="deviceRomJoins">
+	    LEFT JOIN t_rom_device rmd ON rmd.`device_id` = t.id
+	</sql>
+	<sql id="romInfoJoins">
+	    LEFT JOIN t_os_rom_info o ON o.id = rmd.os_id
+	</sql>
+	
+	<sql id="merchantJoins">
+		LEFT JOIN t_merchant m ON m.mer_id= t.mer_id
+	</sql>
+	
+	<sql id="ifMid">
+		join t_merchant m on dm.mer_id = m.mer_id 
+		and m.id = #{mId,jdbcType=VARCHAR}
+	</sql>
+	
+	<sql id="shopJoins">
+		LEFT JOIN t_store s ON s.store_id = t.shop_id 
+	</sql>
+	
+	<!-- 过滤查询列表 -->
+	<select id="findList" resultMap="BaseResultMap">
+	 	 SELECT 
+	 	 	 <include refid="baseCoumns"/>
+	 	  FROM `t_device_info` t
+	 	   <include refid="ManuJoins" />
+	 	   <choose>
+	 	   		<when test="mId != null and mId != ''">
+	 	   			<include refid="ifMid"/>
+	 	   		</when>
+	 	   		<otherwise>
+	 	   			<include refid="merchantJoins" />
+	 	   		</otherwise>
+	 	   </choose>
+	 	  <bind name="deviceSnLike" value="'%' + deviceSn + '%'"/>
+	 	   <if test="mId == null or mId == ''">
+	 	   		WHERE t.del_flag = '0'
+	 	   </if>
+	 	 <if test="deviceSn != null and deviceSn != ''">
+          AND t.device_sn like #{deviceSnLike}  
+         </if>
+         <if test="deviceType != null and deviceType != ''">
+          AND t.device_type = #{deviceType}
+         </if>
+      	 <if test="manufacturerNo != null and manufacturerNo != ''">
+          	  AND t.manufacturer_no = #{manufacturerNo}
+          </if>
+          <if test="organId != null and organId != ''">
+          	  and t.organ_id IN (SELECT id FROM sys_office WHERE parent_ids LIKE
+					<if test="dbName == 'oracle'">'%,'||#{organId}||',%'</if>
+					<if test="dbName == 'mssql'">'%,'+#{organId}+',%'</if>
+					<if test="dbName == 'mysql'">CONCAT('%,', #{organId}, ',%')</if>
+					AND del_flag = '0'
+					    UNION select id from sys_office where id = #{organId}
+				    AND del_flag = '0')
+          </if>
+           <if test="merId != null and merId != ''">
+          	  AND t.mer_id = #{merId}
+          </if>
+           <if test="shopId != null and shopId != ''">
+          	  AND t.shop_id = #{shopId}
+          </if>
+          
+          order by t.id
+	</select>
+	
+	<!-- 过滤查询列表 -->
+	<select id="findRomDeviceCount" resultMap="BaseResultMap">
+	 	 SELECT 
+	 	 	 device_os_version,
+	 	 	 client_identification, 
+	 	 	 count(*) AS device_count
+	 	  FROM `t_device_info` t
+	 	   WHERE t.del_flag = '0'
+	 	  <if test="deviceOsVersion != null and deviceOsVersion != ''">
+           AND t.device_os_version =  #{deviceOsVersion}
+          </if>
+	 	  GROUP BY device_os_version
+          ORDER BY device_os_version DESC
+	</select>
+	
+	<select id="get" resultType="com.jiewen.modules.device.entity.Device">
+		SELECT
+		t.id,
+		mi.manufacturer_no ,
+		mi.manufacturer_name AS manufacturerName,
+		t.device_sn,
+		t.device_type,
+		t.device_os_version,
+		t.device_bank,
+		t.device_info,
+		t.device_status,
+		t.os_status,
+		t.os_upgrade_type,
+		t.os_msg,
+		t.hardware_version,
+		t.mer_id AS merId,
+		t.shop_id,
+		t.apply_date,
+		t.install_location,
+		t.install_date,
+		t.device_sort,
+		t.mac_no,
+		t.scope_mode,
+		t.labels,
+		m.mer_name AS merName,
+		t.location,
+		t.organ_id,
+		s.store_name AS shopName
+		FROM `t_device_info` t
+		<include refid="ManuJoins" />
+		<include refid="merchantJoins" />
+		<include refid="shopJoins"/>
+		WHERE t.del_flag = '0'
+		<if test="deviceSn != null and deviceSn != ''">
+			AND t.device_sn = #{deviceSn}
+		</if>
+		<if test="deviceType != null and deviceType != ''">
+			AND t.device_type = #{deviceType}
+		</if>
+		<if test="manufacturerNo != null and manufacturerNo != ''">
+			AND t.manufacturer_no = #{manufacturerNo}
+		</if>
+
+		<if test="id != null and id != ''">
+			AND t.id = #{id}
+		</if>
+
+	</select>
+	
+	
+	<!-- 发布系统更新 -->
+	<select id="findNoRomDeviceList" resultMap="BaseResultMap">
+		SELECT
+		<include refid="baseCoumns" />
+		FROM `t_device_info` t
+		<include refid="ClientJoins" />
+		<include refid="ManuJoins" />
+		<bind name="deviceSnLike" value="'%' + deviceSn + '%'" />
+		WHERE t.del_flag = '0'
+		<if test="deviceSnStr != null and deviceSnStr != ''">
+			AND (FIND_IN_SET(t.device_sn,#{deviceSnStr}))
+		</if>
+		<if test="deviceSn != null and deviceSn != ''">
+			AND t.device_sn like #{deviceSnLike}
+		</if>
+		<if test="deviceType != null and deviceType != ''">
+			AND device_type = #{deviceType}
+		</if>
+		<if test="clientNo != null and clientNo != ''">
+			AND t.client_no in (select customer_id from sass_customer
+			where
+			customer_id_path like CONCAT('%/', #{clientNo}, '%'))
+		</if>
+		<if test="startHard != null and startHard != ''">
+			AND (t.hardware_shifter &gt;= #{startHard} or
+			t.hardware_shifter is null
+			or t.hardware_shifter = '')
+		</if>
+		<if test="endHard != null and endHard != ''">
+			AND (t.hardware_shifter &lt;= #{endHard} or
+			t.hardware_shifter is null
+			or t.hardware_shifter = '')
+		</if>
+		AND NOT EXISTS (SELECT 1 FROM `t_rom_device` rd2 WHERE rd2.`os_id` =
+		#{id} AND rd2.`device_id` = t.id)
+
+		order by t.id
+	</select>
+	
+	<!-- 发布系统更新 正常设备列表 不带字典转换值的-->
+	<select id="findNormalNoRomDeviceList" resultMap="BaseResultMap">
+		SELECT
+		t.id,
+		t.manufacturer_no,
+		t.device_sn,
+		t.device_type,
+		t.client_no,
+		t.device_os_version,
+		t.device_bank,
+		t.device_info,
+		t.device_status,
+		t.os_status,
+		t.os_upgrade_type,
+		t.os_msg
+		FROM `t_device_info` t
+		WHERE
+		t.del_flag = '0'
+		<if test="deviceSnStr != null and deviceSnStr != ''">
+			AND (FIND_IN_SET(t.device_sn,#{deviceSnStr}))
+		</if>
+		<if test="deviceSn != null and deviceSn != ''">
+			AND t.device_sn = #{deviceSn}
+		</if>
+		<if test="deviceType != null and deviceType != ''">
+			AND t.device_type = #{deviceType}
+		</if>
+		<if test="startHard != null and startHard != ''">
+			AND (t.hardware_shifter &gt;= #{startHard} or
+			t.hardware_shifter is null
+			or t.hardware_shifter = '')
+		</if>
+		<if test="endHard != null and endHard != ''">
+			AND (t.hardware_shifter &lt;= #{endHard} or
+			t.hardware_shifter is null
+			or t.hardware_shifter = '')
+		</if>
+		<if test="clientNo != null and clientNo != '' ">
+			AND t.client_no in (select customer_id from sass_customer
+			where
+			customer_id_path like CONCAT('%/', #{clientNo}, '%'))
+		</if>
+		AND NOT EXISTS (SELECT 1 FROM `t_rom_device` rd2 WHERE rd2.`os_id` =
+		#{id} AND rd2.`device_id` = t.id)
+		order by t.id
+	</select>
+	
+	
+	<!-- 发布系统更新 正常设备列表 不带字典转换值的-->
+	<select id="findNormalAlreayRomDeviceList" resultMap="BaseResultMap">
+		SELECT
+		t.id,
+		t.manufacturer_no,
+		t.device_sn,
+		t.device_type,
+		t.client_no,
+		t.device_os_version,
+		t.device_bank,
+		t.device_info,
+		t.device_status,
+		t.os_status,
+		t.os_upgrade_type,
+		t.os_msg
+		FROM `t_device_info` t
+		WHERE
+		t.del_flag = '0'
+		<if test="deviceType != null and deviceType != ''">
+			AND t.device_type = #{deviceType}
+		</if>
+		AND EXISTS (SELECT 1 FROM `t_rom_device` rd2 WHERE rd2.`os_id` = #{id}
+		AND rd2.`device_id` = t.id)
+
+		order by t.id
+	</select>
+	
+	<!-- 已发布系统更新查询列表 -->
+	<select id="findAlreayRomDeviceList" resultMap="BaseResultMap">
+	 	 SELECT
+			*
+		FROM
+		(
+		SELECT
+		<include refid="baseCoumns" />
+		,
+		STRCMP(t.os_version_shifter ,rmd.os_version_shifter) AS
+		version_compare_value
+		,o.os_version AS os_version
+		FROM `t_device_info` t
+		<include refid="ManuJoins" />
+		<include refid="ClientJoins" />
+		<include refid="deviceRomJoins" />
+		<include refid="romInfoJoins" />
+		<bind name="deviceSnLike" value="'%' + deviceSn + '%'" />
+		WHERE t.del_flag = '0'
+		<if test="deviceSn != null and deviceSn != ''">
+			AND t.device_sn like #{deviceSnLike}
+		</if>
+		<if test="clientNo != null and clientNo != ''">
+			AND t.client_no in (select customer_id from sass_customer
+			where
+			customer_id_path like CONCAT('%/', #{clientNo}, '%'))
+		</if>
+		<if test="startHard != null and startHard != ''">
+			AND (t.hardware_shifter &gt;= #{startHard} or
+			t.hardware_shifter is null
+			or t.hardware_shifter = '')
+		</if>
+		<if test="endHard != null and endHard != ''">
+			AND (t.hardware_shifter &lt;= #{endHard} or
+			t.hardware_shifter is null
+			or t.hardware_shifter = '')
+		</if>
+		AND rmd.`os_id` = #{id}
+		order by t.id
+		) a
+		WHERE
+		1 = 1
+		<if test="versionCompareValue != null and versionCompareValue != ''">
+			<choose>
+				<when test="versionCompareValue != '-1' ">
+					AND a.version_compare_value &gt;= 0
+				</when>
+				<when test="versionCompareValue == '-1'">
+					AND ( a.version_compare_value &lt; 0 OR
+					a.version_compare_value is
+					null)
+				</when>
+			</choose>
+		</if>
+	</select>
+	
+	
+	<!--查询所有未发布这个app的设备 -->
+	<select id="findNoAppDeviceListByTypesManus" resultType="com.jiewen.modules.device.entity.Device">
+		SELECT
+		t.id,
+		t.device_sn,
+		t.device_type,
+		sa.customer_name AS client_no,
+		t.device_bank,
+		mi.manufacturer_name AS manufacturer_no,
+		t.device_info,
+		t.device_os_version,
+		t.device_status
+
+		FROM `t_device_info` t
+		<include refid="ClientJoins" />
+		<include refid="ManuJoins" />
+		WHERE t.del_flag = '0'
+		AND t.`device_sn` NOT IN (SELECT ad.device_sn
+		FROM t_app_device ad WHERE
+		ad.`apk_id` = #{id})
+		<if test="deviceSnStr != null and deviceSnStr != ''">
+			AND (FIND_IN_SET(t.device_sn,#{deviceSnStr}))
+		</if>
+		<if test="appDeviceTypeList != null and appDeviceTypeList.size > 0">
+			AND
+			<foreach collection="appDeviceTypeList" item="appDeviceType"
+				open="(" separator=" OR " close=")">
+				(t.manufacturer_no =
+				#{appDeviceType.manuNo} AND t.device_type =
+				#{appDeviceType.deviceType})
+			</foreach>
+		</if>
+		<if test="manufacturerNo != null and manufacturerNo != ''">
+			AND t.manufacturer_no = #{manufacturerNo}
+		</if>
+		<if test="deviceType != null and deviceType != ''">
+			AND t.device_type = #{deviceType}
+		</if>
+		<if test="deviceSn != null and deviceSn != ''">
+			AND t.device_sn = #{deviceSn}
+		</if>
+		<if test="clientNo != null and clientNo != ''">
+			AND t.client_no in (select customer_id from sass_customer
+			where
+			customer_id_path like CONCAT('%/', #{clientNo}, '%'))
+		</if>
+		order by t.id
+	</select>
+	
+	
+	
+	<!--查询所有已发布这个app的设备 -->
+	<select id="findAlreayAppDeviceList" resultType="com.jiewen.modules.device.entity.Device">
+		SELECT
+		t.id,
+		t.device_sn,
+		t.device_type,
+		sa.customer_name AS client_no,
+		t.device_bank,
+		mi.manufacturer_name AS manufacturer_no,
+		t.device_info,
+		t.device_status,
+		t.os_status,
+		t.os_upgrade_type,
+		t.device_os_version,
+		t.os_msg
+		FROM `t_device_info` t
+		<include refid="ManuJoins" />
+		<include refid="ClientJoins" />
+		WHERE t.del_flag = '0'
+		AND t.`device_sn` IN (SELECT ad.device_sn FROM
+		t_app_device ad WHERE
+		ad.`apk_id` = #{id})
+		<if test="appDeviceTypeList != null">
+			AND
+			<foreach collection="appDeviceTypeList" item="appDeviceType"
+				open="(" separator=" OR " close=")">
+				(t.manufacturer_no =
+				#{appDeviceType.manuNo} AND t.device_type =
+				#{appDeviceType.deviceType})
+			</foreach>
+		</if>
+
+		<if test="manufacturerNo != null and manufacturerNo != ''">
+			AND t.manufacturer_no = #{manufacturerNo}
+		</if>
+		<if test="deviceType != null and deviceType != ''">
+			AND t.device_type = #{deviceType}
+		</if>
+		<if test="clientNo != null and clientNo != ''">
+			AND t.client_no in (select customer_id from sass_customer
+			where
+			customer_id_path like CONCAT('%/', #{clientNo}, '%'))
+		</if>
+		<if test="deviceSn != null and deviceSn != ''">
+			AND t.device_sn = #{deviceSn}
+		</if>
+	</select>
+	
+	<select id="findDeviceListByParams" resultType="com.jiewen.modules.device.entity.Device">
+		SELECT
+		t.id,
+		t.device_sn,
+		t.device_type,
+		t.client_no,
+		t.device_bank,
+		t.manufacturer_no,
+		t.device_info,
+		t.device_status,
+		t.os_status,
+		t.os_upgrade_type,
+		t.device_os_version,
+		t.os_msg
+		FROM t_device_info t
+		WHERE t.del_flag = '0'
+		AND t.`device_sn` NOT IN (SELECT ad.device_sn
+		FROM t_app_device ad WHERE
+		ad.`apk_id` = #{id})
+		<if test="deviceSnStr != null and deviceSnStr != ''">
+			AND (FIND_IN_SET(t.device_sn,#{deviceSnStr}))
+		</if>
+		<if test="appDeviceTypeList != null and appDeviceTypeList.size > 0">
+			AND
+			<foreach collection="appDeviceTypeList" item="appDeviceType"
+				open="(" separator=" OR " close=")">
+				(t.manufacturer_no =
+				#{appDeviceType.manuNo} AND t.device_type =
+				#{appDeviceType.deviceType})
+			</foreach>
+		</if>
+		<if test="clientNo != null and clientNo != ''">
+			AND t.client_no in (select customer_id from sass_customer
+			where
+			customer_id_path like CONCAT('%/', #{clientNo}, '%'))
+		</if>
+		<if test="manufacturerNo != null and manufacturerNo != ''">
+			AND t.manufacturer_no = #{manufacturerNo}
+		</if>
+		<if test="deviceType != null and deviceType != ''">
+			AND t.device_type = #{deviceType}
+		</if>
+		<if test="deviceSn != null and deviceSn != ''">
+			AND t.device_sn = #{deviceSn}
+		</if>
+	</select>
+	
+	<select id="findDeviceListByIds" resultType="com.jiewen.modules.device.entity.Device">
+		SELECT
+		t.id,
+		t.device_sn,
+		t.device_type,
+		t.client_no,
+		t.device_bank,
+		t.manufacturer_no,
+		t.device_info,
+		t.device_status,
+		t.os_status,
+		t.os_upgrade_type,
+		t.device_os_version,
+		t.os_msg
+		FROM t_device_info t
+		WHERE t.del_flag = '0'
+		AND t.id IN
+		<foreach collection="list" item="idList" open="(" separator=","
+			close=")">
+			#{idList}
+		</foreach>
+	</select>
+	
+	<select id="getDeviceList" resultType="com.jiewen.modules.device.entity.Device">
+	 	 SELECT
+			*
+		FROM
+		(
+		SELECT
+		t.id,
+		t.device_sn,
+		t.device_type,
+		sa.customer_name AS
+		client_no,
+		t.device_bank,
+		t.device_os_version,
+		o.os_version AS
+		os_version,
+		mi.manufacturer_name AS manufacturer_no,
+		t.device_status,
+		t.os_status,
+		t.os_upgrade_type,
+		t.os_msg,
+		STRCMP(t.os_version_shifter
+		,rmd.os_version_shifter) AS version_compare_value
+		FROM `t_device_info`
+		t
+		<include refid="ManuJoins" />
+		<include refid="ClientJoins" />
+		<include refid="deviceRomJoins" />
+		<include refid="romInfoJoins" />
+		<bind name="deviceSnLike" value="'%' + deviceSn + '%'" />
+		WHERE t.del_flag = '0'
+		<if test="deviceSn != null and deviceSn != ''">
+			AND t.device_sn like #{deviceSnLike}
+		</if>
+		<if test="deviceType != null and deviceType != ''">
+			AND device_type = #{deviceType}
+		</if>
+		<if test="manufacturerNo != null and manufacturerNo != ''">
+			AND t.manufacturer_no = #{manufacturerNo}
+		</if>
+		AND EXISTS (SELECT 1 FROM `t_rom_device` rd WHERE rd.`record_rom_id` =
+		#{id} AND rd.`device_id` = t.id)
+		) a
+		WHERE
+		1 = 1
+		<if test="versionCompareValue != null and versionCompareValue != ''">
+			<choose>
+				<when test="versionCompareValue != '-1' ">
+					AND a.version_compare_value &gt;= 0
+				</when>
+				<when test="versionCompareValue == '-1'">
+					AND ( a.version_compare_value &lt; 0 OR
+					a.version_compare_value is
+					null)
+				</when>
+			</choose>
+		</if>
+	</select>
+	
+	<select id="getAppRecordDeviceList" resultType="com.jiewen.modules.device.entity.Device">
+		SELECT
+		t.id,
+		t.device_sn,
+		t.device_type,
+		o.app_name,
+		o.app_version,
+		o.app_package,
+		rmd.upgrade_type,
+		sdi.label AS upgrade_desc,
+		mi.manufacturer_name
+		AS
+		manufacturer_no,
+		t.device_status,
+		t.app_info
+		FROM `t_device_info` t
+		<include refid="ManuJoins" />
+		LEFT JOIN t_app_device rmd
+		ON rmd.`device_sn` = t.device_sn
+		AND rmd.`app_record_id` = #{id}
+		LEFT JOIN
+		t_app_version o
+		ON o.id = rmd.apk_id
+		LEFT JOIN sys_dict sdi ON
+		sdi.value
+		= rmd.upgrade_desc AND sdi.type = 'app_upflag'
+		<bind name="deviceSnLike" value="'%' + deviceSn + '%'" />
+		WHERE t.del_flag = '0'
+		<if test="deviceSn != null and deviceSn != ''">
+			AND t.device_sn = #{deviceSn}
+		</if>
+		<if test="manufacturerNo != null and manufacturerNo != ''">
+			AND t.manufacturer_no = #{manufacturerNo}
+		</if>
+		<if test="deviceType != null and deviceType != ''">
+			AND t.device_type = #{deviceType}
+		</if>
+		AND EXISTS(SELECT
+		1
+		FROM `t_app_device`
+		WHERE `app_record_id` =
+		#{id}
+		AND
+		`device_sn` = t.device_sn)
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO `t_device_info`
+		(device_sn,
+		device_type,
+		device_bank,
+		manufacturer_no,
+		client_no,
+		device_status,
+		os_status,
+		os_upgrade_type,
+		organ_id,
+		os_msg,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		apply_date,
+		install_date,
+		mer_id,
+		shop_id,
+		install_location,
+		location
+		)
+		VALUES (
+		#{deviceSn},
+		#{deviceType},
+		#{deviceBank},
+		#{manufacturerNo},
+		#{clientNo},
+		#{deviceStatus},
+		#{osStatus},
+		#{osUpgradeType},
+		#{organId},
+		#{osMsg},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{applyDate},
+		#{installDate},
+		#{merId},
+		#{shopId},
+		#{installLocation},
+		#{location}
+		)
+	</insert>
+	
+	<insert id="insertList">
+		INSERT INTO `t_device_info`
+		(
+		device_type,
+		device_version,
+		device_pn,
+		device_sn,
+		manufacturer_no,
+		apply_date,
+		install_date,
+	 	install_location,
+		mer_id,
+		shop_id,
+		organ_id,
+		create_by,
+		create_date,
+		update_by,
+		update_date
+		)
+		VALUES
+		<foreach collection="list" item="device" index="index"
+			separator=",">
+			(
+			#{device.deviceType,jdbcType=VARCHAR},
+			#{device.deviceVersion,jdbcType=VARCHAR},
+			#{device.devicePn,jdbcType=VARCHAR},
+			#{device.deviceSn,jdbcType=VARCHAR},
+			#{device.manufacturerNo,jdbcType=VARCHAR},
+			<if test="device.applyDate !=null">
+			#{device.applyDate,jdbcType=DATE},
+			</if>
+			<if test="device.applyDate == null">
+			null,
+			</if>
+			<if test="device.installDate != null">
+			#{device.installDate,jdbcType=DATE},
+			</if>
+			<if test="device.installDate == null">
+			null,
+			</if>
+	 		#{device.installLocation,jdbcType=VARCHAR},
+			#{device.merId,jdbcType=VARCHAR},
+			#{device.shopId,jdbcType=VARCHAR},
+			#{device.organId,jdbcType=VARCHAR},
+			#{device.createBy.id,jdbcType=VARCHAR},
+			#{device.createDate,jdbcType=DATE},
+			#{device.updateBy.id,jdbcType=VARCHAR},
+			#{device.updateDate,jdbcType=DATE}
+			)
+		</foreach>
+	</insert>
+
+
+	<!-- 通过设备sn好查找设备 -->
+	<select id="findDeviceByDeviceSn" parameterType="com.jiewen.modules.device.entity.Device"
+		resultType="com.jiewen.modules.device.entity.Device">
+		SELECT
+		t.id,
+		t.device_sn,
+		t.device_type,
+		t.client_no,
+		t.device_bank,
+		t.manufacturer_no,
+		t.device_os_version,
+		t.device_info,
+		t.device_status,
+		t.os_status,
+		t.os_upgrade_type,
+		t.os_msg,
+		t.app_info
+		FROM `t_device_info`
+		t
+		WHERE t.del_flag = '0'
+		<if test="deviceSn != null and deviceSn != ''">
+			AND t.device_sn = #{deviceSn}
+		</if>
+	</select>
+	
+	<delete id="delete">
+		delete from t_device_info where id = #{id}
+	</delete>
+
+	<select id="findDeviceById" parameterType="com.jiewen.modules.device.entity.Device"
+		resultType="com.jiewen.modules.device.entity.Device">
+		select
+		t.id,
+		t.device_sn,
+		t.device_type,
+		t.client_no,
+		t.device_bank,
+		t.apply_date,
+		t.install_date,
+		t.location,
+		t.mer_id,
+		t.shop_id,
+		t.manufacturer_no,
+		t.device_info,
+		t.device_os_version,
+		t.os_msg,
+		t.organ_id,
+		t.hardware_version AS hardwareVersion,
+		t.app_info
+		from t_device_info t where del_flag = '0' and id =
+		#{id}
+	</select>
+
+	<select id="getDeviceCount" parameterType="com.jiewen.modules.device.entity.Device"
+		resultType="Integer">
+		SELECT
+		COUNT(*)
+		FROM `t_device_info` t
+		where t.del_flag = '0'
+		<if test="organId != null and organId != ''">
+          	  AND t.organ_id IN (SELECT id FROM sys_office WHERE parent_ids LIKE
+					<if test="dbName == 'oracle'">'%,'||#{organId}||',%'</if>
+					<if test="dbName == 'mssql'">'%,'+#{organId}+',%'</if>
+					<if test="dbName == 'mysql'">CONCAT('%,', #{organId}, ',%')</if>
+					AND del_flag = '0'
+					    UNION select id from sys_office where id = #{organId}
+				    AND del_flag = '0')
+          </if>
+		<if test="beginDateStr != null and beginDateStr != ''">
+			AND t.update_date &gt;= #{beginDateStr}
+		</if>
+		<if test="endDateStr != null and endDateStr != ''">
+			AND t.update_date &lt;= #{endDateStr}
+		</if>
+	</select>
+
+	<select id="getCustomerDeviceCount" parameterType="com.jiewen.modules.device.entity.Device"
+		resultType="Integer">
+		SELECT
+		COUNT(*)
+		FROM `t_device_info` t
+		where t.del_flag = '0'
+		<if test="beginDateStr != null and beginDateStr != ''">
+			AND t.update_date &gt;= #{beginDateStr}
+		</if>
+		<if test="endDateStr != null and endDateStr != ''">
+			AND t.update_date &lt;= #{endDateStr}
+		</if>
+		<if test="clientNo != null and clientNo != ''">
+			AND t.client_no in (select customer_id from sass_customer
+			where
+			customer_id_path like CONCAT('%/', #{clientNo}, '%'))
+		</if>
+	</select>
+
+	<select id="findDeviceInfoById" parameterType="com.jiewen.modules.device.entity.Device"
+		resultType="com.jiewen.modules.device.entity.Device">
+		SELECT
+		t.id,
+		mi.manufacturer_name AS manufacturer_no,
+		t.device_sn,
+		t.device_type,
+		sa.customer_name AS client_no,
+		t.device_os_version,
+		t.hardware_version AS hardwareVersion,
+		t.device_bank,
+		t.device_info,
+		t.device_status,
+		t.os_status,
+		t.os_upgrade_type,
+		t.os_msg
+		FROM `t_device_info` t
+		<include refid="ManuJoins" />
+		where t.del_flag = '0' and t.id = #{id}
+	</select>
+	
+	<update id="update">
+		UPDATE `t_device_info` SET 
+		<if test="deviceSn != null and deviceSn != ''">
+			device_sn = #{deviceSn}, 
+		</if>
+		<if test="devicePn != null and devicePn != ''">
+			device_pn = #{devicePn}, 
+		</if>
+		<if test="deviceType != null and deviceType != ''">
+			device_type = #{deviceType}, 
+		</if>
+		<if test="deviceVersion != null and deviceVersion != ''">
+			device_version = #{deviceVersion}, 
+		</if>
+		<if test="deviceOsVersion != null and deviceOsVersion != ''">
+			device_os_version = #{deviceOsVersion}, 
+		</if>
+		<if test="tusn != null and tusn != ''">
+			tusn = #{tusn}, 
+		</if>
+		<if test="productTypeCode != null and productTypeCode != ''">
+			product_type_code = #{productTypeCode}, 
+		</if>
+		<if test="deviceInfo != null and deviceInfo != ''">
+			device_info = #{deviceInfo}, 
+		</if>
+		<if test="deviceBank != null and deviceBank != ''">
+			device_bank = #{deviceBank}, 
+		</if>
+		<if test="manufacturerNo != null and manufacturerNo != ''">
+			manufacturer_no = #{manufacturerNo}, 
+		</if>
+		<if test="clientNo != null and clientNo != ''">
+			client_no = #{clientNo}, 
+		</if>
+		<if test="deviceStatus != null and deviceStatus != ''">
+			device_status = #{deviceStatus}, 
+		</if>
+		<if test="osStatus != null and osStatus != ''">
+			os_status = #{osStatus}, 
+		</if>
+		<if test="osUpgradeType != null and osUpgradeType != ''">
+			os_upgrade_type = #{osUpgradeType}, 
+		</if>
+		<if test="osMsg != null and osMsg != ''">
+			os_msg = #{osMsg}, 
+		</if>
+		<if test="osVersionShifter != null and osVersionShifter != ''">
+			os_version_shifter = #{osVersionShifter}, 
+		</if>
+		<if test="hardwareVersion != null and hardwareVersion != ''">
+			hardware_version = #{hardwareVersion}, 
+		</if>
+		<if test="versionCompareValue != null and versionCompareValue != ''">
+			version_compare_value = #{versionCompareValue}, 
+		</if>
+		<if test="startHard != null and startHard != ''">
+			start_hard = #{startHard}, 
+		</if>
+		<if test="endHard != null and endHard != ''">
+			end_hard = #{endHard}, 
+		</if>
+		<if test="applyDate != null">
+			apply_date = #{applyDate}, 
+		</if>
+		<if test="installDate != null ">
+			install_date = #{installDate}, 
+		</if>
+		<if test="labels != null and labels != ''">
+			labels = #{labels}, 
+		</if>
+		<if test="macNo != null and macNo != ''">
+			mac_no = #{macNo}, 
+		</if>
+		<if test="merId != null and merId != ''">
+			mer_id = #{merId}, 
+		</if>
+		<if test="shopId != null and shopId != ''">
+			shop_id = #{shopId}, 
+		</if>
+		<if test="organId != null and organId != ''">
+			organ_id = #{organId}, 
+		</if>
+		<if test="deviceBundState != null and deviceBundState != ''">
+			device_bund_state = #{deviceBundState},
+		</if>
+			update_by = #{updateBy.id},
+			update_date = #{updateDate}
+		 WHERE id = #{id}
+	</update>
+	
+	<update id="updateBundStateById">
+		update t_device_info set device_bund_state = '1'
+		<if test="merId != null and merId != ''">
+			,mer_id = #{merId,jdbcType=VARCHAR}
+		</if>
+		<if test="shopId != null and shopId != ''">
+			,shop_id = #{shopId,jdbcType=VARCHAR}
+		</if>
+		where id = #{id,jdbcType=VARCHAR}
+	</update>
+	
+	<update id="updateBoundState" parameterType="com.jiewen.modules.device.entity.Device">
+		update t_device_info set  mer_id = null,shop_id = null, device_bund_state='0'
+		where id=#{id,jdbcType=VARCHAR}
+	</update>
+	
+	
+	<update id="updateBatchBoundState" parameterType="java.util.List"> 
+		  <foreach separator=";" index="index" item="item" collection="list" close="" open=""> 
+		  update t_device_info set mer_id = null,shop_id = null ,device_bund_state = '0'
+		   where  device_bund_state = '1'  and id = #{item,jdbcType=VARCHAR} 
+		  </foreach> 
+	  </update>
+	  
+	<update id="batchBundDevice" parameterType="java.util.List"> 
+		  <foreach separator=";" index="index" item="item" collection="list" close="" open=""> 
+		  update t_device_info set mer_id = #{item.merId,jdbcType=VARCHAR},shop_id = #{item.shopId,jdbcType=VARCHAR} ,device_bund_state = '1'
+		   where device_bund_state = '0' and id = #{item.id,jdbcType=VARCHAR}
+		  </foreach> 
+	  </update>
+	
+	<sql id="full_columns">
+		  id,
+		  device_sn,
+		  device_pn ,
+		  device_type,
+		  device_os_version,
+		  os_version_shifter,
+		  device_version,
+		  tusn,
+		  product_type_code ,
+		  device_info,
+		  device_bank,
+		  client_no,
+		  manufacturer_no,
+		  organ_id,
+		  hardware_version,
+		  hardware_shifter,
+		  device_status,
+		  os_status,
+		  os_upgrade_type,
+		  os_msg,
+		  app_info,
+		  create_by,
+		  create_date,
+		  update_by,
+		  update_date,
+		  remarks,
+		  del_flag,
+		  mer_id,
+		  shop_id,
+		  device_bund_state,
+		  apply_date,
+		  install_location,
+		  install_date,
+		  device_sort,
+		  mac_no,
+		  scope_mode,
+		  labels,
+		  location
+	</sql>
+	<resultMap type="com.jiewen.modules.device.entity.Device" id="deviceBoundList">
+		   <result column="id" jdbcType="VARCHAR" property="id" />
+		   <result column="device_sn" jdbcType="VARCHAR" property="deviceSn" />
+		   <result column="device_sort" jdbcType="VARCHAR" property="deviceSort" />
+		   <result column="device_type" jdbcType="VARCHAR" property="deviceType" />
+		   <result column="location" jdbcType="VARCHAR" property="location" />
+		   <result column="mer_id" jdbcType="VARCHAR" property="merId"/>
+		   <result column="mer_name" jdbcType="VARCHAR" property="merName"/>
+		   <result column="organ_id" jdbcType="VARCHAR" property="organId"/>
+		   <result column="organ_name" jdbcType="VARCHAR" property="organName"/>
+		   <result column="shop_id" jdbcType="VARCHAR" property="shopId"/>
+		   <result column="shop_name" jdbcType="VARCHAR" property="shopName"/>
+		   <result column="device_bund_state" jdbcType="VARCHAR" property="deviceBundState"/>
+	</resultMap>
+	<select id="getOrgDevices" resultMap="deviceBoundList">
+		select 
+			t.id,
+			t.device_sn,
+			t.device_sort,
+			t.device_type,
+			t.location,
+			t.organ_id,
+			so.name organ_name,
+			t.mer_id,
+			m.mer_name,
+			t.shop_id,
+			s.store_name shop_name,
+			t.device_bund_state 
+		from t_device_info t
+		<choose>
+			<when test="mId != null and mId != ''">
+			join t_merchant m
+			on t.mer_id = m.mer_id
+			and m.id = #{mId,jdbcType=VARCHAR}
+			</when>
+			<otherwise>
+			left join t_merchant m
+			on t.mer_id = m.mer_id
+			</otherwise>
+		</choose>
+		<choose>
+			<when test="sId != null and sId != ''">
+			join t_store s
+			on t.shop_id = s.store_id
+			and s.id = #{sId,jdbcType=VARCHAR}
+			</when>
+			<otherwise>
+			left join t_store s
+			on t.shop_id = s.store_id
+			</otherwise>
+		</choose>
+		left join sys_office so
+			on t.organ_id = so.id
+		<!-- left join t_store s
+			on t.shop_id = s.store_id -->
+		where 1=1
+		<if test="organId != null and organId != ''">
+				and t.organ_id = #{organId,jdbcType=VARCHAR}
+		</if>
+		<if test="merId != null and merId != ''">
+				and t.mer_id = #{merId,jdbcType=VARCHAR}
+		</if>
+		<if test="shopId != null and shopId != ''">
+				and t.shop_id = #{shopId,jdbcType=VARCHAR}
+		</if>
+		<if test="deviceSn != null and deviceSn != ''">
+				and t.device_sn = #{deviceSn,jdbcType=CHAR}
+		</if>	
+		<if test="deviceBundState != null and deviceBundState != ''">
+				and t.device_bund_state = #{deviceBundState,jdbcType=CHAR}
+		</if>
+	</select>
+</mapper>

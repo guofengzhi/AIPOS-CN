@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiewen.spp.dao.TmsFileMapper">
+	
+	<sql id="tmsStrategyColumns">
+		a.id,
+		a.strategy_name as strategyName,
+		a.begin_date as beginDate,
+		a.end_date as endDate,
+		a.update_time as updateTime,
+		a.device_type as deviceType,
+		a.device_sn_str as deviceSnStr,
+		a.manufacturer_no as manufacturerNo,
+		a.mer_no as merNo,
+		a.term_no as termNo,
+		a.create_by as createBy,
+		a.create_date as createDate,
+		a.update_by as updateBy,
+		a.update_date as updateDate,
+		a.del_flag as delFlag,
+		a.organ_id as organId,
+		a.device_count as deviceCount,
+		a.remarks
+	</sql>
+
+	<select id="getStrategyByFileId" resultType="com.jiewen.spp.model.TmsStrategy">
+		SELECT <include refid="tmsStrategyColumns" />
+		FROM t_tms_file_strategy fs, t_tms_strategy a 
+		WHERE fs.strategy_id = a.id
+		AND fs.file_id=#{id}
+		AND a.del_flag=0
+	</select>
+	
+</mapper>
