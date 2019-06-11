@@ -3,15 +3,15 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.example.org/query query.xsd ">
 	<!-- 用户列表 -->
-	<query id="userTable" key="id" tableName="sys.user.table.name" pageSize="10"
+	<query id="userTable" key="id" tableName="用戶列表" pageSize="10"
 		widthType="px" order="updateDate desc" allowPaging="true">
-		<column key="rowIndex" header="common.serial.number" width="50"/>
+		<column key="rowIndex" header="序号" width="50"/>
 		<column key="id" header="id" hidden="true" />
-		<column key="name" header="sys.user.name" width="100" />
-		<column key="officeName" header="sys.user.office.name" width="80"  />
-		<column key="loginName" header="sys.user.login.name" width="80"/>
-		<column key="phone" header="sys.user.tel"  width="100" />
-		<column key="mobile" header="sys.user.mobile" width="200" align="center" />
+		<column key="name" header="姓名" width="100" />
+		<column key="officeName" header="所属机构名称" width="80"  />
+		<column key="loginName" header="登录名" width="80"/>
+		<column key="phone" header="电话"  width="100" />
+		<column key="mobile" header="手机" width="200" align="center" />
 	</query>
 
 	<!-- 角色列表 -->
