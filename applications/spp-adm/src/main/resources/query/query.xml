@@ -6,7 +6,7 @@
 	<query id="userTable" key="id" tableName="用戶列表" pageSize="10"
 		widthType="px" order="updateDate desc" allowPaging="true">
 		<column key="rowIndex" header="序号" width="50"/>
-		<column key="id" header="id" hidden="true" />
+		<column key="id" hidden="true" />
 		<column key="name" header="姓名" width="100" />
 		<column key="officeName" header="所属机构名称" width="80"  />
 		<column key="loginName" header="登录名" width="80"/>
@@ -15,60 +15,60 @@
 	</query>
 
 	<!-- 角色列表 -->
-	<query id="role_list" key="id" tableName="sys.role.table.name" pageSize="10"
+	<query id="role_list" key="id" tableName="角色列表" pageSize="10"
 		widthType="px" order="updateDate desc" allowPaging="true">
-		<column key="rowIndex" header="common.serial.number" width="50" />
+		<column key="rowIndex" header="序号" width="50" />
 		<column key="id" header="id" hidden="true" />
-		<column key="name" header="sys.role.table.roleName" width="100" />
-		<column key="enname" header="sys.role.enname" width="100" />
-		<column key="dataScope" header="sys.role.dataScope"  width="100" dict="sys_data_scope" render="type=dict"/>
+		<column key="name" header="角色名称" width="100" />
+		<column key="enname" header="英文名称" width="100" />
+		<column key="dataScope" header="数据范围\:"  width="100" dict="sys_data_scope" render="type=dict"/>
 	</query>
 
 	<!-- 日志列表 -->
-	<query id="log_list" key="id" tableName="sys.log.table.name" pageSize="10"
+	<query id="log_list" key="id" tableName="日志列表" pageSize="10"
 		widthType="px" order="updateDate desc" allowPaging="true">
-		<column key="rowIndex" header="common.serial.number" width="50" allowSort="false" />
+		<column key="rowIndex" header="序号" width="50" allowSort="false" />
 		<column key="id" header="id" hidden="true" />
-		<column key="title" header="sys.log.table.option.menu" width="100" allowSort="false" />
-		<column key="createByName" header="sys.log.table.option.user" width="100" allowSort="false" />
-		<column key="officeName" header="sys.log.table.option.user.office" width="80" allowSort="false" />
+		<column key="title" header="操作菜单" width="100" allowSort="false" />
+		<column key="createByName" header="操作用户" width="100" allowSort="false" />
+		<column key="officeName" header="所属机构名称" width="80" allowSort="false" />
 		<column key="requestUri" header="URI" width="100" />
-		<column key="method" header="sys.log.table.submit.type" width="100" />
-		<column key="remoteAddr" header="sys.log.table.option.ip" width="100" />
-		<column key="createDate" header="sys.log.table.option.time" width="100" />
-		<column key="exception" header="sys.log.table.error.msg" width="100" render="type=alert"/>
+		<column key="method" header="提交方式" width="100" />
+		<column key="remoteAddr" header="操作者IP" width="100" />
+		<column key="createDate" header="操作时间" width="100" />
+		<column key="exception" header="异常信息" width="100" render="type=alert"/>
 	</query>
 
 	<!-- 字典列表 -->
-	<query id="dict_list" key="id" tableName="sys.dict.table.name" pageSize="10"
+	<query id="dict_list" key="id" tableName="字典列表" pageSize="10"
 		widthType="px" order="updateDate desc" allowPaging="true">
 		<column key="id" header="id" hidden="true" />
-		<column key="type" header="sys.dict.type" width="100" allowSort="false" />
-		<column key="value" header="sys.dict.value" width="100" allowSort="false" />
-		<column key="label" header="sys.dict.label" width="100" allowSort="false" />
-		<column key="description" header="sys.dict.description" width="100" />
-		<column key="sort" header="sys.dict.sort" width="100" />
+		<column key="type" header="类型" width="100" allowSort="false" />
+		<column key="value" header="键值" width="100" allowSort="false" />
+		<column key="label" header="标签" width="100" allowSort="false" />
+		<column key="description" header="描述" width="100" />
+		<column key="sort" header="排序" width="100" />
 	</query>
 	
 	<!--区域列表 -->
-	<query id="area_list" key="id" tableName="sys.area.table.name" pageSize="10"
+	<query id="area_list" key="id" tableName="区域列表" pageSize="10"
 		widthType="px" order="updateDate desc" allowPaging="true">
 		<column key="id" header="id" hidden="true" />
-		<column key="name" header="sys.area.name" width="100" allowSort="false" fnRender="areaShow"/>
-		<column key="code" header="sys.area.code" width="100" allowSort="false" />
-		<column key="type" header="sys.area.type" width="100" allowSort="false" fnRender="dictType"/>
-		<column key="remarks" header="sys.area.remarks" width="100" allowSort="false"/>
-		<column key="id" header="ota.table.operation" width="100" fnRender="areaOperation"/>
+		<column key="name" header="区域名称" width="100" allowSort="false" fnRender="areaShow"/>
+		<column key="code" header="区域编码" width="100" allowSort="false" />
+		<column key="type" header="区域类型" width="100" allowSort="false" fnRender="dictType"/>
+		<column key="remarks" header="描述" width="100" allowSort="false"/>
+		<column key="id" header="操作" width="100" fnRender="areaOperation"/>
 	</query>
 	<!-- 商户列表 -->
-	<query id="merchantTable" key="id" tableName="sys.merchant.table.name" pageSize="10"
+	<query id="merchantTable" key="id" tableName="商户列表" pageSize="10"
 		widthType="px" order="updateDate desc" allowPaging="true">
-		<column key="rowIndex" header="common.serial.number" width="50" allowSort="true"/>
+		<column key="rowIndex" header="序号" width="50" allowSort="true"/>
 		<column key="id" header="id" hidden="true" />
-		<column key="merName" header="sys.merchant.name" width="80"  />
-		<column key="merId" header="sys.merchant.id" width="100"  allowSort="true"/>
-		<column key="orgName" header="sys.merchant.org" width="80"/>
-		<column key="orgId" header="sys.merchant.org" hidden="true"  width="80"  allowSort="true"/>
+		<column key="merName" header="商户名称" width="80"  />
+		<column key="merId" header="商户号" width="100"  allowSort="true"/>
+		<column key="orgName" header="所属机构号" width="80"/>
+		<column key="orgId" header="所属机构号" hidden="true"  width="80"  allowSort="true"/>
 		<column key="linkMan" header="sys.merchant.linkMan"  width="100" />
 		<column key="linkPhone" header="sys.merchant.mobile" width="200" align="center" />
 		<column key="address" header="sys.merchant.address" width="200" align="center" />
@@ -80,7 +80,7 @@
 	<!-- 门店列表 -->
 	<query id="storeTable" key="id" tableName="sys.store.table.name" pageSize="10"
 		widthType="px" order="updateDate desc" allowPaging="true">
-		<column key="rowIndex" header="common.serial.number" width="50"  allowSort="true"/>
+		<column key="rowIndex" header="序号" width="50"  allowSort="true"/>
 		<column key="id" header="id" hidden="true" />
 		<column key="storeName" header="sys.store.name" width="80"  />
 		<column key="storeId" header="sys.store.id" width="100"  allowSort="true"/>
@@ -99,7 +99,7 @@
 	<query id="unBoundTermTable" key="id" tableName="sys.merchant.device.table.name" pageSize="10"
 		widthType="px" order="updateDate desc" allowPaging="true">
 		<column key="id" header="checked" width="50" fnRender="check"/>
-		<column key="rowIndex" header="common.serial.number" width="50"/>
+		<column key="rowIndex" header="序号" width="50"/>
 	    <column key="id" header="id" hidden="true" />
 		<column key="deviceSn" header="sys.merchant.device.sn" width="100" />
 		<column key="merName" header="sys.merchant.name" width="80"  />
@@ -111,7 +111,7 @@
 	<!-- 已绑定门店终端列表 -->
 	<query id="boundStoreTermTable" key="id" tableName="sys.merchant.device.table.name" pageSize="10"
 		widthType="px" order="updateDate desc" allowPaging="true">
-		<column key="rowIndex" header="common.serial.number" width="50"/>
+		<column key="rowIndex" header="序号" width="50"/>
 	    <column key="id" header="id" hidden="true"/>
 	    <column key="storeName" header="sys.store.name" width="80"/>
 		<column key="storeId" header="sys.store.id" width="100" />
@@ -125,7 +125,7 @@
 	 <!-- 标签列表 -->
 	<query id="tagManagerTable" key="id" tableName="sys.labelManagement.labellist" pageSize="10"
 		widthType="px" order="updateDate desc" allowPaging="true">
-		<column key="rowIndex" header="common.serial.number" width="50"/>
+		<column key="rowIndex" header="序号" width="50"/>
 		<column key="id" header="id" hidden="true" />
 		<column key="tagName" header="sys.labelManagement.labelName" width="100"/>
 		<column key="orgName" header="sys.labelManagement.orgName" width="200"/>
@@ -137,7 +137,7 @@
 	<query id="bundTagManagerDeviceTable" key="id" tableName="sys.merchant.device.table.name" pageSize="10"
 		widthType="px" order="updateDate desc" allowPaging="true">
 		<column key="id" header="checked" width="20" fnRender="check" align="center"/>
-		<column key="rowIndex" header="common.serial.number" width="50"/>
+		<column key="rowIndex" header="序号" width="50"/>
 	    <column key="id" header="id" hidden="true" />
 		<column key="deviceSn" header="sys.merchant.device.sn" width="100" />
 		<column key="organName" header="sys.organ.name" width="80"  />
