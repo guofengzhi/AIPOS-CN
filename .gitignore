@@ -1,7 +1,5 @@
-
-*/target/
-.idea/
-*/.idea/
+target
+.idea
 /.settings
 /bin
 /logs
